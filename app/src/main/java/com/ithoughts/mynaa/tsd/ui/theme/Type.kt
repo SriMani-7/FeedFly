@@ -2,10 +2,23 @@ package com.ithoughts.mynaa.tsd.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.ithoughts.mynaa.tsd.R
 
+
+val MarkScriptFont = FontFamily(
+    Font(R.font.marck_script, FontWeight.Normal)
+)
+
+val dairyWriterStyle = TextStyle(
+    fontFamily = MarkScriptFont,
+    fontSize = 20.sp,
+    lineHeight = 34.sp,
+    letterSpacing = 0.sp
+)
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
