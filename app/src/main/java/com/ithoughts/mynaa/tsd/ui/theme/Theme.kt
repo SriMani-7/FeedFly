@@ -59,7 +59,7 @@ fun TheSecretDairyTheme(
         DisposableEffect(systemUiController) {
             systemUiController.setSystemBarsColor(
                 color = Color.Transparent,
-                darkIcons = true
+                darkIcons = !darkTheme
             )
             onDispose {}
         }

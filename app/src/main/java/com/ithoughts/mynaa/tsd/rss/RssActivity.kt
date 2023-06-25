@@ -3,15 +3,18 @@ package com.ithoughts.mynaa.tsd.rss
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.MaterialTheme
+import androidx.core.view.WindowCompat
+import com.ithoughts.mynaa.tsd.rss.ui.HomeScreen
+import com.ithoughts.mynaa.tsd.ui.theme.TheSecretDairyTheme
 
 class RssActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
-                RssScreen()
+            TheSecretDairyTheme(false) {
+                HomeScreen()
             }
         }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 }

@@ -1,32 +1,52 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-
 package com.ithoughts.mynaa.tsd.rss
 
+import android.app.Application
 import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.ithoughts.mynaa.tsd.rss.db.AppDatabase
+import com.ithoughts.mynaa.tsd.rss.db.Feed
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class RssViewModal : ViewModel() {
+class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(application) {
     private val rssParser by lazy { RssParser() }
     private val okHttpWebService by lazy { OkHttpWebService() }
-    private val _parsingState = MutableStateFlow<ParsingState>(ParsingState.Success(null))
-    val parsingState: StateFlow<ParsingState> = _parsingState
+    private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
 
-    fun parseXml(url: String) {
+    val feedArticles = feedDao.getFeedArticles(feedId)
+
+    private val _parsingState = MutableStateFlow<ParsingState>(ParsingState.Success)
+    val parsingState: StateFlow<ParsingState> = _parsingState
+    var lastBuildDate: String? = null
+
+    init {
+        viewModelScope.launch {
+            feedArticles.collect {
+                if (it.feed.lastBuildDate == null || lastBuildDate != it.feed.lastBuildDate) {
+                    parseXml(it.feed)
+                }
+            }
+        }
+    }
+
+    private fun parseXml(feed: Feed) {
         viewModelScope.launch {
             try {
                 _parsingState.value = ParsingState.Loading
-                val xmlData = okHttpWebService.getXMlString(url)
-                val rss = xmlData?.let { rssParser.parseRss(xmlData) }
-                if (rss != null) {
-                    info(rss)
-                    _parsingState.value = ParsingState.Success(rss)
-                } else _parsingState.value = ParsingState.Error("Unknown response")
+                val xmlData = okHttpWebService.getXMlString(feed.feedUrl)
+                val feedArticle = xmlData?.let { rssParser.parseRss(feed, xmlData) }
+                if (feedArticle != null) {
+                    info(feedArticle)
+                    feedDao.insertFeedWithArticles(feedArticle.feed, feedArticle.articles)
+                    _parsingState.value = ParsingState.Success
+                    lastBuildDate = feedArticle.feed.lastBuildDate
+                }
+                else {
+                    _parsingState.value = ParsingState.Error("Articles are in on date")
+                    lastBuildDate = feed.lastBuildDate
+                }
             } catch (e: Exception) {
                 _parsingState.value = ParsingState.Error(e.message ?: "Unknown error")
                 e.printStackTrace()
@@ -40,4 +60,3 @@ class RssViewModal : ViewModel() {
         }
     }
 }
-

@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.io.InputStream
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -35,11 +36,16 @@ class OkHttpWebService {
 
     private val client = OkHttpClient()
 
-    suspend fun getXMlString(url: String) = withContext(Dispatchers.IO) {
+    suspend fun getXMlString(url: String): InputStream? = withContext(Dispatchers.IO) {
         val request = Request.Builder()
             .url(url)
             .build()
-        val response = client.newCall(request).execute()
-        response.body?.byteStream()
+        try {
+            val response = client.newCall(request).execute()
+            return@withContext response.body?.byteStream()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
 }

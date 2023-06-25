@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.devtools.ksp'
 }
 
 android {
@@ -18,6 +19,15 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += [
+                        "room.schemaLocation":"$projectDir/schemas".toString(),
+                        "room.incremental":"true"
+                ]
+            }
+        }
     }
 
     buildTypes {
@@ -27,11 +37,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_18
+        targetCompatibility JavaVersion.VERSION_18
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '18'
     }
     buildFeatures {
         compose true
@@ -53,6 +63,7 @@ dependencies {
     implementation "androidx.activity:activity-compose:$project.activity_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$project.lifecycle_version"
     implementation "androidx.navigation:navigation-compose:$project.navigation_version"
+    implementation 'androidx.browser:browser:1.5.0'
 
     testImplementation "junit:junit:$project.junit_version"
     androidTestImplementation "androidx.test.ext:junit:$project.androidx_junit_version"
@@ -73,6 +84,10 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-test-manifest"
 
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.22"
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
+    implementation "androidx.room:room-ktx:$project.room_version"
+    implementation "androidx.room:room-runtime:$project.room_version"
+    annotationProcessor "androidx.room:room-compiler:$project.room_version"
+    ksp "androidx.room:room-compiler:$room_version"
 }
