@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,11 +49,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ithoughts.mynaa.tsd.R
+import com.ithoughts.mynaa.tsd.rss.DateParser
 import com.ithoughts.mynaa.tsd.rss.ParsingState
 import com.ithoughts.mynaa.tsd.rss.RssViewModal
 import com.ithoughts.mynaa.tsd.rss.db.ArticleItem
@@ -112,7 +115,7 @@ fun RssItemsColumn(feedArticle: FeedArticle) {
         ) {
             feedArticle.feed.also { feed ->
                 Text(text = feed.title, style = MaterialTheme.typography.labelMedium)
-                feed.lastBuildDate?.let { Text(text = it) }
+                feed.lastBuildDate?.let { Text(text = DateParser.format(it)) }
             }
         }
         LazyColumn(
@@ -161,16 +164,16 @@ fun RssItemCard(item: ArticleItem) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp, 12.dp)
+                .padding(12.dp, 12.dp)
         ) {
-            Text(text = item.category, style = MaterialTheme.typography.labelMedium)
-            Text(text = item.title, style = MaterialTheme.typography.titleMedium)
+            Text(text = item.title, style = MaterialTheme.typography.headlineSmall, fontSize = 19.sp, lineHeight = 30.sp)
             Spacer(modifier = Modifier.height(12.dp))
             item.description?.let { description ->
                 AndroidView(factory = {
                     TextView(it).apply {
                         linksClickable = true
                         setLinkTextColor(linkColor)
+                        textSize = 16f
                     }
                 }) { textView ->
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -185,6 +188,19 @@ fun RssItemCard(item: ArticleItem) {
                         )
                     } else Html.fromHtml(description)
                 }
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp)
+            ) {
+                item.pubDate?.let {
+                    Text(
+                        text = DateParser.format(it),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Text(text = item.category, style = MaterialTheme.typography.bodySmall)
             }
         }
     }

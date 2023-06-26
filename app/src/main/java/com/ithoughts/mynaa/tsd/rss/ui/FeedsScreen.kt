@@ -44,6 +44,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.ithoughts.mynaa.tsd.rss.DateParser
 import com.ithoughts.mynaa.tsd.rss.FeedsViewModal
 import com.ithoughts.mynaa.tsd.rss.db.Feed
 
@@ -106,7 +107,7 @@ fun FeedCard(feed: Feed, onClick: () -> Unit) {
         ) {
             feed.lastBuildDate?.let {
                 Text(
-                    text = it,
+                    text = DateParser.format(it),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Light,
                     modifier = Modifier.padding(0.dp, 4.dp)

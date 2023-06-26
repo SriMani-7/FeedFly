@@ -6,27 +6,18 @@ plugins {
 
 android {
     namespace 'com.ithoughts.mynaa.tsd'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.ithoughts.mynaa.tsd"
         minSdk 22
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
-        }
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += [
-                        "room.schemaLocation":"$projectDir/schemas".toString(),
-                        "room.incremental":"true"
-                ]
-            }
         }
     }
 
@@ -53,6 +44,10 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
+    }
+
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas".toString())
     }
 }
 
@@ -89,5 +84,5 @@ dependencies {
     implementation "androidx.room:room-ktx:$project.room_version"
     implementation "androidx.room:room-runtime:$project.room_version"
     annotationProcessor "androidx.room:room-compiler:$project.room_version"
-    ksp "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$project.room_version"
 }

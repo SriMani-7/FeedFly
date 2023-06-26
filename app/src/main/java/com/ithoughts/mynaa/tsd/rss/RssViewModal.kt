@@ -9,6 +9,7 @@ import com.ithoughts.mynaa.tsd.rss.db.Feed
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(application) {
     private val rssParser by lazy { RssParser() }
@@ -19,7 +20,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
 
     private val _parsingState = MutableStateFlow<ParsingState>(ParsingState.Success)
     val parsingState: StateFlow<ParsingState> = _parsingState
-    var lastBuildDate: String? = null
+    var lastBuildDate: Date? = null
 
     init {
         viewModelScope.launch {

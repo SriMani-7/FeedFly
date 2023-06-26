@@ -9,6 +9,9 @@ import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
+
+// queries lies on D:\Ithoughts\Mynaa\the_secret_dairy\queries.sql
+
 @Dao
 interface FeedDao {
     @Insert
@@ -33,6 +36,4 @@ interface FeedDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFeedWithArticles(feed: Feed, articles: List<ArticleItem>)
 
-    @Query("select last_build_date from feeds where id = :feedId")
-    suspend fun lastBuildDateFor(feedId: Long): String?
 }

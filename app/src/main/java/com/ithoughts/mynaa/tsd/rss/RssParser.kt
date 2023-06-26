@@ -12,6 +12,7 @@ import org.xml.sax.InputSource
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.InputStream
+import java.util.Date
 import javax.xml.parsers.DocumentBuilderFactory
 
 class RssParser {
@@ -22,11 +23,12 @@ class RssParser {
         val documentBuilder = factory.newDocumentBuilder()
         val document = documentBuilder.parse(InputSource(xml))
         val rssElement = document.documentElement
-        val lastBuildDate = getNodeValue(rssElement, "lastBuildDate")
-        if (feed.lastBuildDate == lastBuildDate) return@withContext null
-
+        var lastBuildDate = DateParser.parseDate(getNodeValue(rssElement, "lastBuildDate"))
+        if (lastBuildDate != null && feed.lastBuildDate == lastBuildDate) return@withContext null
+        lastBuildDate = lastBuildDate ?: Date()
         val articles = mutableListOf<ArticleItem>()
         val itemElements = rssElement.getElementsByTagName("item")
+        val fetchDate = Date()
         for (i in 0 until itemElements.length) {
             val itemElement = itemElements.item(i) as Element
             val mutableArticle = MutableArticle(feed.id)
@@ -35,6 +37,8 @@ class RssParser {
                 link = getNodeValue(itemElement, "link")
                 category = getNodeValue(itemElement, "category")
                 description = getNodeValue(itemElement, "description")
+                lastFetched = fetchDate
+                pubDate = DateParser.parseDate(getNodeValue(itemElement, "pubDate"))
             }
             articles.add(mutableArticle.immutable())
         }
