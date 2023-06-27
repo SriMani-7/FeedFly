@@ -3,6 +3,7 @@ package com.ithoughts.mynaa.tsd.rss
 import java.text.DateFormat
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -98,7 +99,9 @@ object DateParser {
                 parsePosition = ParsePosition(0)
                 date = format.parse(sDate1, parsePosition)
                 if (parsePosition.index != sDate1.length) date = null
-            } catch (ex1: java.lang.Exception) { ex1.printStackTrace() }
+            } catch (ex1: java.lang.Exception) {
+                ex1.printStackTrace()
+            }
             i++
         }
         return date
@@ -266,5 +269,33 @@ object DateParser {
         return dateFormater.format(date)
     }
 
-    fun format(date: Date): String = DateFormat.getDateInstance().format(date)
+    fun formatDate(date: Date?): String? {
+        if (date == null) return null
+        val currentDate = Date()
+        val calendar = Calendar.getInstance()
+        calendar.time = currentDate
+        val currentDay = calendar.get(Calendar.DAY_OF_YEAR)
+
+        calendar.time = date
+        val inputDay = calendar.get(Calendar.DAY_OF_YEAR)
+
+        val timeDifference = currentDate.time - date.time
+        val hoursDifference = timeDifference / (1000 * 60 * 60)
+        val minutesDifference = timeDifference / (1000 * 60)
+
+        return when {
+            hoursDifference <= 0 -> {
+                when {
+                    minutesDifference < 1 -> "Just now"
+                    minutesDifference < 10 -> "$minutesDifference minutes ago"
+                    else -> "$minutesDifference minutes ago"
+                }
+            }
+
+            hoursDifference < 12 -> "$hoursDifference hours ago"
+            currentDay - inputDay == 1 -> "Yesterday"
+            currentDay == inputDay -> "Today"
+            else -> DateFormat.getDateInstance().format(date)
+        }
+    }
 }

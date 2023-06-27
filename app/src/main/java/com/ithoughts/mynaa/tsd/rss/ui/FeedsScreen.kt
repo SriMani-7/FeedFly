@@ -105,9 +105,9 @@ fun FeedCard(feed: Feed, onClick: () -> Unit) {
             modifier = Modifier.padding(16.dp, 12.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            feed.lastBuildDate?.let {
+            DateParser.formatDate(feed.lastBuildDate)?.let {
                 Text(
-                    text = DateParser.format(it),
+                    text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Light,
                     modifier = Modifier.padding(0.dp, 4.dp)

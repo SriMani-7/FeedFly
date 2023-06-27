@@ -27,13 +27,13 @@ interface FeedDao {
     fun getAllFeedUrls(): Flow<List<Feed>>
 
     @Transaction
-    @Query("select * from feeds where id = :id")
-    fun getFeedArticles(id: Long): Flow<FeedArticle>
+    @Query("select * from feeds INNER JOIN articles ON feeds.id = articles.feed_id WHERE feeds.id = :id ORDER BY articles.pub_date desc")
+    fun getFeedArticles(id: Long): Flow<List<ArticleItem>>
 
     @Query("select * from feeds where id = :id")
     fun getFeed(id: Long): Flow<Feed>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertFeedWithArticles(feed: Feed, articles: List<ArticleItem>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertFeedArticles(articles: List<ArticleItem>)
 
 }
