@@ -48,7 +48,7 @@ fun fromHtml(
     imageGetter: Html.ImageGetter,
 ): Spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
     Html.fromHtml(
-        html,k
+        html,
         Html.FROM_HTML_MODE_LEGACY or Html.FROM_HTML_OPTION_USE_CSS_COLORS,
         imageGetter
     ) { _, _, _, _ -> }

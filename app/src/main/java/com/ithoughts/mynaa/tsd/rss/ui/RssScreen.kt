@@ -14,11 +14,19 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,6 +34,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -48,7 +57,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -56,6 +67,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -179,6 +191,7 @@ fun RssItemsColumn(dateListMap: Map<String?, List<ArticleItem>>) {
 fun RssItemCard(item: ArticleItem) {
     var imageSrc by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
+    var showImage by remember { mutableStateOf(false) }
 
     ElevatedCard(
         onClick = {
@@ -202,6 +215,7 @@ fun RssItemCard(item: ArticleItem) {
                     alignment = Alignment.Center,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable { showImage = true }
                         .defaultMinSize(minHeight = 180.dp),
                     filterQuality = FilterQuality.Medium,
                 )
@@ -245,9 +259,78 @@ fun RssItemCard(item: ArticleItem) {
                     ColorDrawable(android.graphics.Color.GRAY)
                 }
             }
-            if (item.category.isNotBlank())
-                Text(text = item.category, style = MaterialTheme.typography.bodySmall)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (item.category.isNotBlank())
+                    Text(text = item.category, style = MaterialTheme.typography.bodySmall)
+                Spacer(modifier = Modifier.weight(1f))
+                DateParser.formatTime(item.pubDate)
+                    ?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
+            }
         }
+    }
+    if (showImage && imageSrc != null)
+        ShowImageDialog(imageSrc!!) {
+            showImage = false
+        }
+}
+
+@Composable
+fun ShowImageDialog(
+    imageSrc: String,
+    onDismiss: () -> Unit
+) {
+    var scale by remember { mutableStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
+    val transformableState =
+        rememberTransformableState { zoomChange, offsetChange, _ ->
+            scale *= zoomChange
+            offset += offsetChange
+        }
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .combinedClickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null,
+                    onClick = onDismiss
+                )
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageSrc)
+                    .crossfade(true)
+                    .build(),
+                placeholder = painterResource(R.drawable.baseline_photo_size_select_actual_24),
+                contentDescription = "image",
+                contentScale = ContentScale.Fit,
+                alignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        translationX = offset.x
+                        translationY = offset.y
+                    }
+                    .transformable(transformableState),
+                filterQuality = FilterQuality.High,
+            )
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                Icon(Icons.Default.Close, "close")
+            }
+        }
+    }
+    LaunchedEffect(scale) {
+        if (scale < 0.7f) onDismiss()
     }
 }
 

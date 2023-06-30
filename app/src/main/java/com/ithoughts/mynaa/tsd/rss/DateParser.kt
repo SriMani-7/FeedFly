@@ -298,4 +298,8 @@ object DateParser {
             else -> DateFormat.getDateInstance().format(date)
         }
     }
+
+    fun formatTime(date: Date?) : String? = date?.let {
+        SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT).format(it)
+    }
 }
