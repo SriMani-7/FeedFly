@@ -56,7 +56,7 @@ fun TheSecretDairyTheme(
         colorScheme = colorScheme,
         typography = Typography,
     ) {
-        DisposableEffect(systemUiController) {
+        DisposableEffect(systemUiController, darkTheme) {
             systemUiController.setSystemBarsColor(
                 color = Color.Transparent,
                 darkIcons = !darkTheme

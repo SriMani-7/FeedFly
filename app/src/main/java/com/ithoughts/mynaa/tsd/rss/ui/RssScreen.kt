@@ -1,13 +1,15 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(
+    ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
+)
 
 package com.ithoughts.mynaa.tsd.rss.ui
 
 import android.app.Activity
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.Build
-import android.text.Html
-import android.widget.TextView
+import android.text.Html.ImageGetter
+import android.text.SpannableStringBuilder
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,6 +26,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,7 +36,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.surfaceColorAtElevation
@@ -47,15 +49,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ithoughts.mynaa.tsd.R
@@ -63,10 +65,12 @@ import com.ithoughts.mynaa.tsd.rss.DateParser
 import com.ithoughts.mynaa.tsd.rss.ParsingState
 import com.ithoughts.mynaa.tsd.rss.RssViewModal
 import com.ithoughts.mynaa.tsd.rss.db.ArticleItem
+import com.ithoughts.mynaa.tsd.rss.fromHtml
+import com.ithoughts.mynaa.tsd.rss.toAnnotatedString
 
 
 @Composable
-fun RssScreen(feedId: Long) {
+fun RssScreen(feedId: Long, navController: NavHostController) {
     val context = LocalContext.current
     val viewModal = viewModel(initializer = {
         RssViewModal(feedId, (context as Activity).application)
@@ -82,7 +86,7 @@ fun RssScreen(feedId: Long) {
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, "back")
                     }
                 },
@@ -150,12 +154,12 @@ fun RssItemsColumn(dateListMap: Map<String?, List<ArticleItem>>) {
                             Text(
                                 modifier = Modifier
                                     .background(
-                                        MaterialTheme.colorScheme.primaryContainer,
-                                        RoundedCornerShape(10.dp)
+                                        MaterialTheme.colorScheme.secondaryContainer,
+                                        RoundedCornerShape(12.dp)
                                     )
-                                    .padding(12.dp, 8.dp),
+                                    .padding(14.dp, 5.dp),
                                 text = date,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 style = MaterialTheme.typography.labelMedium
                             )
                         }
@@ -174,88 +178,93 @@ fun RssItemsColumn(dateListMap: Map<String?, List<ArticleItem>>) {
 @Composable
 fun RssItemCard(item: ArticleItem) {
     var imageSrc by remember { mutableStateOf<String?>(null) }
-    val linkColor = MaterialTheme.colorScheme.secondary.toArgb()
     val context = LocalContext.current
-    Surface(
+
+    ElevatedCard(
         onClick = {
             val intent = CustomTabsIntent.Builder().build().apply {
                 intent.putExtra("com.google.android.apps.chrome.EXTRA_OPEN_NEW_INCOGNITO_TAB", true)
             }
             intent.launchUrl(context, Uri.parse(item.link))
         },
-        shadowElevation = 4.dp,
-        shape = RoundedCornerShape(16.dp)
+        shape = MaterialTheme.shapes.large
     ) {
-        Column {
-            Box {
-                imageSrc?.let {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(imageSrc)
-                            .crossfade(true)
-                            .build(),
-                        placeholder = painterResource(R.drawable.baseline_photo_size_select_actual_24),
-                        contentDescription = "image",
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .defaultMinSize(minHeight = 180.dp),
-                        filterQuality = FilterQuality.Medium,
-                    )
-                }
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
+        Box {
+            imageSrc?.let {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageSrc)
+                        .crossfade(true)
+                        .build(),
+                    placeholder = painterResource(R.drawable.baseline_photo_size_select_actual_24),
+                    contentDescription = "image",
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center,
                     modifier = Modifier
-                        .align(Alignment.BottomStart)
                         .fillMaxWidth()
-                        .then(
-                            if (imageSrc == null) Modifier.padding(12.dp, 10.dp)
-                            else Modifier
-                                .background(
-                                    MaterialTheme.colorScheme
-                                        .surfaceColorAtElevation(6.dp)
-                                        .copy(alpha = 0.8f)
-                                )
-                                .padding(12.dp, 12.dp)
-
-                        )
+                        .defaultMinSize(minHeight = 180.dp),
+                    filterQuality = FilterQuality.Medium,
                 )
             }
-            Column(
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Normal,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
+                    .align(Alignment.BottomStart)
                     .fillMaxWidth()
-                    .padding(12.dp, bottom = 14.dp, top = 3.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                item.description?.let { description ->
-                    AndroidView(factory = {
-                        TextView(it).apply {
-                            linksClickable = true
-                            setLinkTextColor(linkColor)
-                            textSize = 14.5f
-                        }
-                    }) { textView ->
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            textView.text = Html.fromHtml(
-                                description,
-                                Html.FROM_HTML_MODE_LEGACY or Html.FROM_HTML_OPTION_USE_CSS_COLORS,
-                                {
-                                    imageSrc = it
-                                    ColorDrawable(0xfffffff)
-                                },
-                                { _, _, _, _ -> }
+                    .then(
+                        if (imageSrc == null) Modifier.padding(
+                            12.dp,
+                            top = 16.dp,
+                            bottom = 10.dp,
+                            end = 12.dp
+                        )
+                        else Modifier
+                            .background(
+                                MaterialTheme.colorScheme
+                                    .surfaceColorAtElevation(6.dp)
+                                    .copy(alpha = 0.8f)
                             )
-                        } else Html.fromHtml(description)
-                    }
-                }
-                if (item.category.isNotBlank())
-                    Text(text = item.category, style = MaterialTheme.typography.bodySmall)
-            }
+                            .padding(12.dp, 12.dp)
+                    )
+            )
         }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp, bottom = 14.dp, top = 5.dp, end = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            item.description?.let {
+                DescriptionText(it) { src ->
+                    imageSrc = src
+                    RssViewModal.info(src)
+                    ColorDrawable(android.graphics.Color.GRAY)
+                }
+            }
+            if (item.category.isNotBlank())
+                Text(text = item.category, style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+@Composable
+fun DescriptionText(
+    description: String,
+    imageGetter: ImageGetter,
+) {
+    var spanned by remember { mutableStateOf<AnnotatedString?>(null) }
+    spanned?.let {
+        Text(
+            text = it,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Light,
+        )
+    }
+    LaunchedEffect(Unit) {
+        spanned = (fromHtml(description, imageGetter) as SpannableStringBuilder).toAnnotatedString()
     }
 }
