@@ -73,7 +73,7 @@ fun HomeScreen(
             }
             groups?.let { it1 ->
                 FeedGroups(feedGroupList = it1) { groupName ->
-                    val path = groupName?.let { "/" + Uri.encode(groupName) } ?: ""
+                    val path = groupName?.let { "?groupName=" + Uri.encode(groupName) } ?: ""
                     navController.navigate(Screens.FeedsScreen.route + path)
                 }
             }

@@ -39,7 +39,7 @@ fun MainNavigation() {
                 composable(Screens.HomeScreen.route) {
                     HomeScreen(isDarkTheme, navController)
                 }
-                composable(Screens.FeedsScreen.route + "/{groupName}", arguments = listOf(
+                composable(Screens.FeedsScreen.route + "?groupName={groupName}", arguments = listOf(
                     navArgument("groupName") {
                         type = NavType.StringType
                         nullable = true

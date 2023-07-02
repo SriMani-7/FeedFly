@@ -40,6 +40,6 @@ interface FeedDao {
     @Query("select group_name as name, count(*) as count from feeds group by group_name")
     fun getAllGroups(): Flow<List<FeedGroup>>
 
-    @Query("select * from feeds where group_name = :name order by last_build_date desc")
+    @Query("select * from feeds where group_name is :name order by last_build_date desc")
     fun getAllFeedUrls(name: String?): Flow<List<Feed>>
 }
