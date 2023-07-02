@@ -33,7 +33,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -75,10 +74,10 @@ import coil.request.ImageRequest
 import com.ithoughts.mynaa.tsd.R
 import com.ithoughts.mynaa.tsd.rss.DateParser
 import com.ithoughts.mynaa.tsd.rss.ParsingState
-import com.ithoughts.mynaa.tsd.rss.RssViewModal
 import com.ithoughts.mynaa.tsd.rss.db.ArticleItem
 import com.ithoughts.mynaa.tsd.rss.fromHtml
 import com.ithoughts.mynaa.tsd.rss.toAnnotatedString
+import com.ithoughts.mynaa.tsd.rss.vm.RssViewModal
 
 
 @Composable
@@ -97,11 +96,7 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
         snackbarHost = { SnackbarHost(hostState) },
         topBar = {
             TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, "back")
-                    }
-                },
+                navigationIcon = { BackButton(navController) },
                 title = {
                     Column {
                         feed.also { feed ->

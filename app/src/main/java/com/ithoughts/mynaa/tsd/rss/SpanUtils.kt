@@ -12,7 +12,6 @@ import android.text.style.URLSpan
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.core.text.toHtml
 
 fun SpannableStringBuilder.toAnnotatedString(): AnnotatedString {
     this.getSpans(0, length, ImageSpan::class.java).forEach {
@@ -28,9 +27,7 @@ fun SpannableStringBuilder.toAnnotatedString(): AnnotatedString {
                 builder.fromURLSpan(span, start, end)
             }
         }
-        RssViewModal.info(span)
     }
-    RssViewModal.info(toHtml())
     return builder.toAnnotatedString()
 }
 

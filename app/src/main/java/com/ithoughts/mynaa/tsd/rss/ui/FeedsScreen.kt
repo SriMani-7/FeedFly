@@ -2,10 +2,8 @@
 
 package com.ithoughts.mynaa.tsd.rss.ui
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
+import android.app.Activity
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,14 +18,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -42,49 +34,34 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.ithoughts.mynaa.tsd.R.drawable.baseline_nightlight_round_24
-import com.ithoughts.mynaa.tsd.R.drawable.baseline_wb_sunny_24
 import com.ithoughts.mynaa.tsd.rss.DateParser
-import com.ithoughts.mynaa.tsd.rss.FeedsViewModal
 import com.ithoughts.mynaa.tsd.rss.db.Feed
+import com.ithoughts.mynaa.tsd.rss.vm.FeedsViewModal
 
 @Composable
 fun FeedsScreen(
-    feedsViewModal: FeedsViewModal,
-    navController: NavController,
-    onThemeChange: (Boolean) -> Unit
+    groupName: String?,
+    navController: NavController
 ) {
+    val context = LocalContext.current
+    val feedsViewModal = viewModel { FeedsViewModal((context as Activity).application, groupName) }
     val allFeeds by feedsViewModal.allFeeds().collectAsState(initial = null)
-    var showDialog by remember { mutableStateOf(false) }
-    val isInDarkTheme = isSystemInDarkTheme()
-    var isDarkTheme by remember { mutableStateOf(isInDarkTheme) }
 
     Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
-            }
-        }, topBar = {
+        topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Feed reader")
-                }, actions = {
-                    IconToggleButton(checked = isDarkTheme, onCheckedChange = {
-                        isDarkTheme = it; onThemeChange(it)
-                    }) {
-                        AnimatedContent(isDarkTheme) {
-                            if (it) Icon(painterResource(baseline_wb_sunny_24), "theme")
-                            else Icon(painterResource(baseline_nightlight_round_24), "theme")
-                        }
-                    }
-                }
+                    Text(groupName ?: "The rest")
+                },
+                navigationIcon = { BackButton(navController) }
             )
         }
     ) { paddingValues ->
@@ -102,15 +79,6 @@ fun FeedsScreen(
                     }
                 }
             }
-            AnimatedVisibility(visible = feedsViewModal.isLoading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-            }
-        }
-        if (showDialog) {
-            AddUrlDialog(onDismiss = { showDialog = false }, onSubmit = {
-                showDialog = false
-                feedsViewModal.insertFeed(it)
-            })
         }
     }
 }
@@ -121,7 +89,7 @@ fun FeedCard(feed: Feed, onClick: () -> Unit) {
         onClick = onClick,
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier.fillMaxWidth(),
-        tonalElevation = 2.dp
+        tonalElevation = 1.dp
     ) {
         Column(
             modifier = Modifier.padding(16.dp, 12.dp),

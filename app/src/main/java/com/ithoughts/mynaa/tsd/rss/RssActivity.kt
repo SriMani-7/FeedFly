@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
-import com.ithoughts.mynaa.tsd.rss.ui.HomeScreen
+import com.ithoughts.mynaa.tsd.rss.ui.MainNavigation
 import com.ithoughts.mynaa.tsd.ui.theme.TheSecretDairyTheme
 
 class RssActivity : ComponentActivity() {
@@ -12,7 +12,7 @@ class RssActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TheSecretDairyTheme(false) {
-                HomeScreen()
+                MainNavigation()
             }
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)

@@ -1,4 +1,4 @@
-package com.ithoughts.mynaa.tsd.rss
+package com.ithoughts.mynaa.tsd.rss.vm
 
 import android.app.Application
 import android.widget.Toast
@@ -7,16 +7,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.ithoughts.mynaa.tsd.rss.OkHttpWebService
+import com.ithoughts.mynaa.tsd.rss.RssParser
 import com.ithoughts.mynaa.tsd.rss.db.AppDatabase
 import kotlinx.coroutines.launch
 
-class FeedsViewModal(application: Application) : AndroidViewModel(application) {
+class HomeViewModal(application: Application) : AndroidViewModel(application) {
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
     private val okHttpWebService by lazy { OkHttpWebService() }
+    val groupsFlow by lazy { feedDao.getAllGroups() }
+
     private val rssParser by lazy { RssParser() }
     var isLoading by mutableStateOf(false)
 
-    fun allFeeds() = feedDao.getAllFeedUrls()
     fun insertFeed(it: String) {
         viewModelScope.launch {
             isLoading = true
@@ -27,7 +30,8 @@ class FeedsViewModal(application: Application) : AndroidViewModel(application) {
                     feedDao.insertFeedUrl(feed)
                     false
                 } else {
-                    Toast.makeText(getApplication(), "Unable to parse url", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(getApplication(), "Unable to parse url", Toast.LENGTH_SHORT)
+                        .show()
                     false
                 }
             } catch (e: Exception) {

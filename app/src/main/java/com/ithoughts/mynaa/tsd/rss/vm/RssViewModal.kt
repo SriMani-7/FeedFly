@@ -1,10 +1,14 @@
-package com.ithoughts.mynaa.tsd.rss
+package com.ithoughts.mynaa.tsd.rss.vm
 
 import android.app.Application
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.ithoughts.mynaa.tsd.rss.DateParser
+import com.ithoughts.mynaa.tsd.rss.OkHttpWebService
+import com.ithoughts.mynaa.tsd.rss.ParsingState
+import com.ithoughts.mynaa.tsd.rss.RssParser
 import com.ithoughts.mynaa.tsd.rss.db.AppDatabase
 import com.ithoughts.mynaa.tsd.rss.db.ArticleItem
 import com.ithoughts.mynaa.tsd.rss.db.Feed

@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import com.ithoughts.mynaa.tsd.rss.ui.FeedGroup
 import kotlinx.coroutines.flow.Flow
 
 
@@ -36,4 +37,9 @@ interface FeedDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertFeedArticles(articles: List<ArticleItem>)
 
+    @Query("select group_name as name, count(*) as count from feeds group by group_name")
+    fun getAllGroups(): Flow<List<FeedGroup>>
+
+    @Query("select * from feeds where group_name = :name order by last_build_date desc")
+    fun getAllFeedUrls(name: String?): Flow<List<Feed>>
 }
