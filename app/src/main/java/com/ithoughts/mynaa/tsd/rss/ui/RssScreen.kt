@@ -12,6 +12,9 @@ import android.text.Html.ImageGetter
 import android.text.SpannableStringBuilder
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +22,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +33,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +43,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -57,6 +63,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -121,7 +128,11 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            feedArticles?.let { RssItemsColumn(it) }
+            feedArticles?.let {
+                RssItemsColumn(it) { articleItem ->
+                    viewModal.updateArticle(articleItem)
+                }
+            }
             AnimatedVisibility(parsingState == ParsingState.Loading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
@@ -144,7 +155,10 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
 }
 
 @Composable
-fun RssItemsColumn(dateListMap: Map<String?, List<ArticleItem>>) {
+fun RssItemsColumn(
+    dateListMap: Map<String?, List<ArticleItem>>,
+    updateArticle: (ArticleItem) -> Unit
+) {
     Column {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
@@ -175,7 +189,7 @@ fun RssItemsColumn(dateListMap: Map<String?, List<ArticleItem>>) {
                 items(entry.value,
                     key = { it.id }
                 ) {
-                    RssItemCard(it)
+                    RssItemCard(it, updateArticle)
                 }
             }
         }
@@ -183,16 +197,21 @@ fun RssItemsColumn(dateListMap: Map<String?, List<ArticleItem>>) {
 }
 
 @Composable
-fun RssItemCard(item: ArticleItem) {
+fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
     var imageSrc by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     var showImage by remember { mutableStateOf(false) }
 
     ElevatedCard(
         onClick = {
-            val intent = CustomTabsIntent.Builder().build().apply {
-                intent.putExtra("com.google.android.apps.chrome.EXTRA_OPEN_NEW_INCOGNITO_TAB", true)
-            }
+            val intent = CustomTabsIntent.Builder()
+                .setShareState(CustomTabsIntent.SHARE_STATE_ON)
+                .build().apply {
+                    intent.putExtra(
+                        "com.google.android.apps.chrome.EXTRA_OPEN_NEW_INCOGNITO_TAB",
+                        true
+                    )
+                }
             intent.launchUrl(context, Uri.parse(item.link))
         },
         shape = MaterialTheme.shapes.large
@@ -241,29 +260,27 @@ fun RssItemCard(item: ArticleItem) {
                     )
             )
         }
-        Column(
+        item.description?.let {
+            DescriptionText(it, modifier = Modifier.padding(12.dp, 8.dp)) { src ->
+                imageSrc = src
+                RssViewModal.info(src)
+                ColorDrawable(android.graphics.Color.GRAY)
+            }
+        }
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp, bottom = 14.dp, top = 5.dp, end = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+                .padding(start = 12.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            item.description?.let {
-                DescriptionText(it) { src ->
-                    imageSrc = src
-                    RssViewModal.info(src)
-                    ColorDrawable(android.graphics.Color.GRAY)
-                }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 if (item.category.isNotBlank())
-                    Text(text = item.category, style = MaterialTheme.typography.bodySmall)
-                Spacer(modifier = Modifier.weight(1f))
+                    Text(text = item.category, style = MaterialTheme.typography.labelMedium)
                 DateParser.formatTime(item.pubDate)
                     ?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
             }
+            Spacer(modifier = Modifier.weight(1f))
+            ArticleFavoriteToggle(item.pinned) { onPinChange(item.copy(pinned = it)) }
         }
     }
     if (showImage && imageSrc != null)
@@ -332,6 +349,7 @@ fun ShowImageDialog(
 @Composable
 fun DescriptionText(
     description: String,
+    modifier: Modifier = Modifier,
     imageGetter: ImageGetter,
 ) {
     var spanned by remember { mutableStateOf<AnnotatedString?>(null) }
@@ -339,10 +357,34 @@ fun DescriptionText(
         Text(
             text = it,
             style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Light,
+            fontWeight = if (isSystemInDarkTheme()) FontWeight.Light else FontWeight.Normal,
+            modifier = modifier
         )
     }
     LaunchedEffect(Unit) {
         spanned = (fromHtml(description, imageGetter) as SpannableStringBuilder).toAnnotatedString()
+    }
+}
+
+@Composable
+fun ArticleFavoriteToggle(pinned: Boolean, onPinChange: (Boolean) -> Unit) {
+    IconToggleButton(pinned, onCheckedChange = {
+        onPinChange(it)
+    }, modifier = Modifier) {
+        Crossfade(
+            targetState = pinned,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioHighBouncy,
+                stiffness = Spring.StiffnessMedium
+            )
+        ) {
+            val resId = if (it) R.drawable.favorite_fill_24
+            else R.drawable.favorite_outline_24
+            Icon(
+                painterResource(resId), "favorite",
+                modifier = Modifier.size(32.dp),
+                tint = Color(0xFFC2185B)
+            )
+        }
     }
 }

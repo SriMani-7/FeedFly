@@ -42,4 +42,7 @@ interface FeedDao {
 
     @Query("select * from feeds where group_name is :name order by last_build_date desc")
     fun getAllFeedUrls(name: String?): Flow<List<Feed>>
+
+    @Update
+    suspend fun updateArticle(articleItem: ArticleItem)
 }

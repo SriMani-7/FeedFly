@@ -72,14 +72,13 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         }
     }
 
+    fun updateArticle(articleItem: ArticleItem) {
+        viewModelScope.launch { feedDao.updateArticle(articleItem)}
+    }
+
     companion object {
         fun info(any: Any) {
             Log.i("rss_", any.toString())
         }
     }
 }
-
-data class DatedArticles(
-    val pubDate: Date?,
-    val articles: List<ArticleItem>
-)

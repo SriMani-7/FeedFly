@@ -54,6 +54,7 @@ android {
 dependencies {
     implementation "androidx.core:core-ktx:$project.androidx_core_version"
     implementation "androidx.annotation:annotation:$project.androidx_annotation_version"
+    implementation "androidx.appcompat:appcompat:1.6.1"
 
     implementation "androidx.activity:activity-compose:$project.activity_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$project.lifecycle_version"
