@@ -39,7 +39,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,7 +64,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -85,6 +85,7 @@ import com.ithoughts.mynaa.tsd.rss.db.ArticleItem
 import com.ithoughts.mynaa.tsd.rss.fromHtml
 import com.ithoughts.mynaa.tsd.rss.toAnnotatedString
 import com.ithoughts.mynaa.tsd.rss.vm.RssViewModal
+import com.ithoughts.mynaa.tsd.ui.theme.FeedFlyTheme
 
 
 @Composable
@@ -202,7 +203,7 @@ fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
     val context = LocalContext.current
     var showImage by remember { mutableStateOf(false) }
 
-    ElevatedCard(
+    Card(
         onClick = {
             val intent = CustomTabsIntent.Builder()
                 .setShareState(CustomTabsIntent.SHARE_STATE_ON)
@@ -214,7 +215,8 @@ fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
                 }
             intent.launchUrl(context, Uri.parse(item.link))
         },
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Box {
             imageSrc?.let {
@@ -230,7 +232,7 @@ fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { showImage = true }
-                        .defaultMinSize(minHeight = 180.dp),
+                        .defaultMinSize(minHeight = 150.dp),
                     filterQuality = FilterQuality.Medium,
                 )
             }
@@ -382,8 +384,8 @@ fun ArticleFavoriteToggle(pinned: Boolean, onPinChange: (Boolean) -> Unit) {
             else R.drawable.favorite_outline_24
             Icon(
                 painterResource(resId), "favorite",
-                modifier = Modifier.size(32.dp),
-                tint = Color(0xFFC2185B)
+                modifier = Modifier.size(28.dp),
+                tint = FeedFlyTheme.colors.favorite
             )
         }
     }
