@@ -39,8 +39,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,8 +50,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,6 +65,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -164,27 +166,12 @@ fun RssItemsColumn(
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(13.dp),
-            contentPadding = PaddingValues(10.dp, 15.dp)
+            contentPadding = PaddingValues(vertical = 15.dp)
         ) {
             dateListMap.forEach { entry ->
                 entry.key?.let { date ->
                     stickyHeader {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .background(
-                                        MaterialTheme.colorScheme.secondaryContainer,
-                                        RoundedCornerShape(12.dp)
-                                    )
-                                    .padding(14.dp, 5.dp),
-                                text = date,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        }
+                        ArticleHeader(date)
                     }
                 }
                 items(entry.value,
@@ -198,12 +185,33 @@ fun RssItemsColumn(
 }
 
 @Composable
+fun ArticleHeader(
+    dateString: String,
+    color: Color = MaterialTheme.colorScheme.tertiaryContainer,
+    contentColor: Color = contentColorFor(color)
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            modifier = Modifier
+                .background(color, RoundedCornerShape(12.dp))
+                .padding(14.dp, 5.dp),
+            text = dateString,
+            color = contentColor,
+            style = MaterialTheme.typography.labelMedium
+        )
+    }
+}
+
+@Composable
 fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
     var imageSrc by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     var showImage by remember { mutableStateOf(false) }
 
-    Card(
+    Surface(
         onClick = {
             val intent = CustomTabsIntent.Builder()
                 .setShareState(CustomTabsIntent.SHARE_STATE_ON)
@@ -215,74 +223,76 @@ fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
                 }
             intent.launchUrl(context, Uri.parse(item.link))
         },
-        shape = MaterialTheme.shapes.large,
-        elevation = CardDefaults.cardElevation(2.dp)
+        shape = MaterialTheme.shapes.small,
     ) {
-        Box {
-            imageSrc?.let {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(imageSrc)
-                        .crossfade(true)
-                        .build(),
-                    placeholder = painterResource(R.drawable.baseline_photo_size_select_actual_24),
-                    contentDescription = "image",
-                    contentScale = ContentScale.Crop,
-                    alignment = Alignment.Center,
+        Column {
+            Box {
+                imageSrc?.let {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(imageSrc)
+                            .crossfade(true)
+                            .build(),
+                        placeholder = painterResource(R.drawable.baseline_photo_size_select_actual_24),
+                        contentDescription = "image",
+                        contentScale = ContentScale.Crop,
+                        alignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showImage = true }
+                            .defaultMinSize(minHeight = 150.dp),
+                        filterQuality = FilterQuality.Medium,
+                    )
+                }
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
+                        .align(Alignment.BottomStart)
                         .fillMaxWidth()
-                        .clickable { showImage = true }
-                        .defaultMinSize(minHeight = 150.dp),
-                    filterQuality = FilterQuality.Medium,
+                        .then(
+                            if (imageSrc == null) Modifier.padding(
+                                12.dp,
+                                top = 16.dp,
+                                bottom = 10.dp,
+                                end = 12.dp
+                            )
+                            else Modifier
+                                .background(
+                                    MaterialTheme.colorScheme
+                                        .surfaceColorAtElevation(6.dp)
+                                        .copy(alpha = 0.8f)
+                                )
+                                .padding(12.dp, 12.dp)
+                        )
                 )
             }
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Normal,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
+            item.description?.let {
+                DescriptionText(it, modifier = Modifier.padding(12.dp, 8.dp)) { src ->
+                    imageSrc = src
+                    RssViewModal.info(src)
+                    ColorDrawable(android.graphics.Color.GRAY)
+                }
+            }
+            Row(
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
                     .fillMaxWidth()
-                    .then(
-                        if (imageSrc == null) Modifier.padding(
-                            12.dp,
-                            top = 16.dp,
-                            bottom = 10.dp,
-                            end = 12.dp
-                        )
-                        else Modifier
-                            .background(
-                                MaterialTheme.colorScheme
-                                    .surfaceColorAtElevation(6.dp)
-                                    .copy(alpha = 0.8f)
-                            )
-                            .padding(12.dp, 12.dp)
-                    )
-            )
-        }
-        item.description?.let {
-            DescriptionText(it, modifier = Modifier.padding(12.dp, 8.dp)) { src ->
-                imageSrc = src
-                RssViewModal.info(src)
-                ColorDrawable(android.graphics.Color.GRAY)
+                    .padding(start = 12.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    if (item.category.isNotBlank())
+                        Text(text = item.category, style = MaterialTheme.typography.labelMedium)
+                    DateParser.formatTime(item.pubDate)
+                        ?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                ArticleFavoriteToggle(item.pinned) { onPinChange(item.copy(pinned = it)) }
             }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                if (item.category.isNotBlank())
-                    Text(text = item.category, style = MaterialTheme.typography.labelMedium)
-                DateParser.formatTime(item.pubDate)
-                    ?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            ArticleFavoriteToggle(item.pinned) { onPinChange(item.copy(pinned = it)) }
+            Divider(thickness = 1.5.dp)
         }
     }
     if (showImage && imageSrc != null)
