@@ -37,7 +37,8 @@ interface FeedDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertFeedArticles(articles: List<ArticleItem>)
 
-    @Query("select group_name as name, count(*) as count from feeds group by group_name")
+    @Transaction
+    @Query("select group_name as name, * from feeds where group_name not null group by group_name")
     fun getAllGroups(): Flow<List<FeedGroup>>
 
     @Query("select * from feeds where group_name is :name order by last_build_date desc")
@@ -45,4 +46,7 @@ interface FeedDao {
 
     @Update
     suspend fun updateArticle(articleItem: ArticleItem)
+
+    @Query("select * from feeds where group_name is null")
+    fun getOtherFeeds(): Flow<List<Feed>?>
 }

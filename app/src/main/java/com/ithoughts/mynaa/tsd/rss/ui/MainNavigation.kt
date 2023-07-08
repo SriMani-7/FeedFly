@@ -31,23 +31,13 @@ import com.ithoughts.mynaa.tsd.ui.theme.TheSecretDairyTheme
 fun MainNavigation() {
     val navController = rememberNavController()
     val isInDarkTheme = isSystemInDarkTheme()
-    val isDarkTheme = remember { mutableStateOf(isInDarkTheme) }
+    val isDarkTheme = remember { mutableStateOf(false) }
 
     TheSecretDairyTheme(isDarkTheme.value) {
         Surface(modifier = Modifier.fillMaxSize()) {
             NavHost(navController, Screens.HomeScreen.route) {
                 composable(Screens.HomeScreen.route) {
                     HomeScreen(isDarkTheme, navController)
-                }
-                composable(Screens.FeedsScreen.route + "?groupName={groupName}", arguments = listOf(
-                    navArgument("groupName") {
-                        type = NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    }
-                )) { entry ->
-                    val groupName = entry.arguments?.getString("groupName")
-                    FeedsScreen(groupName, navController)
                 }
                 composable(Screens.ArticleScreen.route + "/{id}", arguments = listOf(
                     navArgument("id") { type = NavType.LongType }

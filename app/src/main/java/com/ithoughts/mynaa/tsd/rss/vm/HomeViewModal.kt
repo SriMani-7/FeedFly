@@ -16,6 +16,7 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
     private val okHttpWebService by lazy { OkHttpWebService() }
     val groupsFlow by lazy { feedDao.getAllGroups() }
+    val otherFeeds by lazy { feedDao.getOtherFeeds() }
 
     private val rssParser by lazy { RssParser() }
     var isLoading by mutableStateOf(false)
