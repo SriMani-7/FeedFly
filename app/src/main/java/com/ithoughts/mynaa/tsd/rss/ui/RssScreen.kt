@@ -362,16 +362,21 @@ fun ShowImageDialog(
 fun DescriptionText(
     description: String,
     modifier: Modifier = Modifier,
+    maxLines: Int? = Int.MAX_VALUE,
     imageGetter: ImageGetter,
 ) {
     var spanned by remember { mutableStateOf<AnnotatedString?>(null) }
     spanned?.let {
-        Text(
-            text = it,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = if (isSystemInDarkTheme()) FontWeight.Light else FontWeight.Normal,
-            modifier = modifier
-        )
+        maxLines?.let { it1 ->
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = if (isSystemInDarkTheme()) FontWeight.Light else FontWeight.Normal,
+                modifier = modifier,
+                maxLines = it1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
     LaunchedEffect(Unit) {
         spanned = (fromHtml(description, imageGetter) as SpannableStringBuilder).toAnnotatedString()

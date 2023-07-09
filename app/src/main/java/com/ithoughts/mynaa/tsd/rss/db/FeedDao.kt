@@ -3,6 +3,7 @@ package com.ithoughts.mynaa.tsd.rss.db
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.MapInfo
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
@@ -49,4 +50,9 @@ interface FeedDao {
 
     @Query("select * from feeds where group_name is null")
     fun getOtherFeeds(): Flow<List<Feed>?>
+
+    @Transaction
+    @MapInfo(keyColumn = "name")
+    @Query("SELECT feeds.group_name AS name, articles.* FROM feeds INNER JOIN articles ON feeds.id = articles.feed_id WHERE articles.pinned = :isPinned")
+    fun getFavoriteFeedArticles(isPinned: Boolean = true): Flow<Map<String?, List<ArticleItem>>>
 }

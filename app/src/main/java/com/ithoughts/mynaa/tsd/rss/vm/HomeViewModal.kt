@@ -13,6 +13,7 @@ import com.ithoughts.mynaa.tsd.rss.OkHttpWebService
 import com.ithoughts.mynaa.tsd.rss.RssParser
 import com.ithoughts.mynaa.tsd.rss.dataStore
 import com.ithoughts.mynaa.tsd.rss.db.AppDatabase
+import com.ithoughts.mynaa.tsd.rss.db.ArticleItem
 import com.ithoughts.mynaa.tsd.rss.ui.AppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     private val okHttpWebService by lazy { OkHttpWebService() }
     val groupsFlow by lazy { feedDao.getAllGroups() }
     val otherFeeds by lazy { feedDao.getOtherFeeds() }
+    val favoriteArticles by lazy { feedDao.getFavoriteFeedArticles() }
 
     private val rssParser by lazy { RssParser() }
     var isLoading by mutableStateOf(false)
@@ -56,6 +58,10 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
 
     fun updateSettings(newTheme: AppTheme) {
         viewModelScope.launch(Dispatchers.IO) { userSettingsRepo.updateSettings(newTheme) }
+    }
+
+    fun updateArticle(articleItem: ArticleItem) {
+        viewModelScope.launch { feedDao.updateArticle(articleItem) }
     }
 }
 

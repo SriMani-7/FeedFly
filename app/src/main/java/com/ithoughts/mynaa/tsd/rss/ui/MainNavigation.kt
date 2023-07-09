@@ -11,7 +11,6 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -51,7 +50,7 @@ fun MainNavigation(homeViewModal: HomeViewModal) {
             }
             navigation(Favorites.FavoriteScreen.destination, Favorites.FavoriteScreen.route) {
                 composable(Favorites.FavoriteScreen.destination) {
-                    Text(text = "Coming soon")
+                    FavoriteScreen(homeViewModal)
                 }
             }
             navigation(Settings.SettingsScreen.destination, Settings.SettingsScreen.route) {
