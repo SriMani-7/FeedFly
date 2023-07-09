@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'com.ithoughts.mynaa.tsd'
+    namespace 'srimani7.apps.feedfly'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.ithoughts.mynaa.tsd"
+        applicationId 'srimani7.apps.feedfly'
         minSdk 22
         targetSdk 34
         versionCode 1
