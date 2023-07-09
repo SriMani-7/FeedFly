@@ -46,7 +46,7 @@ fun FeedGroupList(groupName: String, feeds: List<Feed>, onClick: (Long) -> Unit)
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(16.dp, 16.dp),
         ) {
-            items(feeds) { feed ->
+            items(feeds, key = { it.id }) { feed ->
                 FeedCard(feed = feed, onClick = { onClick(feed.id) })
             }
         }

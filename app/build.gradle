@@ -56,6 +56,7 @@ dependencies {
     implementation "androidx.core:core-splashscreen:1.0.1"
     implementation "androidx.annotation:annotation:$project.androidx_annotation_version"
     implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "androidx.datastore:datastore-preferences-android:1.1.0-alpha04"
 
     implementation "androidx.activity:activity-compose:$project.activity_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$project.lifecycle_version"

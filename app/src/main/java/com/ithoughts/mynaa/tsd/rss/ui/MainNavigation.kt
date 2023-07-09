@@ -1,70 +1,73 @@
-@file:OptIn(ExperimentalAnimationApi::class)
-
 package com.ithoughts.mynaa.tsd.rss.ui
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.ithoughts.mynaa.tsd.R
-import com.ithoughts.mynaa.tsd.ui.theme.TheSecretDairyTheme
+import androidx.navigation.navigation
+import com.ithoughts.mynaa.tsd.rss.vm.HomeViewModal
 
 @Composable
-fun MainNavigation() {
+fun MainNavigation(homeViewModal: HomeViewModal) {
     val navController = rememberNavController()
-    val isInDarkTheme = isSystemInDarkTheme()
-    val isDarkTheme = remember { mutableStateOf(false) }
-
-    TheSecretDairyTheme(isDarkTheme.value) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            NavHost(navController, Screens.HomeScreen.route) {
-                composable(Screens.HomeScreen.route) {
-                    HomeScreen(isDarkTheme, navController)
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController) },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {  },
+                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+            }
+        }, contentWindowInsets = WindowInsets.navigationBars,
+    ) { paddingValues ->
+        NavHost(navController, Home.HomeScreen.route, modifier = Modifier.padding(paddingValues)) {
+            navigation(Home.HomeScreen.destination, Home.HomeScreen.route) {
+                composable(Home.HomeScreen.destination) {
+                    HomeScreen(navController, homeViewModal)
                 }
-                composable(Screens.ArticleScreen.route + "/{id}", arguments = listOf(
+                composable(Home.ArticlesScreen.destination + "/{id}", arguments = listOf(
                     navArgument("id") { type = NavType.LongType }
                 )) { entry ->
                     val long = entry.arguments?.getLong("id")
                     if (long != null && long > 0) RssScreen(long, navController)
                 }
             }
+            navigation(Favorites.FavoriteScreen.destination, Favorites.FavoriteScreen.route) {
+                composable(Favorites.FavoriteScreen.destination) {
+                    Text(text = "Coming soon")
+                }
+            }
+            navigation(Settings.SettingsScreen.destination, Settings.SettingsScreen.route) {
+                composable(Settings.SettingsScreen.destination) {
+                    SettingsScreen(homeViewModal)
+                }
+            }
         }
     }
 }
+
+
 
 @Composable
 fun BackButton(navController: NavController) {
     IconButton(onClick = { navController.popBackStack() }) {
         Icon(Icons.Default.ArrowBack, "back")
-    }
-}
-
-@Composable
-fun ThemeToggle(themeState: MutableState<Boolean>) {
-    IconToggleButton(checked = themeState.value, onCheckedChange = {
-        themeState.value = it
-    }) {
-        AnimatedContent(themeState.value) {
-            if (it) Icon(painterResource(R.drawable.baseline_wb_sunny_24), "theme")
-            else Icon(painterResource(R.drawable.baseline_nightlight_round_24), "theme")
-        }
     }
 }
