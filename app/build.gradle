@@ -53,20 +53,22 @@ android {
 
 dependencies {
     implementation "androidx.core:core-ktx:$project.androidx_core_version"
-    implementation "androidx.core:core-splashscreen:1.0.1"
+    implementation "androidx.core:core-splashscreen:$project.androidx_splashscreen_version"
     implementation "androidx.annotation:annotation:$project.androidx_annotation_version"
-    implementation "androidx.appcompat:appcompat:1.6.1"
-    implementation "androidx.datastore:datastore-preferences-android:1.1.0-alpha04"
+    implementation "androidx.appcompat:appcompat:$project.androidx_appcompat_version"
+    implementation "androidx.datastore:datastore-preferences-android:$project.androidx_datastore_version"
 
     implementation "androidx.activity:activity-compose:$project.activity_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$project.lifecycle_version"
     implementation "androidx.navigation:navigation-compose:$project.navigation_version"
-    implementation 'androidx.browser:browser:1.5.0'
+    implementation "androidx.browser:browser:$project.androidx_browser_version"
 
+    // Testing dependencies
     testImplementation "junit:junit:$project.junit_version"
     androidTestImplementation "androidx.test.ext:junit:$project.androidx_junit_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$project.androidx_expresso_version"
 
+    // Jetpack compose
     implementation platform("androidx.compose:compose-bom:$project.compose_bom_version")
 
     implementation "androidx.compose.ui:ui"
@@ -81,9 +83,10 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling"
     debugImplementation "androidx.compose.ui:ui-test-manifest"
 
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation "com.squareup.okhttp3:okhttp:$project.okhttp_version"
+    implementation "io.coil-kt:coil-compose:$project.coil_compose_version"
 
+    // room persistence library
     implementation "androidx.room:room-ktx:$project.room_version"
     implementation "androidx.room:room-runtime:$project.room_version"
     annotationProcessor "androidx.room:room-compiler:$project.room_version"
