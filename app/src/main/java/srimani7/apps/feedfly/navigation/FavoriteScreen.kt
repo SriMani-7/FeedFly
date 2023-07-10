@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.database.entity.ArticleItem
+import srimani7.apps.feedfly.database.FavoriteArticle
 import srimani7.apps.feedfly.rss.DateParser
 import srimani7.apps.feedfly.ui.ArticleFavoriteToggle
 import srimani7.apps.feedfly.ui.DescriptionText
@@ -58,7 +59,7 @@ import srimani7.apps.feedfly.viewmodel.RssViewModal
 fun FavoriteScreen(homeViewModal: HomeViewModal) {
     val articleGroups by homeViewModal.favoriteArticles.collectAsState(null)
     var currentGroup by remember { mutableStateOf(articleGroups?.keys?.first()) }
-    val articles by rememberSaveable(currentGroup) {
+    var articles by rememberSaveable(currentGroup) {
         mutableStateOf(articleGroups?.get(currentGroup))
     }
     Scaffold(
@@ -103,10 +104,16 @@ fun FavoriteScreen(homeViewModal: HomeViewModal) {
             }
         }
     }
+    LaunchedEffect(articleGroups) {
+        articles = articleGroups?.get(currentGroup)
+        if (articles == null || articles!!.isEmpty()) {
+            currentGroup = articleGroups?.keys?.firstOrNull()
+        }
+    }
 }
 
 @Composable
-fun FavoriteArticleCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
+fun FavoriteArticleCard(item: FavoriteArticle, onPinChange: (Long, Boolean) -> Unit) {
     var imageSrc by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     var showImage by remember { mutableStateOf(false) }
@@ -171,6 +178,7 @@ fun FavoriteArticleCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
                     ColorDrawable(Color.GRAY)
                 }
             }
+            Text(text = item.feedTitle)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -184,7 +192,7 @@ fun FavoriteArticleCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
                         ?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                ArticleFavoriteToggle(item.pinned) { onPinChange(item.copy(pinned = it)) }
+                ArticleFavoriteToggle(item.pinned) { onPinChange(item.id, it) }
             }
             Divider(thickness = 1.5.dp)
         }

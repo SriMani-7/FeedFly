@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.data.AppTheme
 import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.feedfly.database.AppDatabase
-import srimani7.apps.feedfly.database.entity.ArticleItem
 import srimani7.apps.feedfly.rss.OkHttpWebService
 import srimani7.apps.feedfly.rss.RssParser
 
@@ -54,8 +53,8 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) { userSettingsRepo.updateSettings(newTheme) }
     }
 
-    fun updateArticle(articleItem: ArticleItem) {
-        viewModelScope.launch { feedDao.updateArticle(articleItem) }
+    fun updateArticle(id: Long, pinned: Boolean) {
+        viewModelScope.launch { feedDao.updateArticlePin(id, pinned) }
     }
 }
 
