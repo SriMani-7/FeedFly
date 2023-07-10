@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.ui.theme.FeedFlyTheme
+import srimani7.apps.feedfly.ui.theme.favorite_color
 
 @Composable
 fun ArticleFavoriteToggle(pinned: Boolean, onPinChange: (Boolean) -> Unit) {
@@ -29,8 +29,8 @@ fun ArticleFavoriteToggle(pinned: Boolean, onPinChange: (Boolean) -> Unit) {
             else R.drawable.favorite_outline_24
             Icon(
                 painterResource(resId), "favorite",
-                modifier = Modifier.size(28.dp),
-                tint = FeedFlyTheme.colors.favorite
+                modifier = Modifier.size(26.dp),
+                tint = favorite_color
             )
         }
     }

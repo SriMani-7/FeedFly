@@ -153,19 +153,25 @@ fun FavoriteArticleCard(item: FavoriteArticle, onPinChange: (Long, Boolean) -> U
                 }
             }
             Text(
-                text = item.title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Normal,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
+                text = item.feedTitle,
+                style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
                         12.dp,
                         top = 16.dp,
-                        bottom = 10.dp,
                         end = 12.dp
                     )
+            )
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Normal,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp, 10.dp)
             )
             item.description?.let {
                 DescriptionText(
@@ -178,11 +184,10 @@ fun FavoriteArticleCard(item: FavoriteArticle, onPinChange: (Long, Boolean) -> U
                     ColorDrawable(Color.GRAY)
                 }
             }
-            Text(text = item.feedTitle)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 12.dp, bottom = 8.dp),
+                    .padding(start = 12.dp, bottom = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {

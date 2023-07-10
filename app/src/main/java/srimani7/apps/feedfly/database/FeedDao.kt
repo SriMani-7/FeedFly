@@ -46,4 +46,7 @@ interface FeedDao {
 
     @Query("update articles set pinned = :pinned where article_id = :id")
     suspend fun updateArticlePin(id: Long, pinned: Boolean)
+
+    @Query("select distinct group_name from feeds")
+    fun getGroups(): Flow<List<String?>>
 }

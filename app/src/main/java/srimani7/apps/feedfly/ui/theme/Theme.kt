@@ -8,7 +8,6 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -78,20 +77,6 @@ private val DarkColorScheme = darkColorScheme(
     scrim = md_theme_dark_scrim,
 )
 
-val DarkExtendedColors = ExtendedColors(
-    favorite = dark_favorite_color,
-    onFavorite = dark_onfavorite_color,
-    favoriteContainer = dark_favorite_colorContainer,
-    onFavoriteContainer = dark_onfavorite_colorContainer
-)
-
-val LightExtendedColors = ExtendedColors(
-    favorite = light_favorite_color,
-    onFavorite = light_onfavorite_color,
-    favoriteContainer = light_favorite_colorContainer,
-    onFavoriteContainer = light_onfavorite_colorContainer
-)
-
 @Composable
 fun TheSecretDairyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -110,21 +95,17 @@ fun TheSecretDairyTheme(
         else -> LightColorScheme
     }
 
-    val extendedColors = if (darkTheme) DarkExtendedColors else LightExtendedColors
-
-    CompositionLocalProvider(LocalExtendedColors provides extendedColors) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = Typography,
-        ) {
-            DisposableEffect(systemUiController, darkTheme) {
-                systemUiController.setSystemBarsColor(
-                    color = Color.Transparent,
-                    darkIcons = !darkTheme
-                )
-                onDispose {}
-            }
-            content()
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+    ) {
+        DisposableEffect(systemUiController, darkTheme) {
+            systemUiController.setSystemBarsColor(
+                color = Color.Transparent,
+                darkIcons = !darkTheme
+            )
+            onDispose {}
         }
+        content()
     }
 }

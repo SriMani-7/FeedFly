@@ -23,9 +23,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,7 +36,6 @@ fun HomeScreen(
 ) {
     val groups by homeViewModal.groupsFlow.collectAsState(null)
     val otherFeeds by homeViewModal.otherFeeds.collectAsState(null)
-    var showDialog by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -83,15 +79,6 @@ fun HomeScreen(
                     }
                 }
             }
-        }
-        if (showDialog) {
-            AddUrlDialog(
-                onDismiss = { showDialog = false },
-                onSubmit = {
-                    showDialog = false
-                    homeViewModal.insertFeed(it)
-                }
-            )
         }
     }
 }

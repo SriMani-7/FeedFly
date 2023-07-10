@@ -22,19 +22,20 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     val groupsFlow by lazy { feedDao.getAllGroups() }
     val otherFeeds by lazy { feedDao.getOtherFeeds() }
     val favoriteArticles by lazy { feedDao.getFavoriteFeedArticles() }
+    val groupNameFlow by lazy { feedDao.getGroups() }
 
     private val rssParser by lazy { RssParser() }
     var isLoading by mutableStateOf(false)
     val appThemeState = userSettingsRepo.appThemeFlow(viewModelScope)
 
-    fun insertFeed(it: String) {
+    fun insertFeed(it: String, groupName: String?) {
         viewModelScope.launch {
             isLoading = true
             try {
                 val inputStream = okHttpWebService.getXMlString(it)
                 val feed = inputStream?.let { it1 -> rssParser.parseFeed(it, it1) }
                 isLoading = if (feed != null) {
-                    feedDao.insertFeedUrl(feed)
+                    feedDao.insertFeedUrl(feed.copy(group = groupName))
                     false
                 } else {
                     Toast.makeText(getApplication(), "Unable to parse url", Toast.LENGTH_SHORT)

@@ -72,10 +72,7 @@ fun MainNavigation(homeViewModal: HomeViewModal) {
             }
 
             dialog(InsertFeedScreen.route) {
-                AddUrlDialog(onDismiss = { navController.popBackStack() }, onSubmit = {
-                    homeViewModal.insertFeed(it)
-                    navController.popBackStack()
-                })
+                AddUrlDialog(homeViewModal){ navController.popBackStack() }
             }
         }
     }
