@@ -29,6 +29,7 @@ data class ArticleItem(
     @ColumnInfo("lastFetch") val lastFetched: Date? = null,
     @ColumnInfo("pub_date") val pubDate: Date? = null,
     val description: String? = null,
+    @ColumnInfo("author") val author: String? = null,
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("article_id") val id: Long = 0
 )

@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId 'srimani7.apps.feedfly'
-        minSdk 22
+        minSdk 23
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -91,4 +91,8 @@ dependencies {
     implementation "androidx.room:room-runtime:$project.room_version"
     annotationProcessor "androidx.room:room-compiler:$project.room_version"
     ksp "androidx.room:room-compiler:$project.room_version"
+
+    // module dependencies
+    implementation project(path: ':rss-parser')
+
 }
