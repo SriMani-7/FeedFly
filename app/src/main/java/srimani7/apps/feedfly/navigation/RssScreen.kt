@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
-import srimani7.apps.feedfly.rss.DateParser
+import srimani7.apps.rssparser.DateParser
 import srimani7.apps.feedfly.rss.ParsingState
 import srimani7.apps.feedfly.ui.RssItemsColumn
 import srimani7.apps.feedfly.viewmodel.RssViewModal

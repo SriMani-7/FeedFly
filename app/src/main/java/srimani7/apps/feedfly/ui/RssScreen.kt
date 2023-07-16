@@ -45,7 +45,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.database.entity.ArticleItem
-import srimani7.apps.feedfly.rss.DateParser
+import srimani7.apps.rssparser.DateParser
 import srimani7.apps.feedfly.viewmodel.RssViewModal
 
 @Composable

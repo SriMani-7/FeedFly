@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.rss
+package srimani7.apps.rssparser
 
 import java.text.DateFormat
 import java.text.ParsePosition

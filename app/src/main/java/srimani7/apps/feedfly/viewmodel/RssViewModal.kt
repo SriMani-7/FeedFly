@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.database.AppDatabase
 import srimani7.apps.feedfly.database.entity.ArticleItem
 import srimani7.apps.feedfly.database.entity.Feed
-import srimani7.apps.feedfly.rss.DateParser
+import srimani7.apps.rssparser.DateParser
 import srimani7.apps.feedfly.rss.OkHttpWebService
 import srimani7.apps.feedfly.rss.ParsingState
 import srimani7.apps.feedfly.rss.RssParser

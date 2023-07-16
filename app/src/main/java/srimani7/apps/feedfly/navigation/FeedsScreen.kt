@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import srimani7.apps.feedfly.database.entity.Feed
-import srimani7.apps.feedfly.rss.DateParser
+import srimani7.apps.rssparser.DateParser
 
 @Composable
 fun FeedGroupList(groupName: String, feeds: List<Feed>, onClick: (Long) -> Unit) {
