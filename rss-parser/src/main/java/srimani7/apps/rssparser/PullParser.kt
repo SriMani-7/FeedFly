@@ -24,9 +24,9 @@ fun XmlPullParser.readTagChildren(tagName: String, nameSpace: String? = null, bo
 }
 
 @Throws(XmlPullParserException::class, IOException::class)
-fun XmlPullParser.readText(tagName: String, nameSpace: String? = null): String {
+fun XmlPullParser.readText(tagName: String, nameSpace: String? = null): String? {
     require(XmlPullParser.START_TAG, nameSpace, tagName)
-    var result = ""
+    var result: String? = null
     if (next() == XmlPullParser.TEXT) {
         result = text
         nextTag()

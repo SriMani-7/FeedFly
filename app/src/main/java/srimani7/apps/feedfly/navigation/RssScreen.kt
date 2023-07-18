@@ -28,10 +28,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
-import srimani7.apps.rssparser.DateParser
-import srimani7.apps.feedfly.rss.ParsingState
 import srimani7.apps.feedfly.ui.RssItemsColumn
 import srimani7.apps.feedfly.viewmodel.RssViewModal
+import srimani7.apps.rssparser.DateParser
+import srimani7.apps.rssparser.ParsingState
 
 @Composable
 fun RssScreen(feedId: Long, navController: NavHostController) {
@@ -79,23 +79,23 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
                     viewModal.updateArticle(articleItem)
                 }
             }
-            AnimatedVisibility(parsingState == ParsingState.Loading) {
+            AnimatedVisibility(parsingState == ParsingState.Processing) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
     }
 
     LaunchedEffect(parsingState) {
-        when (parsingState) {
-            is ParsingState.Error -> {
-                RssViewModal.info((parsingState as ParsingState.Error).message)
-                hostState.showSnackbar(
-                    (parsingState as ParsingState.Error).message,
-                    duration = SnackbarDuration.Short
-                )
-            }
-
-            else -> {}
+        val message = when (parsingState) {
+            is ParsingState.Failure -> (parsingState as ParsingState.Failure).exception.message ?: "Unknown error"
+            is ParsingState.Completed -> "Fetching completed"
+            is ParsingState.LastBuild -> "You are up-to date"
+            else -> return@LaunchedEffect
         }
+        hostState.showSnackbar(message, duration = SnackbarDuration.Short)
+    }
+
+    LaunchedEffect(feed) {
+        feed?.let { viewModal.parseXml(it) }
     }
 }

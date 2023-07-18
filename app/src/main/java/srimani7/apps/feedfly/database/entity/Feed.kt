@@ -4,11 +4,14 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import srimani7.apps.rssparser.elements.Channel
 import java.util.Date
 
-@Entity(tableName = "feeds", indices = [
-    Index(value = ["feed_url"], unique = true)
-])
+@Entity(
+    tableName = "feeds", indices = [
+        Index(value = ["feed_url"], unique = true)
+    ]
+)
 data class Feed(
     @ColumnInfo("feed_url") val feedUrl: String,
     @ColumnInfo("description") val description: String?,
@@ -27,6 +30,16 @@ data class Feed(
         link = (map["link"] ?: "").toString(),
         title = (map["title"] ?: "").toString(),
         lastBuildDate = map["lastBuildDate"] as Date?
+    )
+
+    fun copy(channel: Channel) = copy(
+        description = channel.description,
+        link = channel.link ?: "",
+        title = channel.title ?: "",
+        lastBuildDate = channel.lastBuildDate ?: Date(),
+        language = channel.language,
+        managingEditor = channel.managingEditor,
+        copyright = channel.copyright
     )
 
     companion object {

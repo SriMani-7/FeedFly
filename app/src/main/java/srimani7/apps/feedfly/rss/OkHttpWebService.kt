@@ -2,24 +2,14 @@ package srimani7.apps.feedfly.rss
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.InputStream
 
 class OkHttpWebService {
 
-    private val client = OkHttpClient()
+    private val service = srimani7.apps.rssparser.OkHttpWebService()
 
-    suspend fun getXMlString(url: String): InputStream? = withContext(Dispatchers.IO) {
-        val request = Request.Builder()
-            .url(url)
-            .build()
-        try {
-            val response = client.newCall(request).execute()
-            return@withContext response.body?.byteStream()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
+    suspend fun getXMlString(url: String): InputStream = withContext(Dispatchers.IO) {
+        val result = service.inputStreamResult(url)
+        return@withContext result.getOrElse { throw it }
     }
 }

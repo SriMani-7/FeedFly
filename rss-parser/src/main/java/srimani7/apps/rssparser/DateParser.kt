@@ -237,7 +237,8 @@ object DateParser {
      * was not possible to parse the given string into a Date.
      *
      */
-    fun parseDate(sDate: String, locale: Locale = Locale.getDefault()): Date? {
+    fun parseDate(sDate: String?, locale: Locale = Locale.getDefault()): Date? {
+        if (sDate == null) return null
         var date: Date? = parseW3CDateTime(sDate, locale)
         if (date == null) {
             date = parseRFC822(sDate, locale)

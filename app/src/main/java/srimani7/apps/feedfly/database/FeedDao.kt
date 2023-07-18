@@ -9,12 +9,14 @@ import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import srimani7.apps.feedfly.database.entity.ArticleItem
+import srimani7.apps.feedfly.database.entity.ArticleMedia
 import srimani7.apps.feedfly.database.entity.Feed
+import srimani7.apps.feedfly.database.entity.FeedImage
 
 @Dao
 interface FeedDao {
     @Insert
-    suspend fun insertFeedUrl(feed: Feed)
+    suspend fun insertFeedUrl(feed: Feed): Long
 
     @Update
     suspend fun updateFeedUrl(feed: Feed)
@@ -49,4 +51,41 @@ interface FeedDao {
 
     @Query("select distinct group_name from feeds")
     fun getGroups(): Flow<List<String?>>
+
+    @Insert
+    suspend fun update(articleMedia: ArticleMedia)
+
+    @Insert
+    suspend fun update(feedImage: FeedImage)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(feedImage: ArticleItem): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(feedImage: FeedImage): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(articleMedia: ArticleMedia): Long
+
+    @Throws(UnsupportedOperationException::class)
+    @Transaction
+    suspend fun <T> insertOrUpdate(entity: T) {
+        val rowId = when(entity) {
+            is Feed -> insertFeedUrl(entity)
+            is ArticleItem -> insert(entity)
+            is ArticleMedia -> insert(entity)
+            is FeedImage -> insert(entity)
+            else -> throw UnsupportedOperationException("Wrong entity $entity")
+        }
+        if (rowId == -1L) {
+            when(entity) {
+                is Feed -> updateFeedUrl(entity)
+                is ArticleItem -> updateArticle(entity)
+                is ArticleMedia -> update(entity)
+                is FeedImage -> update(entity)
+                else -> throw UnsupportedOperationException("Wrong entity $entity")
+            }
+        }
+    }
 }
+
