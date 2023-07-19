@@ -10,7 +10,7 @@ fun debugLog(message: String) {
 }
 
 @Throws(XmlPullParserException::class, IOException::class)
-fun XmlPullParser.readTagChildren(tagName: String, nameSpace: String? = null, body: () -> Unit) {
+fun XmlPullParser.readTagChildren(tagName: String, nameSpace: String? = null, body: () -> Boolean) {
     require(XmlPullParser.START_TAG, nameSpace, tagName)
     debugLog("parsing $tagName -----")
     while (next() != XmlPullParser.END_TAG) {
@@ -18,7 +18,7 @@ fun XmlPullParser.readTagChildren(tagName: String, nameSpace: String? = null, bo
             continue
         }
         debugLog("child $name")
-        body()
+        if (body()) break
     }
     debugLog("parsing $tagName completed -----")
 }

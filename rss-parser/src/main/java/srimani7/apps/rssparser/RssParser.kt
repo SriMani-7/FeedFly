@@ -33,8 +33,9 @@ class RssParser {
         parser.readTagChildren("rss") {
             if (parser.name == "channel") {
                 channel = readChannel(parser, lastBuild)
-                return@readTagChildren
+                return@readTagChildren true
             } else parser.skip()
+            false
         }
         return channel ?: ParsingState.Failure(Exception("Parsing issue"))
     }
@@ -53,7 +54,7 @@ class RssParser {
                     val buildDate = DateParser.parseDate(parser.readText("lastBuildDate"))
                     if (lastBuild != null && lastBuild == buildDate) {
                         parsingState = ParsingState.LastBuild
-                        return@readTagChildren
+                        return@readTagChildren true
                     }
                     channel.lastBuildDate = buildDate
                 }
@@ -64,7 +65,7 @@ class RssParser {
                 "image" -> channel.image = readImage(parser)
                 "item" -> items.add(readItem(parser))
                 else -> parser.skip()
-            }
+            }; false
         }
         return parsingState ?: ParsingState.Success(channel.apply { this.items = items })
     }
@@ -82,8 +83,9 @@ class RssParser {
                 "pubDate" -> item.pubDate = parser.readText("pubDate")
                 "enclosure" -> item.enclosure = readEnclosure(parser)
                 "category" -> parser.readText("category")?.let { mutableList.add(it) }
+                "media:content" -> item.enclosure = readMediaContent(parser)
                 else -> parser.skip()
-            }
+            }; false
         }
         return item.apply { categories = mutableList }
     }
@@ -100,7 +102,7 @@ class RssParser {
                 "height" -> channelImage.height = parser.readText("height")?.toIntOrNull()
                 "width" -> channelImage.width = parser.readText("width")?.toIntOrNull()
                 else -> parser.skip()
-            }
+            }; false
         }
         return channelImage
     }
@@ -111,7 +113,17 @@ class RssParser {
         val length: Long? = parser.getAttributeValue(null, "length").toLongOrNull()
         val type: String? = parser.getAttributeValue(null, "type")
         val url: String? = parser.getAttributeValue(null, "url")
-//        parser.require(XmlPullParser.END_TAG, null, "enclosure")
+        parser.next()
+        return ItemEnclosure(length, type, url)
+    }
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun readMediaContent(parser: XmlPullParser): ItemEnclosure {
+        parser.require(XmlPullParser.START_TAG, null, "media:content")
+        val length: Long? = parser.getAttributeValue(null, "fileSize")?.toLongOrNull()
+        val type: String? = parser.getAttributeValue(null, "type") ?: parser.getAttributeValue(null, "medium")
+        val url: String? = parser.getAttributeValue(null, "url")
+        parser.next()
         return ItemEnclosure(length, type, url)
     }
 }

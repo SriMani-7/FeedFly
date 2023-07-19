@@ -34,4 +34,6 @@ data class ArticleMedia(
         url = itemEnclosure.url,
         articleId = articleId
     )
+
+    fun asImageUrl() = type?.takeIf { it.contains("image/") }
 }

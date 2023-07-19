@@ -1,6 +1,7 @@
 package srimani7.apps.feedfly.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.MapInfo
 import androidx.room.OnConflictStrategy
@@ -87,5 +88,17 @@ interface FeedDao {
             }
         }
     }
-}
 
+    @Transaction
+    @Query("select title, link, category, pinned, pub_date, description, author, article_id from articles where feed_id = :feedId ORDER BY articles.pub_date desc")
+    fun getArticles(feedId: Long): Flow<List<FeedArticle>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(articleItem: ArticleItem, articleMedia: ArticleMedia)
+    @Delete
+    suspend fun delete(feed: Feed)
+
+    @Query("select article_id from articles where title = :rowId")
+    fun getArticle(rowId: String): Flow<Long>
+
+}

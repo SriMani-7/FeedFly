@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,21 +36,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.database.entity.ArticleItem
+import srimani7.apps.feedfly.database.FeedArticle
 import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
 
 @Composable
 fun RssItemsColumn(
-    dateListMap: Map<String?, List<ArticleItem>>,
-    updateArticle: (ArticleItem) -> Unit
+    dateListMap: Map<String?, List<FeedArticle>>,
+    updateArticle: (Long, Boolean) -> Unit
 ) {
     Column {
         LazyColumn(
@@ -67,8 +64,10 @@ fun RssItemsColumn(
                 }
                 items(entry.value,
                     key = { it.id }
-                ) {
-                    RssItemCard(it, updateArticle)
+                ) {feedArticle ->
+                    RssItemCard(feedArticle) {
+                        updateArticle(feedArticle.id, it)
+                    }
                 }
             }
         }
@@ -76,8 +75,9 @@ fun RssItemsColumn(
 }
 
 @Composable
-fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
-    var imageSrc by remember { mutableStateOf<String?>(null) }
+fun RssItemCard(item: FeedArticle, onPinChange: (Boolean) -> Unit) {
+    var imageSrc by remember { mutableStateOf(item.articleMedia?.url) }
+    RssViewModal.info(imageSrc.toString())
     val context = LocalContext.current
     var showImage by remember { mutableStateOf(false) }
 
@@ -101,16 +101,15 @@ fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(imageSrc)
-                            .crossfade(true)
                             .build(),
-                        placeholder = painterResource(R.drawable.baseline_photo_size_select_actual_24),
+                        //placeholder = painterResource(R.drawable.baseline_photo_size_select_actual_24),
                         contentDescription = "image",
                         contentScale = ContentScale.Crop,
                         alignment = Alignment.Center,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { showImage = true }
-                            .defaultMinSize(minHeight = 150.dp),
+                            .defaultMinSize(minHeight = 140.dp),
                         filterQuality = FilterQuality.Medium,
                     )
                 }
@@ -142,7 +141,7 @@ fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
             }
             item.description?.let {
                 DescriptionText(it, modifier = Modifier.padding(12.dp, 8.dp)) { src ->
-                    imageSrc = src
+                    if (imageSrc != null) imageSrc = src
                     RssViewModal.info(src)
                     ColorDrawable(android.graphics.Color.GRAY)
                 }
@@ -152,6 +151,7 @@ fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
                     .fillMaxWidth()
                     .padding(start = 12.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     if (item.category.isNotBlank())
@@ -159,8 +159,7 @@ fun RssItemCard(item: ArticleItem, onPinChange: (ArticleItem) -> Unit) {
                     DateParser.formatTime(item.pubDate)
                         ?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                ArticleFavoriteToggle(item.pinned) { onPinChange(item.copy(pinned = it)) }
+                ArticleFavoriteToggle(item.pinned) { onPinChange(it) }
             }
             Divider(thickness = 1.5.dp)
         }

@@ -8,7 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -69,14 +73,18 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
                             }
                         }
                     }
+                }, actions = {
+                    IconButton(onClick = { feed?.let { viewModal.delete(it) } }) {
+                        Icon(Icons.Default.Delete, "delete")
+                    }
                 }
             )
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             feedArticles?.let {
-                RssItemsColumn(it) { articleItem ->
-                    viewModal.updateArticle(articleItem)
+                RssItemsColumn(it) { id, changed ->
+                    viewModal.updateArticle(id, changed)
                 }
             }
             AnimatedVisibility(parsingState == ParsingState.Processing) {

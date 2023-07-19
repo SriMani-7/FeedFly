@@ -5,10 +5,12 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import srimani7.apps.feedfly.database.AppDatabase
 import srimani7.apps.feedfly.database.entity.ArticleItem
 import srimani7.apps.feedfly.database.entity.ArticleMedia
@@ -38,7 +40,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     private var lastBuildDate: Date? = null
 
     val groupedArticles = feedDao
-        .getFeedArticles(feedId)
+        .getArticles(feedId)
         .transform { feedArticles ->
             emit(feedArticles.groupBy { DateParser.formatDate(it.pubDate) })
         }
@@ -48,7 +50,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
             _parsingState.value = LastBuild
             return
         }
-        info(feed.lastBuildDate.toString()+" "+lastBuildDate)
+        info(feed.lastBuildDate.toString() + " " + lastBuildDate)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _parsingState.value = Processing
@@ -72,7 +74,11 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
                         _parsingState.value = Completed
                     }
 
-                    LastBuild, Processing, Completed -> _parsingState.value = state
+                    Processing, Completed -> _parsingState.value = state
+                    LastBuild -> {
+                        lastBuildDate = feed.lastBuildDate
+                        _parsingState.value = state
+                    }
                 }
             } catch (e: Exception) {
                 _parsingState.value = Failure(e)
@@ -81,30 +87,40 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         }
     }
 
-    fun updateArticle(articleItem: ArticleItem) {
-        viewModelScope.launch { feedDao.updateArticle(articleItem) }
+    fun updateArticle(id: Long, pinned: Boolean) {
+        viewModelScope.launch { feedDao.updateArticlePin(id, pinned) }
     }
 
     companion object {
         fun info(any: Any) {
-            Log.i("rss_", any.toString())
+            Log.i("vrss_", any.toString())
         }
     }
 
-    private suspend fun parseAndInsert(feed: Feed, channel: Channel) {
+    private suspend fun parseAndInsert(feed: Feed, channel: Channel) = withContext(Dispatchers.IO){
         feedDao.updateFeedUrl(feed)
         channel.image?.let {
             feedDao.insertOrUpdate(FeedImage(it, feed.id))
         }
-        val articles = channel.items.associate {
-            val article = ArticleItem(it, feed.id)
-            val media = it.enclosure?.let { it1 -> ArticleMedia(it1, article.id) }
-            article to media
-        }
 
-        articles.forEach { (articleItem, articleMedia) ->
-            feedDao.insertOrUpdate(articleItem)
-            articleMedia?.let { feedDao.insertOrUpdate(articleMedia) }
+        channel.items.forEach { channelItem ->
+            val article = ArticleItem(channelItem, feed.id)
+            feedDao.insertOrUpdate(article)
+            launch {
+                if (channelItem.enclosure != null) {
+                    feedDao.getArticle(article.title).collect {
+                        info(it)
+                        feedDao.insert(ArticleMedia(channelItem.enclosure!!, it))
+                        this.cancel()
+                    }
+                }
+            }
+        }
+    }
+
+    fun delete(feed: Feed) {
+        viewModelScope.launch {
+            feedDao.delete(feed)
         }
     }
 }
