@@ -21,7 +21,9 @@ class FeedArticle(
         entityColumn = "article_id"
     )
     val articleMedia: ArticleMedia?
-)
+) {
+
+}
 
 class FavoriteArticle(
     val title: String,

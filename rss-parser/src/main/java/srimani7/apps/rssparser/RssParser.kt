@@ -110,7 +110,7 @@ class RssParser {
     @Throws(XmlPullParserException::class, IOException::class)
     private fun readEnclosure(parser: XmlPullParser): ItemEnclosure {
         parser.require(XmlPullParser.START_TAG, null, "enclosure")
-        val length: Long? = parser.getAttributeValue(null, "length").toLongOrNull()
+        val length: Long? = parser.getAttributeValue(null, "length")?.toLongOrNull()
         val type: String? = parser.getAttributeValue(null, "type")
         val url: String? = parser.getAttributeValue(null, "url")
         parser.next()

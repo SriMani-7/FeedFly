@@ -44,18 +44,19 @@ import srimani7.apps.feedfly.R
 fun DescriptionText(
     description: String,
     modifier: Modifier = Modifier,
-    maxLines: Int? = Int.MAX_VALUE,
+    showText: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
     imageGetter: Html.ImageGetter,
 ) {
     var spanned by remember { mutableStateOf<AnnotatedString?>(null) }
     spanned?.let {
-        maxLines?.let { it1 ->
+        if (showText) {
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = if (isSystemInDarkTheme()) FontWeight.Light else FontWeight.Normal,
                 modifier = modifier,
-                maxLines = it1,
+                maxLines = maxLines,
                 overflow = TextOverflow.Ellipsis
             )
         }

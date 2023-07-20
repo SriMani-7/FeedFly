@@ -29,7 +29,7 @@ fun ArticleFavoriteToggle(pinned: Boolean, onPinChange: (Boolean) -> Unit) {
             else R.drawable.favorite_outline_24
             Icon(
                 painterResource(resId), "favorite",
-                modifier = Modifier.size(26.dp),
+                modifier = Modifier.size(30.dp),
                 tint = favorite_color
             )
         }

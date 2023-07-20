@@ -35,5 +35,17 @@ data class ArticleMedia(
         articleId = articleId
     )
 
-    fun asImageUrl() = type?.takeIf { it.contains("image/") }
+    val urlType by lazy {
+        when {
+            type.isNullOrBlank() -> null
+            type.contains("image") -> MediaType.IMAGE
+            type.contains("audio") -> MediaType.AUDIO
+            else -> null
+        }
+    }
+
+    enum class MediaType {
+        IMAGE, AUDIO
+    }
+
 }

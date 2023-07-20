@@ -48,12 +48,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.database.FavoriteArticle
-import srimani7.apps.rssparser.DateParser
 import srimani7.apps.feedfly.ui.ArticleFavoriteToggle
 import srimani7.apps.feedfly.ui.DescriptionText
 import srimani7.apps.feedfly.ui.ShowImageDialog
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 import srimani7.apps.feedfly.viewmodel.RssViewModal
+import srimani7.apps.rssparser.DateParser
 
 @Composable
 fun FavoriteScreen(homeViewModal: HomeViewModal) {
@@ -176,8 +176,7 @@ fun FavoriteArticleCard(item: FavoriteArticle, onPinChange: (Long, Boolean) -> U
             item.description?.let {
                 DescriptionText(
                     description = it,
-                    modifier = Modifier.padding(12.dp, 8.dp),
-                    maxLines = null
+                    modifier = Modifier.padding(12.dp, 8.dp)
                 ) { src ->
                     imageSrc = src
                     RssViewModal.info(src)
