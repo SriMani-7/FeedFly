@@ -37,11 +37,11 @@ const val URL_REGEX =
     "\\b((?:https?|ftp)://[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&:/~+#-]*[\\w@?^=%&/~+#-])?)"
 
 @Composable
-fun AddUrlDialog(homeViewModal: HomeViewModal, onDismiss: () -> Unit) {
+fun AddUrlDialog(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> Unit) {
     val groupNames by homeViewModal.groupNameFlow.collectAsState(emptyList())
     val selectedGroup = remember { mutableStateOf<String?>(null) }
 
-    var url by remember { mutableStateOf("") }
+    var url by remember { mutableStateOf(urlF ?: "") }
     var isError by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf("") }
 

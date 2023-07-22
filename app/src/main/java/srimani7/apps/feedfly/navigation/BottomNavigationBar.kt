@@ -37,7 +37,7 @@ fun BottomNavigationBar(navController: NavHostController, modifier: Modifier = M
                 },
                 icon = { Icon(painterResource(item.second), null) },
                 colors = NavigationBarItemDefaults.colors(
-                    unselectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f),
+                    unselectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f),
                     selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 ),
             )

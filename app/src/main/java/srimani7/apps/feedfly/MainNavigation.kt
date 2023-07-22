@@ -9,6 +9,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -33,7 +34,7 @@ import srimani7.apps.feedfly.navigation.SettingsScreen
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
 @Composable
-fun MainNavigation(homeViewModal: HomeViewModal) {
+fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
     val navController = rememberNavController()
     val currentRoute by navController.currentBackStackEntryAsState()
     Scaffold(
@@ -71,8 +72,11 @@ fun MainNavigation(homeViewModal: HomeViewModal) {
             }
 
             dialog(InsertFeedScreen.route) {
-                AddUrlDialog(homeViewModal) { navController.popBackStack() }
+                AddUrlDialog(homeViewModal, addLink) { navController.popBackStack() }
             }
+        }
+        LaunchedEffect(addLink) {
+            addLink?.let { navController.navigate(InsertFeedScreen.route) }
         }
     }
 }
