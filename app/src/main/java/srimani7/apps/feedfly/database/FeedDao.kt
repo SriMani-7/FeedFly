@@ -13,6 +13,7 @@ import srimani7.apps.feedfly.database.entity.ArticleItem
 import srimani7.apps.feedfly.database.entity.ArticleMedia
 import srimani7.apps.feedfly.database.entity.Feed
 import srimani7.apps.feedfly.database.entity.FeedImage
+import srimani7.apps.rssparser.debugLog
 
 @Dao
 interface FeedDao {
@@ -53,10 +54,10 @@ interface FeedDao {
     @Query("select distinct group_name from feeds")
     fun getGroups(): Flow<List<String?>>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(articleMedia: ArticleMedia)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(feedImage: FeedImage)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -78,6 +79,7 @@ interface FeedDao {
             is FeedImage -> insert(entity)
             else -> throw UnsupportedOperationException("Wrong entity $entity")
         }
+        debugLog("$rowId $entity")
         if (rowId == -1L) {
             when(entity) {
                 is Feed -> updateFeedUrl(entity)

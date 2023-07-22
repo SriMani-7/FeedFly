@@ -97,16 +97,18 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         }
     }
 
-    private suspend fun parseAndInsert(feed: Feed, channel: Channel) = withContext(Dispatchers.IO){
+    private suspend fun parseAndInsert(feed: Feed, channel: Channel) = withContext(Dispatchers.IO) {
         feedDao.updateFeedUrl(feed)
         channel.image?.let {
-            feedDao.insertOrUpdate(FeedImage(it, feed.id))
+            launch {
+                feedDao.insertOrUpdate(FeedImage(it, feed.id))
+                cancel()
+            }
         }
-
         channel.items.forEach { channelItem ->
             val article = ArticleItem(channelItem, feed.id)
-            feedDao.insertOrUpdate(article)
-            launch {
+            withContext(Dispatchers.IO) {
+                feedDao.insertOrUpdate(article)
                 if (channelItem.enclosure != null) {
                     feedDao.getArticle(article.title).collect {
                         info(it)

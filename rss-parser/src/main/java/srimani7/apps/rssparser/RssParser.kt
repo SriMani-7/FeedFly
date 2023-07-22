@@ -67,6 +67,7 @@ class RssParser {
                 else -> parser.skip()
             }; false
         }
+        debugLog(parsingState.toString())
         return parsingState ?: ParsingState.Success(channel.apply { this.items = items })
     }
 
