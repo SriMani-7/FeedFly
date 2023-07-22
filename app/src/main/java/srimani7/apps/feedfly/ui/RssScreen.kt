@@ -6,6 +6,8 @@
 package srimani7.apps.feedfly.ui
 
 import android.app.Application
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.AnimatedVisibility
@@ -38,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,10 +49,13 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem
@@ -63,6 +69,7 @@ import srimani7.apps.feedfly.database.FeedArticle
 import srimani7.apps.feedfly.database.entity.ArticleMedia
 import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
+
 
 data class AudioMetaData(
     val title: CharSequence,
@@ -243,6 +250,8 @@ fun RssItemCard(item: FeedArticle, onPlayAudio: (String) -> Unit, onPinChange: (
     var descriptionUri by rememberSaveable {
         mutableStateOf<String?>(null)
     }
+    val pubTime by remember { mutableStateOf(DateParser.formatTime(item.pubDate) ?: "") }
+
     OutlinedCard(
         onClick = {
             val intent = CustomTabsIntent.Builder()
@@ -293,16 +302,16 @@ fun RssItemCard(item: FeedArticle, onPlayAudio: (String) -> Unit, onPinChange: (
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(start = 14.dp)
         ) {
-            DateParser.formatTime(item.pubDate)
-                ?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Light
-                    )
-                }
+            Text(
+                text = pubTime,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Light
+            )
             Spacer(modifier = Modifier.weight(1f))
             ArticleFavoriteToggle(item.pinned) { onPinChange(it) }
+            IconButton(onClick = { shareText(item.link, context) }) {
+                Icon(painterResource(R.drawable.share_24px), "Share")
+            }
         }
     }
 }
@@ -341,4 +350,14 @@ fun ArticleImage(imageSrc: String) {
             .defaultMinSize(minHeight = 140.dp),
         filterQuality = FilterQuality.Medium,
     )
+}
+
+fun shareText(text: String, context: Context) {
+    val sendIntent = Intent()
+    sendIntent.action = Intent.ACTION_SEND
+    sendIntent.putExtra(Intent.EXTRA_TEXT, text)
+    sendIntent.type = "text/plain"
+
+    val shareIntent = Intent.createChooser(sendIntent, "Share link")
+    startActivity(context, shareIntent, ActivityOptionsCompat.makeBasic().toBundle())
 }
