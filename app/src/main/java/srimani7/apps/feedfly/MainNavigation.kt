@@ -4,19 +4,18 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
@@ -36,16 +35,16 @@ import srimani7.apps.feedfly.viewmodel.HomeViewModal
 @Composable
 fun MainNavigation(homeViewModal: HomeViewModal) {
     val navController = rememberNavController()
+    val currentRoute by navController.currentBackStackEntryAsState()
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate(InsertFeedScreen.route) },
-                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+        bottomBar = {
+            when (currentRoute?.destination?.route) {
+                Home.HomeScreen.destination, Favorites.FavoriteScreen.destination, Settings.SettingsScreen.destination -> {
+                    BottomNavigationBar(navController)
+                }
             }
-        }, contentWindowInsets = WindowInsets.navigationBars,
+        },
+        contentWindowInsets = WindowInsets.navigationBars,
     ) { paddingValues ->
         NavHost(navController, Home.HomeScreen.route, modifier = Modifier.padding(paddingValues)) {
             navigation(Home.HomeScreen.destination, Home.HomeScreen.route) {
@@ -54,8 +53,8 @@ fun MainNavigation(homeViewModal: HomeViewModal) {
                 }
                 composable(
                     Home.ArticlesScreen.destination + "/{id}", arguments = listOf(
-                    navArgument("id") { type = NavType.LongType }
-                )) { entry ->
+                        navArgument("id") { type = NavType.LongType }
+                    )) { entry ->
                     val long = entry.arguments?.getLong("id")
                     if (long != null && long > 0) RssScreen(long, navController)
                 }
@@ -72,12 +71,11 @@ fun MainNavigation(homeViewModal: HomeViewModal) {
             }
 
             dialog(InsertFeedScreen.route) {
-                AddUrlDialog(homeViewModal){ navController.popBackStack() }
+                AddUrlDialog(homeViewModal) { navController.popBackStack() }
             }
         }
     }
 }
-
 
 
 @Composable
