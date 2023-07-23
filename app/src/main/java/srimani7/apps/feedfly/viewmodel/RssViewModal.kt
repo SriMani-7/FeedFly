@@ -107,8 +107,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         }
         channel.items.forEach { channelItem ->
             val article = ArticleItem(channelItem, feed.id)
-            withContext(Dispatchers.IO) {
-                feedDao.insertOrUpdate(article)
+            launch {
                 if (channelItem.enclosure != null) {
                     feedDao.getArticle(article.title).collect {
                         info(it)

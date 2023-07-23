@@ -46,7 +46,7 @@ fun FeedCard(feed: Feed, onClick: () -> Unit) {
     Card(
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
-        modifier = Modifier.size(145.dp, 135.dp),
+        modifier = Modifier.size(145.dp, 140.dp),
         elevation = CardDefaults.cardElevation(3.dp)
     ) {
         Column(

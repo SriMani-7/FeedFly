@@ -12,17 +12,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -35,17 +40,21 @@ fun HomeScreen(
 ) {
     val groups by homeViewModal.groupsFlow.collectAsState(null)
     val otherFeeds by homeViewModal.otherFeeds.collectAsState(null)
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("FeedFly") },
+            CenterAlignedTopAppBar(
+                title = { Text("FeedFly", fontFamily = FontFamily.SansSerif, style = MaterialTheme.typography.titleLarge) },
                 actions = {
                     IconButton(onClick = { navController.navigate(InsertFeedScreen.route) }) {
                         Icon(Icons.Default.Add, contentDescription = "Add")
                     }
-                }
+                }, scrollBehavior = scrollBehavior, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                )
             )
-        }
+        },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
     ) { paddingValues ->
         Box(
             modifier = Modifier
