@@ -13,10 +13,11 @@ import srimani7.apps.feedfly.database.entity.FeedImage
 
 @Database(
     entities = [Feed::class, ArticleItem::class, FeedImage::class, ArticleMedia::class],
-    version = 2,
+    version = 3,
     exportSchema = true,
     autoMigrations = [
-        AutoMigration(from = 1, to = 2)
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3) // Unique index - title+link in articles
     ]
 )
 @TypeConverters(Converters::class)

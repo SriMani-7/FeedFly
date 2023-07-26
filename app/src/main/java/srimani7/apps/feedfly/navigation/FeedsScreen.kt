@@ -1,74 +1,103 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 
 package srimani7.apps.feedfly.navigation
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import srimani7.apps.feedfly.database.entity.Feed
+import coil.compose.AsyncImage
+import srimani7.apps.feedfly.R
+import srimani7.apps.feedfly.database.FeedDto
 import srimani7.apps.rssparser.DateParser
 
 @Composable
-fun FeedGroupList(groupName: String, feeds: List<Feed>, onClick: (Long) -> Unit) {
-    Column {
-        Text(text = groupName, modifier = Modifier.padding(start = 16.dp))
-        LazyRow(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(16.dp, 16.dp),
-        ) {
-            items(feeds, key = { it.id }) { feed ->
-                FeedCard(feed = feed, onClick = { onClick(feed.id) })
+fun FeedGroupList(groups: List<FeedDto>, onClick: (Long) -> Unit) {
+    LazyColumn(
+        contentPadding = PaddingValues(vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        groups.forEach { feedDto ->
+            item(key = feedDto.id) {
+                FeedCard(feedDto) { onClick(feedDto.id) }
             }
         }
     }
 }
 
 @Composable
-fun FeedCard(feed: Feed, onClick: () -> Unit) {
-    Card(
+fun FeedCard(feedDto: FeedDto, onClick: () -> Unit) {
+    Surface(
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
-        modifier = Modifier.size(145.dp, 140.dp),
-        elevation = CardDefaults.cardElevation(3.dp)
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp, 12.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(14.dp, 14.dp),
         ) {
-            Spacer(modifier = Modifier.weight(1f))
-            DateParser.formatDate(feed.lastBuildDate)?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Light,
-                    modifier = Modifier.padding(0.dp, 4.dp)
-                )
-            }
-            Text(
-                text = feed.title,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+            AsyncImage(
+                model = feedDto.feedImageDto?.imageUrl,
+                contentDescription = "image",
+                contentScale = ContentScale.FillHeight,
+                filterQuality = FilterQuality.Medium,
+                alignment = Alignment.CenterStart,
+                modifier = Modifier
+                    .size(42.dp)
+                    .background(Color.LightGray, CircleShape)
+                    .clip(CircleShape),
+                placeholder = painterResource(R.drawable.rss_feed_24px),
             )
-            Spacer(modifier = Modifier.height(3.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = feedDto.title,
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    DateParser.formatDate(feedDto.lastBuildDate)?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Light,
+                        )
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = feedDto.description ?: "",
+                        modifier = Modifier.weight(1f),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Light,
+                    )
+                }
+            }
         }
     }
 }

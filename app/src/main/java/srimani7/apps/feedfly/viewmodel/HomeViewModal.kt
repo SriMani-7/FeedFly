@@ -19,8 +19,7 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
     private val userSettingsRepo by lazy { UserSettingsRepo(application) }
     private val okHttpWebService by lazy { OkHttpWebService() }
-    val groupsFlow by lazy { feedDao.getAllGroups() }
-    val otherFeeds by lazy { feedDao.getOtherFeeds() }
+    val allFeedsFlow by lazy { feedDao.getAllFeeds() }
     val favoriteArticles by lazy { feedDao.getFavoriteFeedArticles() }
     val groupNameFlow by lazy { feedDao.getGroups() }
 
@@ -33,7 +32,7 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
             isLoading = true
             try {
                 val inputStream = okHttpWebService.getXMlString(it)
-                val feed = inputStream?.let { it1 -> rssParser.parseFeed(it, it1) }
+                val feed = inputStream.let { it1 -> rssParser.parseFeed(it, it1) }
                 isLoading = if (feed != null) {
                     feedDao.insertFeedUrl(feed.copy(group = groupName))
                     false

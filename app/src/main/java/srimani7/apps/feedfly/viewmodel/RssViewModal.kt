@@ -110,7 +110,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
             feedDao.insertOrUpdate(article)
             if (channelItem.enclosure != null) {
                 launch {
-                    feedDao.getArticle(article.title).collect {
+                    feedDao.getArticle(article.link).collect {
                         info(it)
                         feedDao.insert(ArticleMedia(channelItem.enclosure!!, it))
                         cancel()

@@ -1,19 +1,25 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
+)
 
 package srimani7.apps.feedfly.navigation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -38,21 +44,41 @@ fun HomeScreen(
     navController: NavController,
     homeViewModal: HomeViewModal = viewModel()
 ) {
-    val groups by homeViewModal.groupsFlow.collectAsState(null)
-    val otherFeeds by homeViewModal.otherFeeds.collectAsState(null)
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val allFeeds by homeViewModal.allFeedsFlow.collectAsState(null)
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("FeedFly", fontFamily = FontFamily.SansSerif, style = MaterialTheme.typography.titleLarge) },
-                actions = {
-                    IconButton(onClick = { navController.navigate(InsertFeedScreen.route) }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
-                    }
-                }, scrollBehavior = scrollBehavior, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    titleContentColor = MaterialTheme.colorScheme.primary
+            Column {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            "FeedFly",
+                            fontFamily = FontFamily.SansSerif,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    },
+                    actions = {
+                        IconButton(onClick = { navController.navigate(InsertFeedScreen.route) }) {
+                            Icon(Icons.Default.Add, contentDescription = "Add")
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
                 )
-            )
+                LazyRow(
+                    contentPadding = PaddingValues(12.dp, 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    item {
+                        FilterChip(selected = true, onClick = { /*TODO*/ }, label = { Text("All feeds") })
+                    }
+                    item {
+                        FilterChip(selected = false, onClick = { /*TODO*/ }, label = { Text(text = "Latest") })
+                    }
+                    item {
+                        FilterChip(selected = false, onClick = { /*TODO*/ }, label = { Text(text = "Groups")})
+                    }
+                }
+            }
         },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
     ) { paddingValues ->
@@ -64,24 +90,9 @@ fun HomeScreen(
             AnimatedVisibility(visible = homeViewModal.isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            LazyColumn(
-                contentPadding = PaddingValues(top = 12.dp, bottom = 36.dp)
-            ) {
-                groups?.let { groups ->
-                    items(groups, key = { it.name ?: "" }) { feedGroup ->
-                        feedGroup.name?.let {
-                            FeedGroupList(feedGroup.name, feedGroup.feeds) { feedId ->
-                                navController.navigate(Home.ArticlesScreen.destination + "/${feedId}")
-                            }
-                        }
-                    }
-                    otherFeeds?.let {
-                        item(key = "Others") {
-                            FeedGroupList("Other feeds", it) { feedId ->
-                                navController.navigate(Home.ArticlesScreen.destination + "/${feedId}")
-                            }
-                        }
-                    }
+            allFeeds?.let {
+                FeedGroupList(it) { feedId ->
+                    navController.navigate(Home.ArticlesScreen.destination + "/${feedId}")
                 }
             }
         }

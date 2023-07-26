@@ -34,8 +34,8 @@ interface FeedDao {
     suspend fun insertFeedArticles(articles: List<ArticleItem>)
 
     @Transaction
-    @Query("select group_name as name, * from feeds where group_name not null group by group_name")
-    fun getAllGroups(): Flow<List<FeedGroup>>
+    @Query("select * from feeds order by last_build_date desc")
+    fun getAllFeeds(): Flow<List<FeedDto>>
 
     @Update
     suspend fun updateArticle(articleItem: ArticleItem)
@@ -95,6 +95,10 @@ interface FeedDao {
     @Query("select title, link, category, pinned, pub_date, description, author, article_id from articles where feed_id = :feedId ORDER BY articles.pub_date desc")
     fun getArticles(feedId: Long): Flow<List<FeedArticle>>
 
+    @Transaction
+    @Query("select title, link, category, pinned, pub_date, description, author, article_id from articles ORDER BY articles.pub_date desc")
+    fun getArticles(): Flow<List<FeedArticle>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(articleItem: ArticleItem, articleMedia: ArticleMedia)
     @Delete
@@ -102,5 +106,8 @@ interface FeedDao {
 
     @Query("select article_id from articles where title = :rowId")
     fun getArticle(rowId: String): Flow<Long>
+
+    @Query("select * from feeds")
+    fun getFeedUrls(): Flow<List<Feed>>
 
 }
