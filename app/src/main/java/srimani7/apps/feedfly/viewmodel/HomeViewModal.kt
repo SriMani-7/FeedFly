@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.data.AppTheme
 import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.feedfly.database.AppDatabase
+import srimani7.apps.feedfly.navigation.HomeFilter
 import srimani7.apps.feedfly.rss.OkHttpWebService
 import srimani7.apps.feedfly.rss.RssParser
 
@@ -26,6 +27,8 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     private val rssParser by lazy { RssParser() }
     var isLoading by mutableStateOf(false)
     val appThemeState = userSettingsRepo.appThemeFlow(viewModelScope)
+
+    var currentFilter by mutableStateOf<HomeFilter>(HomeFilter.ALL)
 
     fun insertFeed(it: String, groupName: String?) {
         viewModelScope.launch {

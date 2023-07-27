@@ -104,7 +104,7 @@ interface FeedDao {
     @Delete
     suspend fun delete(feed: Feed)
 
-    @Query("select article_id from articles where title = :rowId")
+    @Query("select article_id from articles where link = :rowId")
     fun getArticle(rowId: String): Flow<Long>
 
     @Query("select * from feeds")

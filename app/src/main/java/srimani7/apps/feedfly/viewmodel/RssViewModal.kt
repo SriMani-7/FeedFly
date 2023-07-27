@@ -19,11 +19,8 @@ import srimani7.apps.feedfly.database.entity.FeedImage
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.OkHttpWebService
 import srimani7.apps.rssparser.ParsingState
-import srimani7.apps.rssparser.ParsingState.Completed
-import srimani7.apps.rssparser.ParsingState.Failure
 import srimani7.apps.rssparser.ParsingState.LastBuild
 import srimani7.apps.rssparser.ParsingState.Processing
-import srimani7.apps.rssparser.ParsingState.Success
 import srimani7.apps.rssparser.RssParser
 import srimani7.apps.rssparser.elements.Channel
 import java.util.Date
@@ -34,6 +31,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
 
     val feed = feedDao.getFeed(feedId)
+    val groupNameFlow by lazy { feedDao.getGroups() }
 
     private val _parsingState = MutableStateFlow<ParsingState>(Processing)
     val parsingState: StateFlow<ParsingState> = _parsingState
@@ -51,6 +49,10 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
             return
         }
         info(feed.lastBuildDate.toString() + " " + lastBuildDate)
+        load(feed)
+    }
+
+    private fun load(feed: Feed) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _parsingState.value = Processing
@@ -59,29 +61,29 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
                     rssParser.parse(it, feed.lastBuildDate)
                 }
                 when (state) {
-                    is Failure -> {
+                    is ParsingState.Failure -> {
                         state.exception.printStackTrace()
                         _parsingState.value = state
                     }
 
-                    is Success -> {
+                    is ParsingState.Success -> {
                         if (state.channel.lastBuildDate == null) {
                             lastBuildDate = Date()
                             state.channel.lastBuildDate = lastBuildDate
                         } else lastBuildDate = state.channel.lastBuildDate
                         val fee = feed.copy(state.channel)
                         parseAndInsert(fee, state.channel)
-                        _parsingState.value = Completed
+                        _parsingState.value = ParsingState.Completed
                     }
 
-                    Processing, Completed -> _parsingState.value = state
+                    Processing, ParsingState.Completed -> _parsingState.value = state
                     LastBuild -> {
                         lastBuildDate = feed.lastBuildDate
                         _parsingState.value = state
                     }
                 }
             } catch (e: Exception) {
-                _parsingState.value = Failure(e)
+                _parsingState.value = ParsingState.Failure(e)
                 e.printStackTrace()
             }
         }
@@ -111,8 +113,8 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
             if (channelItem.enclosure != null) {
                 launch {
                     feedDao.getArticle(article.link).collect {
-                        info(it)
-                        feedDao.insert(ArticleMedia(channelItem.enclosure!!, it))
+                        if (it > 0)
+                            feedDao.insert(ArticleMedia(channelItem.enclosure!!, it))
                         cancel()
                     }
                 }
@@ -120,9 +122,20 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         }
     }
 
-    fun delete(feed: Feed) {
+    fun delete(feed: Feed?) {
+        if (feed == null) return
         viewModelScope.launch {
             feedDao.delete(feed)
         }
+    }
+
+    fun refresh(feed: Feed?) {
+        if (feed == null) return
+        load(feed)
+    }
+
+    fun updateFeed(copy: Feed?) {
+        if (copy == null) return
+        viewModelScope.launch { feedDao.updateFeedUrl(copy) }
     }
 }

@@ -6,10 +6,14 @@ import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,14 +25,18 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
@@ -48,6 +56,10 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
     val feed by viewModal.feed.collectAsState(initial = null)
 
     val hostState = remember { SnackbarHostState() }
+
+    val groups by viewModal.groupNameFlow.collectAsState(null)
+    var openGroupsPicker by remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState()
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState) },
@@ -74,8 +86,12 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
                         }
                     }
                 }, actions = {
-                    IconButton(onClick = { feed?.let { viewModal.delete(it) } }) {
-                        Icon(Icons.Default.Delete, "delete")
+                    FeedActions(options = listOf("Delete", "Refresh", "Change Group")) {
+                        when (it) {
+                            "Delete" -> viewModal.delete(feed)
+                            "Refresh" -> viewModal.refresh(feed)
+                            "Change Group" -> openGroupsPicker = true
+                        }
                     }
                 }
             )
@@ -91,11 +107,21 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
+
+        if (openGroupsPicker) GroupsPicker(
+            bottomSheetState,
+            groups,
+            true,
+            { openGroupsPicker = false }) {
+            viewModal.updateFeed(feed?.copy(group = it))
+        }
     }
 
     LaunchedEffect(parsingState) {
         val message = when (parsingState) {
-            is ParsingState.Failure -> (parsingState as ParsingState.Failure).exception.message ?: "Unknown error"
+            is ParsingState.Failure -> (parsingState as ParsingState.Failure).exception.message
+                ?: "Unknown error"
+
             is ParsingState.Completed -> "Fetching completed"
             is ParsingState.LastBuild -> "You are up-to date"
             else -> return@LaunchedEffect
@@ -105,5 +131,25 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
 
     LaunchedEffect(feed) {
         feed?.let { viewModal.parseXml(it) }
+    }
+}
+
+@Composable
+fun FeedActions(options: List<String>, onMenuClick: (String) -> Unit) {
+    var menuExpanded by remember { mutableStateOf(false) }
+    IconButton(onClick = { menuExpanded = true }) {
+        Icon(Icons.Default.MoreVert, "Options")
+        DropdownMenu(
+            expanded = menuExpanded, onDismissRequest = { menuExpanded = false },
+            modifier = Modifier.defaultMinSize(minWidth = 120.dp)
+        ) {
+            options.forEach {
+                DropdownMenuItem(
+                    text = { Text(it) },
+                    onClick = { menuExpanded = false; onMenuClick(it) },
+                    contentPadding = PaddingValues(12.dp, 8.dp),
+                )
+            }
+        }
     }
 }

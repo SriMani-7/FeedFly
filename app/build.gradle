@@ -60,6 +60,7 @@ dependencies {
 
     implementation "androidx.activity:activity-compose:$project.activity_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$project.lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:$project.lifecycle_version"
     implementation "androidx.navigation:navigation-compose:$project.navigation_version"
     implementation "androidx.browser:browser:$project.androidx_browser_version"
 
@@ -96,6 +97,4 @@ dependencies {
     implementation project(path: ':rss-parser')
 
     implementation "androidx.media3:media3-exoplayer:1.1.0"
-    implementation "androidx.media3:media3-ui:1.1.0"
-
 }

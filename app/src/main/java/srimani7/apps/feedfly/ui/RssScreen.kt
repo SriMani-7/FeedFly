@@ -63,7 +63,7 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil.compose.AsyncImagePainter
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.database.FeedArticle
 import srimani7.apps.feedfly.database.entity.ArticleMedia
@@ -156,7 +156,7 @@ fun RssItemsColumn(
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(13.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(10.dp, 15.dp)
         ) {
             dateListMap.forEach { entry ->
@@ -339,9 +339,7 @@ fun ArticleMediaHeader(
 @Composable
 fun ArticleImage(imageSrc: String) {
     AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(imageSrc)
-            .build(),
+        model = imageSrc.replaceFirst("http:", "https:"),
         contentDescription = "image",
         contentScale = ContentScale.Crop,
         alignment = Alignment.TopCenter,
@@ -349,6 +347,9 @@ fun ArticleImage(imageSrc: String) {
             .fillMaxWidth()
             .defaultMinSize(minHeight = 140.dp),
         filterQuality = FilterQuality.Medium,
+        transform = {
+            AsyncImagePainter.DefaultTransform.invoke(it)
+        }
     )
 }
 
