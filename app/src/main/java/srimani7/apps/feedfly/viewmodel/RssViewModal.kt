@@ -12,8 +12,9 @@ import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import srimani7.apps.feedfly.database.AppDatabase
+import srimani7.apps.feedfly.database.dbErrorLog
+import srimani7.apps.feedfly.database.dbInfoLog
 import srimani7.apps.feedfly.database.entity.ArticleItem
-import srimani7.apps.feedfly.database.entity.ArticleMedia
 import srimani7.apps.feedfly.database.entity.Feed
 import srimani7.apps.feedfly.database.entity.FeedImage
 import srimani7.apps.rssparser.DateParser
@@ -103,20 +104,28 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         feedDao.updateFeedUrl(feed)
         channel.image?.let {
             launch {
-                feedDao.insertOrUpdate(FeedImage(it, feed.id))
+                feedDao.insert(FeedImage(it, feed.id))
                 cancel()
             }
         }
         channel.items.forEach { channelItem ->
             val article = ArticleItem(channelItem, feed.id)
-            feedDao.insertOrUpdate(article)
-            if (channelItem.enclosure != null) {
-                launch {
-                    feedDao.getArticle(article.link).collect {
-                        if (it > 0)
-                            feedDao.insert(ArticleMedia(channelItem.enclosure!!, it))
-                        cancel()
-                    }
+            val rowId = feedDao.insert(article)
+            val enclosure = channelItem.enclosure
+            if (enclosure != null && rowId != -1L) launch {
+                try {
+                    feedDao.insertArticleMedia(
+                        mediaSize = enclosure.length,
+                        mediaType = enclosure.type,
+                        url = enclosure.url,
+                        articleLink = article.link,
+                        articleTitle = article.title
+                    )
+                    dbInfoLog("Inserted media")
+                } catch (e: Exception) {
+                    dbErrorLog("For the $enclosure ${article.title} ${article.link}", e)
+                } finally {
+                    cancel()
                 }
             }
         }

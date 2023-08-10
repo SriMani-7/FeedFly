@@ -1,5 +1,6 @@
 package srimani7.apps.feedfly.database
 
+import android.util.Log
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -10,10 +11,8 @@ import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import srimani7.apps.feedfly.database.entity.ArticleItem
-import srimani7.apps.feedfly.database.entity.ArticleMedia
 import srimani7.apps.feedfly.database.entity.Feed
 import srimani7.apps.feedfly.database.entity.FeedImage
-import srimani7.apps.rssparser.debugLog
 
 @Dao
 interface FeedDao {
@@ -55,9 +54,6 @@ interface FeedDao {
     fun getGroups(): Flow<List<String?>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun update(articleMedia: ArticleMedia)
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(feedImage: FeedImage)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -66,30 +62,19 @@ interface FeedDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(feedImage: FeedImage): Long
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(articleMedia: ArticleMedia): Long
-
-    @Throws(UnsupportedOperationException::class)
-    @Transaction
-    suspend fun <T> insertOrUpdate(entity: T) {
-        val rowId = when(entity) {
-            is Feed -> insertFeedUrl(entity)
-            is ArticleItem -> insert(entity)
-            is ArticleMedia -> insert(entity)
-            is FeedImage -> insert(entity)
-            else -> throw UnsupportedOperationException("Wrong entity $entity")
-        }
-        debugLog("$rowId $entity")
-        if (rowId == -1L) {
-            when(entity) {
-                is Feed -> updateFeedUrl(entity)
-                is ArticleItem -> updateArticle(entity)
-                is ArticleMedia -> update(entity)
-                is FeedImage -> update(entity)
-                else -> throw UnsupportedOperationException("Wrong entity $entity")
-            }
-        }
-    }
+    @Query(
+        "insert into articles_media " +
+                "(media_size, mime_type, url, article_id) " +
+                "values(:mediaSize, :mediaType, :url, " +
+                "(select article_id from articles where link = :articleLink and title = :articleTitle))"
+    )
+    suspend fun insertArticleMedia(
+        mediaSize: Long?,
+        mediaType: String?,
+        url: String?,
+        articleLink: String,
+        articleTitle: String
+    )
 
     @Transaction
     @Query("select title, link, category, pinned, pub_date, description, author, article_id from articles where feed_id = :feedId ORDER BY articles.pub_date desc")
@@ -99,8 +84,6 @@ interface FeedDao {
     @Query("select title, link, category, pinned, pub_date, description, author, article_id from articles ORDER BY articles.pub_date desc")
     fun getArticles(): Flow<List<FeedArticle>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(articleItem: ArticleItem, articleMedia: ArticleMedia)
     @Delete
     suspend fun delete(feed: Feed)
 
@@ -110,4 +93,12 @@ interface FeedDao {
     @Query("select * from feeds")
     fun getFeedUrls(): Flow<List<Feed>>
 
+}
+
+fun dbErrorLog(message: String, throwable: Throwable? = null) {
+    Log.e("room_ops", message, throwable)
+}
+
+fun dbInfoLog(vararg messge: Any) {
+    Log.i("room_ops", messge.joinToString(" "))
 }

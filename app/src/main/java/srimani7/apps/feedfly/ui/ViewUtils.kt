@@ -1,6 +1,5 @@
 package srimani7.apps.feedfly.ui
 
-import android.os.Build
 import android.text.Html
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -9,6 +8,7 @@ import android.text.style.URLSpan
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.core.text.HtmlCompat
 
 fun SpannableStringBuilder.toAnnotatedString(): AnnotatedString {
     this.getSpans(0, length, ImageSpan::class.java).forEach {
@@ -40,10 +40,8 @@ fun AnnotatedString.Builder.fromURLSpan(urlSpan: URLSpan, start: Int, end: Int) 
 fun fromHtml(
     html: String,
     imageGetter: Html.ImageGetter,
-): Spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-    Html.fromHtml(
-        html,
-        Html.FROM_HTML_MODE_LEGACY or Html.FROM_HTML_OPTION_USE_CSS_COLORS,
-        imageGetter
-    ) { _, _, _, _ -> }
-} else Html.fromHtml(html)
+): Spanned = HtmlCompat.fromHtml(
+    html,
+    HtmlCompat.FROM_HTML_MODE_LEGACY or HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS,
+    imageGetter, null
+)
