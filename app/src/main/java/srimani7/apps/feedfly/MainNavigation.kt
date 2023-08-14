@@ -1,5 +1,8 @@
 package srimani7.apps.feedfly
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -11,23 +14,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import srimani7.apps.feedfly.navigation.AddUrlDialog
 import srimani7.apps.feedfly.navigation.BottomNavigationBar
 import srimani7.apps.feedfly.navigation.FavoriteScreen
 import srimani7.apps.feedfly.navigation.Favorites
 import srimani7.apps.feedfly.navigation.Home
 import srimani7.apps.feedfly.navigation.HomeScreen
 import srimani7.apps.feedfly.navigation.InsertFeedScreen
+import srimani7.apps.feedfly.navigation.NewFeedScreen
 import srimani7.apps.feedfly.navigation.RssScreen
 import srimani7.apps.feedfly.navigation.Settings
 import srimani7.apps.feedfly.navigation.SettingsScreen
@@ -37,12 +42,22 @@ import srimani7.apps.feedfly.viewmodel.HomeViewModal
 fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
     val navController = rememberNavController()
     val currentRoute by navController.currentBackStackEntryAsState()
+    var showBottomBar by remember { mutableStateOf(true) }
+
+    LaunchedEffect(currentRoute) {
+        showBottomBar = when (currentRoute?.destination?.route) {
+            Home.HomeScreen.destination,
+            Favorites.FavoriteScreen.destination,
+            Settings.SettingsScreen.destination -> true
+
+            else -> false
+        }
+    }
+
     Scaffold(
         bottomBar = {
-            when (currentRoute?.destination?.route) {
-                Home.HomeScreen.destination, Favorites.FavoriteScreen.destination, Settings.SettingsScreen.destination -> {
-                    BottomNavigationBar(navController)
-                }
+            AnimatedVisibility(showBottomBar, enter = slideInVertically(), exit = fadeOut()) {
+                BottomNavigationBar(navController)
             }
         },
         contentWindowInsets = WindowInsets.navigationBars,
@@ -71,8 +86,8 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                 }
             }
 
-            dialog(InsertFeedScreen.route) {
-                AddUrlDialog(homeViewModal, addLink) { navController.popBackStack() }
+            composable(InsertFeedScreen.route) {
+                NewFeedScreen(homeViewModal, addLink) { navController.popBackStack() }
             }
         }
         LaunchedEffect(addLink) {

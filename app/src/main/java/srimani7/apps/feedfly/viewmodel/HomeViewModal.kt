@@ -1,7 +1,6 @@
 package srimani7.apps.feedfly.viewmodel
 
 import android.app.Application
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,43 +11,27 @@ import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.data.AppTheme
 import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.feedfly.database.AppDatabase
+import srimani7.apps.feedfly.database.entity.Feed
 import srimani7.apps.feedfly.navigation.HomeFilter
-import srimani7.apps.feedfly.rss.OkHttpWebService
-import srimani7.apps.feedfly.rss.RssParser
+import srimani7.apps.feedfly.rss.RssParserRepository
+import srimani7.apps.rssparser.elements.Channel
 
 class HomeViewModal(application: Application) : AndroidViewModel(application) {
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
     private val userSettingsRepo by lazy { UserSettingsRepo(application) }
-    private val okHttpWebService by lazy { OkHttpWebService() }
     val allFeedsFlow by lazy { feedDao.getAllFeeds() }
     val favoriteArticles by lazy { feedDao.getFavoriteFeedArticles() }
     val groupNameFlow by lazy { feedDao.getGroups() }
 
-    private val rssParser by lazy { RssParser() }
     var isLoading by mutableStateOf(false)
     val appThemeState = userSettingsRepo.appThemeFlow(viewModelScope)
-
     var currentFilter by mutableStateOf<HomeFilter>(HomeFilter.ALL)
+    private val rssParserRepository = RssParserRepository()
+    val parsingState = rssParserRepository.parsingState
 
-    fun insertFeed(it: String, groupName: String?) {
+    fun fetchFeed(url: String) {
         viewModelScope.launch {
-            isLoading = true
-            try {
-                val inputStream = okHttpWebService.getXMlString(it)
-                val feed = inputStream.let { it1 -> rssParser.parseFeed(it, it1) }
-                isLoading = if (feed != null) {
-                    feedDao.insertFeedUrl(feed.copy(group = groupName))
-                    false
-                } else {
-                    Toast.makeText(getApplication(), "Unable to parse url", Toast.LENGTH_SHORT)
-                        .show()
-                    false
-                }
-            } catch (e: Exception) {
-                isLoading = false
-                e.printStackTrace()
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_SHORT).show()
-            }
+            rssParserRepository.parseUrl(url,null)
         }
     }
 
@@ -58,6 +41,17 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
 
     fun updateArticle(id: Long, pinned: Boolean) {
         viewModelScope.launch { feedDao.updateArticlePin(id, pinned) }
+    }
+
+    fun save(channel: Channel, feedUrl: String, groupName: String?  ) {
+        viewModelScope.launch {
+            feedDao.insertFeedUrl(
+                Feed(
+                    channel,
+                    feedUrl
+                ).copy(group = groupName)
+            )
+        }
     }
 }
 

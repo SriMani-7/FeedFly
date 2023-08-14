@@ -41,9 +41,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
 import srimani7.apps.feedfly.ui.RssItemsColumn
+import srimani7.apps.feedfly.viewmodel.ArticlesUIState
 import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
-import srimani7.apps.rssparser.ParsingState
 
 @Composable
 fun RssScreen(feedId: Long, navController: NavHostController) {
@@ -51,9 +51,9 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
     val viewModal = viewModel(initializer = {
         RssViewModal(feedId, (context as Activity).application)
     })
-    val parsingState by viewModal.parsingState.collectAsState()
+    val parsingState by viewModal.uiStateStateFlow.collectAsState()
     val feedArticles by viewModal.groupedArticles.collectAsState(initial = null)
-    val feed by viewModal.feed.collectAsState(initial = null)
+    val feed by viewModal.feedStateFlow.collectAsState(initial = null)
 
     val hostState = remember { SnackbarHostState() }
 
@@ -103,7 +103,7 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
                     viewModal.updateArticle(id, changed)
                 }
             }
-            AnimatedVisibility(parsingState == ParsingState.Processing) {
+            AnimatedVisibility(parsingState == ArticlesUIState.Loading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
@@ -119,11 +119,8 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
 
     LaunchedEffect(parsingState) {
         val message = when (parsingState) {
-            is ParsingState.Failure -> (parsingState as ParsingState.Failure).exception.message
-                ?: "Unknown error"
-
-            is ParsingState.Completed -> "Fetching completed"
-            is ParsingState.LastBuild -> "You are up-to date"
+            is ArticlesUIState.Failure -> (parsingState as ArticlesUIState.Failure).message
+            ArticlesUIState.COMPLETED -> "Fetching completed"
             else -> return@LaunchedEffect
         }
         hostState.showSnackbar(message, duration = SnackbarDuration.Short)

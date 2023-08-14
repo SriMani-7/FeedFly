@@ -24,12 +24,16 @@ data class Feed(
     @ColumnInfo("copyright") val copyright: String? = null,
     @PrimaryKey(autoGenerate = true) val id: Long = 0
 ) {
-    constructor(map: Map<String, Any>) : this(
-        feedUrl = (map["feedUrl"] ?: "").toString(),
-        description = (map["description"] ?: "").toString(),
-        link = (map["link"] ?: "").toString(),
-        title = (map["title"] ?: "").toString(),
-        lastBuildDate = map["lastBuildDate"] as Date?
+
+    constructor(channel: Channel, feedUrl: String) : this(
+        feedUrl,
+        channel.description,
+        channel.link ?: "",
+        channel.title ?: "",
+        null,
+        channel.language,
+        channel.managingEditor,
+        channel.copyright
     )
 
     fun copy(channel: Channel) = copy(
@@ -42,7 +46,4 @@ data class Feed(
         copyright = channel.copyright
     )
 
-    companion object {
-        fun tags() = arrayOf("link", "description", "title", "feedUrl")
-    }
 }
