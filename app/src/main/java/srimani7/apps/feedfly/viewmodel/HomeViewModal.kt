@@ -31,7 +31,7 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
 
     fun fetchFeed(url: String) {
         viewModelScope.launch {
-            rssParserRepository.parseUrl(url,null)
+            rssParserRepository.parseUrl(url, null)
         }
     }
 
@@ -43,14 +43,9 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { feedDao.updateArticlePin(id, pinned) }
     }
 
-    fun save(channel: Channel, feedUrl: String, groupName: String?  ) {
+    fun save(channel: Channel, groupName: String?) {
         viewModelScope.launch {
-            feedDao.insertFeedUrl(
-                Feed(
-                    channel,
-                    feedUrl
-                ).copy(group = groupName)
-            )
+            feedDao.insertFeedUrl(Feed(channel, groupName))
         }
     }
 }

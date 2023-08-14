@@ -19,7 +19,7 @@ class RssParserRepository {
             _parsingState.value = ParsingState.Processing
             val streamResult = okHttpWebService.inputStreamResult(url)
             val state = streamResult.getOrThrow().let {
-                rssParser.parse(it, lastBuildDate)
+                rssParser.parse(it, lastBuildDate, url)
             }
             if (state is ParsingState.Failure) state.exception.printStackTrace()
             _parsingState.value = state

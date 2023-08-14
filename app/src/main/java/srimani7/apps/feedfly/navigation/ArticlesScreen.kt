@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package srimani7.apps.feedfly.navigation
 
@@ -46,7 +46,7 @@ import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
 
 @Composable
-fun RssScreen(feedId: Long, navController: NavHostController) {
+fun ArticlesScreen(feedId: Long, navController: NavHostController) {
     val context = LocalContext.current
     val viewModal = viewModel(initializer = {
         RssViewModal(feedId, (context as Activity).application)
@@ -118,11 +118,7 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
     }
 
     LaunchedEffect(parsingState) {
-        val message = when (parsingState) {
-            is ArticlesUIState.Failure -> (parsingState as ArticlesUIState.Failure).message
-            ArticlesUIState.COMPLETED -> "Fetching completed"
-            else -> return@LaunchedEffect
-        }
+        val message = (parsingState as? ArticlesUIState.Failure)?.message ?: return@LaunchedEffect
         hostState.showSnackbar(message, duration = SnackbarDuration.Short)
     }
 

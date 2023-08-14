@@ -17,22 +17,22 @@ class RssParser {
     private val factory by lazy { XmlPullParserFactory.newInstance() }
 
     @Throws(XmlPullParserException::class, IOException::class)
-    suspend fun parse(inputStream: InputStream, lastBuild: Date?): ParsingState = withContext(Dispatchers.IO) {
+    suspend fun parse(inputStream: InputStream, lastBuild: Date?, feedUrl: String): ParsingState = withContext(Dispatchers.IO) {
         inputStream.use {
             val parser: XmlPullParser = factory.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
             parser.setInput(it, null)
             parser.nextTag()
-            return@withContext reedRss(parser, lastBuild)
+            return@withContext reedRss(parser, lastBuild, feedUrl)
         }
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun reedRss(parser: XmlPullParser, lastBuild: Date?): ParsingState {
+    private fun reedRss(parser: XmlPullParser, lastBuild: Date?, feedUrl: String): ParsingState {
         var channel: ParsingState? = null
         parser.readTagChildren("rss") {
             if (parser.name == "channel") {
-                channel = readChannel(parser, lastBuild)
+                channel = readChannel(parser, lastBuild, feedUrl)
                 return@readTagChildren true
             } else parser.skip()
             false
@@ -41,8 +41,8 @@ class RssParser {
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun readChannel(parser: XmlPullParser, lastBuild: Date?): ParsingState {
-        val channel = Channel()
+    private fun readChannel(parser: XmlPullParser, lastBuild: Date?, feedUrl: String): ParsingState {
+        val channel = Channel(feedUrl)
         val items = mutableListOf<ChannelItem>()
         var parsingState: ParsingState? = null
         parser.readTagChildren("channel") {

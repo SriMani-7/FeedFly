@@ -33,7 +33,7 @@ import srimani7.apps.feedfly.navigation.Home
 import srimani7.apps.feedfly.navigation.HomeScreen
 import srimani7.apps.feedfly.navigation.InsertFeedScreen
 import srimani7.apps.feedfly.navigation.NewFeedScreen
-import srimani7.apps.feedfly.navigation.RssScreen
+import srimani7.apps.feedfly.navigation.ArticlesScreen
 import srimani7.apps.feedfly.navigation.Settings
 import srimani7.apps.feedfly.navigation.SettingsScreen
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
@@ -72,7 +72,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                         navArgument("id") { type = NavType.LongType }
                     )) { entry ->
                     val long = entry.arguments?.getLong("id")
-                    if (long != null && long > 0) RssScreen(long, navController)
+                    if (long != null && long > 0) ArticlesScreen(long, navController)
                 }
             }
             navigation(Favorites.FavoriteScreen.destination, Favorites.FavoriteScreen.route) {

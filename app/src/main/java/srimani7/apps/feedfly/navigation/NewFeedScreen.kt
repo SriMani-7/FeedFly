@@ -1,9 +1,11 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package srimani7.apps.feedfly.navigation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -26,9 +28,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import srimani7.apps.feedfly.ui.ArticleImage
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 import srimani7.apps.rssparser.ParsingState
@@ -74,8 +76,10 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
 
             }
         }, floatingActionButton = {
-            FloatingActionButton(onClick = { openGroupsPicker = true }) {
-                Icon(Icons.Default.Done, "done")
+            AnimatedVisibility(parseState is ParsingState.Success) {
+                FloatingActionButton(onClick = { openGroupsPicker = true }) {
+                    Icon(Icons.Default.Done, "done")
+                }
             }
         }
     ) {
@@ -83,20 +87,15 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
             when (parseState) {
                 ParsingState.Completed -> {}
                 is ParsingState.Failure -> Text(
-                    text = (parseState as ParsingState.Failure).exception.message ?: "Try agin"
+                    text = (parseState as ParsingState.Failure).exception.message ?: "Try again"
                 )
 
                 ParsingState.LastBuild -> {}
-                ParsingState.Processing -> CircularProgressIndicator()
+                ParsingState.Processing -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
                 is ParsingState.Success -> {
                     val success = parseState as ParsingState.Success
-                    Row {
-                        AsyncImage(model = success.channel.image?.url, contentDescription = "")
-                        Column {
-                            Text(text = success.channel.title ?: "No Title")
-                            Text(text = success.channel.copyright ?: "")
-                        }
-                    }
                     LazyColumn {
                         success.channel.items.forEach {
                             item {
@@ -112,7 +111,8 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
                         groups,
                         true,
                         { openGroupsPicker = false }) {
-                        homeViewModal.save(success.channel, url, it)
+                        homeViewModal.save(success.channel, it)
+                        onDismiss()
                     }
                 }
             }

@@ -25,15 +25,16 @@ data class Feed(
     @PrimaryKey(autoGenerate = true) val id: Long = 0
 ) {
 
-    constructor(channel: Channel, feedUrl: String) : this(
-        feedUrl,
-        channel.description,
-        channel.link ?: "",
-        channel.title ?: "",
-        null,
-        channel.language,
-        channel.managingEditor,
-        channel.copyright
+    constructor(channel: Channel, group: String? = null) : this(
+        feedUrl = channel.feedUrl,
+        description = channel.description,
+        link = channel.link ?: "",
+        title = channel.title ?: "",
+        lastBuildDate = null,
+        group = group,
+        language = channel.language,
+        managingEditor = channel.managingEditor,
+        copyright = channel.copyright
     )
 
     fun copy(channel: Channel) = copy(

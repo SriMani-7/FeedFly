@@ -3,6 +3,7 @@ package srimani7.apps.rssparser.elements
 import java.util.Date
 
 data class Channel(
+    val feedUrl: String,
     var title: String? = null,
     var description: String? = null,
     var link: String? = null,

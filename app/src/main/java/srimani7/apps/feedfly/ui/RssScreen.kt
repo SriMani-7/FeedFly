@@ -1,11 +1,11 @@
 @file:OptIn(
     ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class, ExperimentalAnimationApi::class
+    ExperimentalFoundationApi::class, ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class
 )
 
 package srimani7.apps.feedfly.ui
 
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -20,15 +20,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.Icon
@@ -56,96 +58,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import srimani7.apps.feedfly.R
+import srimani7.apps.feedfly.audio.AudioMetaData
+import srimani7.apps.feedfly.audio.MediaViewModel
+import srimani7.apps.feedfly.audio.SongState
 import srimani7.apps.feedfly.database.FeedArticle
 import srimani7.apps.feedfly.database.entity.ArticleMedia
-import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
 
-
-data class AudioMetaData(
-    val title: CharSequence,
-    val artist: CharSequence,
-    val artworkWork: ByteArray?
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as AudioMetaData
-
-        if (title != other.title) return false
-        if (artist != other.artist) return false
-        if (artworkWork != null) {
-            if (other.artworkWork == null) return false
-            if (!artworkWork.contentEquals(other.artworkWork)) return false
-        } else if (other.artworkWork != null) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = title.hashCode()
-        result = 31 * result + artist.hashCode()
-        result = 31 * result + (artworkWork?.contentHashCode() ?: 0)
-        return result
-    }
-}
-
-data class SongState(
-    val duration: Long = 0,
-    val isPlaying: Boolean = false
-)
-
-class MediaViewModel(application: Application) : AndroidViewModel(application) {
-    internal val mExoPlayer = ExoPlayer.Builder(application).build()
-
-    var audioMetaData by mutableStateOf<AudioMetaData?>(null)
-        private set
-
-    var songState by mutableStateOf<SongState?>(null)
-
-    init {
-        mExoPlayer.prepare()
-        mExoPlayer.addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                super.onIsPlayingChanged(isPlaying)
-                songState = SongState(
-                    duration = mExoPlayer.currentPosition,
-                    isPlaying = isPlaying
-                )
-            }
-
-            override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-                super.onMediaMetadataChanged(mediaMetadata)
-                RssViewModal.info(mediaMetadata)
-                audioMetaData = AudioMetaData(
-                    mediaMetadata.title ?: mediaMetadata.albumTitle ?: "",
-                    mediaMetadata.artist ?: mediaMetadata.albumArtist ?: "",
-                    mediaMetadata.artworkData
-                )
-            }
-        })
-    }
-
-    fun play(uri: String) {
-        mExoPlayer.setMediaItem(MediaItem.fromUri(uri))
-        mExoPlayer.playWhenReady = true
-    }
-
-    fun play(isPlay: Boolean) {
-        if (isPlay) mExoPlayer.play()
-        else mExoPlayer.pause()
-    }
-}
 
 @Composable
 fun RssItemsColumn(
@@ -153,11 +76,13 @@ fun RssItemsColumn(
     viewModel: MediaViewModel = viewModel(),
     updateArticle: (Long, Boolean) -> Unit,
 ) {
+    val lazyListState = rememberLazyListState()
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(10.dp, 15.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = PaddingValues(8.dp, 15.dp),
+            state = lazyListState
         ) {
             dateListMap.forEach { entry ->
                 entry.key?.let { date ->
@@ -168,7 +93,7 @@ fun RssItemsColumn(
                 items(entry.value,
                     key = { it.id }
                 ) { feedArticle ->
-                    RssItemCard(feedArticle, onPlayAudio = viewModel::play) {
+                    RssItemCard(feedArticle, modifier = Modifier.animateItemPlacement(), onPlayAudio = viewModel::play) {
                         updateArticle(feedArticle.id, it)
                     }
                 }
@@ -245,7 +170,7 @@ fun ExoPlayerCard(
 }
 
 @Composable
-fun RssItemCard(item: FeedArticle, onPlayAudio: (String) -> Unit, onPinChange: (Boolean) -> Unit) {
+fun RssItemCard(item: FeedArticle, modifier: Modifier, onPlayAudio: (String) -> Unit, onPinChange: (Boolean) -> Unit) {
     val context = LocalContext.current
     var descriptionUri by rememberSaveable {
         mutableStateOf<String?>(null)
@@ -265,6 +190,8 @@ fun RssItemCard(item: FeedArticle, onPlayAudio: (String) -> Unit, onPinChange: (
             intent.launchUrl(context, Uri.parse(item.link))
         },
         shape = MaterialTheme.shapes.medium,
+        border = CardDefaults.outlinedCardBorder().copy(.5.dp),
+        modifier = modifier
     ) {
         item.description?.let {
             DescriptionText(it, modifier = Modifier.padding(12.dp, 8.dp)) { src ->
@@ -345,7 +272,8 @@ fun ArticleImage(imageSrc: String) {
         alignment = Alignment.TopCenter,
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 140.dp),
+            .aspectRatio(16 / 8f)
+            ,
         filterQuality = FilterQuality.Medium,
         transform = {
             AsyncImagePainter.DefaultTransform.invoke(it)
