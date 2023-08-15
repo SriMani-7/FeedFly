@@ -2,7 +2,6 @@
 
 package srimani7.apps.feedfly.navigation
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -76,10 +75,9 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
 
             }
         }, floatingActionButton = {
-            AnimatedVisibility(parseState is ParsingState.Success) {
-                FloatingActionButton(onClick = { openGroupsPicker = true }) {
-                    Icon(Icons.Default.Done, "done")
-                }
+            FloatingActionButton(onClick = { openGroupsPicker = true }) {
+
+                Icon(Icons.Default.Done, "done")
             }
         }
     ) {
@@ -91,9 +89,13 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
                 )
 
                 ParsingState.LastBuild -> {}
-                ParsingState.Processing -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                ParsingState.Processing -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
                     CircularProgressIndicator()
                 }
+
                 is ParsingState.Success -> {
                     val success = parseState as ParsingState.Success
                     LazyColumn {

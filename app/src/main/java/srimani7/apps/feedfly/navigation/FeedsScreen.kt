@@ -36,7 +36,7 @@ import srimani7.apps.rssparser.DateParser
 @Composable
 fun FeedGroupList(groups: List<FeedDto>, onClick: (Long) -> Unit) {
     LazyColumn(
-        contentPadding = PaddingValues(vertical = 16.dp),
+        contentPadding = PaddingValues(top = 14.dp, bottom = 80.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier.fillMaxSize()
     ) {

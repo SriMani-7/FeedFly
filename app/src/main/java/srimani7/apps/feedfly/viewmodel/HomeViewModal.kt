@@ -48,5 +48,6 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
             feedDao.insertFeedUrl(Feed(channel, groupName))
         }
     }
+
 }
 

@@ -2,22 +2,18 @@
 
 package srimani7.apps.feedfly.ui
 
-import android.text.Html
-import android.text.SpannableStringBuilder
+import android.text.Html.ImageGetter
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,37 +28,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.Dialog
+import androidx.core.text.HtmlCompat
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import srimani7.apps.feedfly.R
 
 @Composable
-fun DescriptionText(
-    description: String,
-    modifier: Modifier = Modifier,
-    showText: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE,
-    imageGetter: Html.ImageGetter,
-) {
-    var spanned by remember { mutableStateOf<AnnotatedString?>(null) }
-    spanned?.let {
-        if (showText) {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (isSystemInDarkTheme()) FontWeight.Light else FontWeight.Normal,
-                modifier = modifier,
-                maxLines = maxLines,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
+fun HtmlImage(text: String, imageGetter: ImageGetter) {
     LaunchedEffect(Unit) {
-        spanned = (fromHtml(description, imageGetter) as SpannableStringBuilder).toAnnotatedString()
+        HtmlCompat.fromHtml(text, HtmlCompat.FROM_HTML_MODE_COMPACT, imageGetter, null)
     }
 }
 

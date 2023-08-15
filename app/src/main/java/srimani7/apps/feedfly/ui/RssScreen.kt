@@ -8,8 +8,6 @@ package srimani7.apps.feedfly.ui
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -38,11 +36,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -50,8 +50,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,12 +59,14 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
+import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.audio.AudioMetaData
 import srimani7.apps.feedfly.audio.MediaViewModel
 import srimani7.apps.feedfly.audio.SongState
 import srimani7.apps.feedfly.database.FeedArticle
 import srimani7.apps.feedfly.database.entity.ArticleMedia
+import srimani7.apps.feedfly.navigation.ArticleViewScreen
 import srimani7.apps.rssparser.DateParser
 
 
@@ -74,7 +74,7 @@ import srimani7.apps.rssparser.DateParser
 fun RssItemsColumn(
     dateListMap: Map<String?, List<FeedArticle>>,
     viewModel: MediaViewModel = viewModel(),
-    updateArticle: (Long, Boolean) -> Unit,
+    updateArticle: (Long, Boolean) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     Box(modifier = Modifier.fillMaxSize()) {
@@ -93,9 +93,11 @@ fun RssItemsColumn(
                 items(entry.value,
                     key = { it.id }
                 ) { feedArticle ->
-                    RssItemCard(feedArticle, modifier = Modifier.animateItemPlacement(), onPlayAudio = viewModel::play) {
-                        updateArticle(feedArticle.id, it)
-                    }
+                    RssItemCard(
+                        feedArticle,
+                        modifier = Modifier.animateItemPlacement(),
+                        onPlayAudio = viewModel::play
+                    ) { updateArticle(feedArticle.id, it) }
                 }
             }
         }
@@ -170,31 +172,27 @@ fun ExoPlayerCard(
 }
 
 @Composable
-fun RssItemCard(item: FeedArticle, modifier: Modifier, onPlayAudio: (String) -> Unit, onPinChange: (Boolean) -> Unit) {
-    val context = LocalContext.current
+fun RssItemCard(
+    item: FeedArticle,
+    modifier: Modifier,
+    onPlayAudio: (String) -> Unit,
+    onPinChange: (Boolean) -> Unit
+) {
     var descriptionUri by rememberSaveable {
         mutableStateOf<String?>(null)
     }
     val pubTime by remember { mutableStateOf(DateParser.formatTime(item.pubDate) ?: "") }
+    val articleModalState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
 
     OutlinedCard(
-        onClick = {
-            val intent = CustomTabsIntent.Builder()
-                .setShareState(CustomTabsIntent.SHARE_STATE_ON)
-                .build().apply {
-                    intent.putExtra(
-                        "com.google.android.apps.chrome.EXTRA_OPEN_NEW_INCOGNITO_TAB",
-                        true
-                    )
-                }
-            intent.launchUrl(context, Uri.parse(item.link))
-        },
+        onClick = { scope.launch { articleModalState.show() } },
         shape = MaterialTheme.shapes.medium,
         border = CardDefaults.outlinedCardBorder().copy(.5.dp),
         modifier = modifier
     ) {
         item.description?.let {
-            DescriptionText(it, modifier = Modifier.padding(12.dp, 8.dp)) { src ->
+            HtmlImage(it) { src ->
                 descriptionUri = src
                 null
             }
@@ -236,9 +234,11 @@ fun RssItemCard(item: FeedArticle, modifier: Modifier, onPlayAudio: (String) -> 
             )
             Spacer(modifier = Modifier.weight(1f))
             ArticleFavoriteToggle(item.pinned) { onPinChange(it) }
-            IconButton(onClick = { shareText(item.link, context) }) {
-                Icon(painterResource(R.drawable.share_24px), "Share")
-            }
+        }
+    }
+    if (articleModalState.isVisible) {
+        ArticleViewScreen(item, articleModalState, onPinChange) {
+            scope.launch { articleModalState.hide() }
         }
     }
 }
@@ -272,8 +272,7 @@ fun ArticleImage(imageSrc: String) {
         alignment = Alignment.TopCenter,
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(16 / 8f)
-            ,
+            .aspectRatio(16 / 8f),
         filterQuality = FilterQuality.Medium,
         transform = {
             AsyncImagePainter.DefaultTransform.invoke(it)

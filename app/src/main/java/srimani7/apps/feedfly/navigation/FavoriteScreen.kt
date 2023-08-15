@@ -49,7 +49,7 @@ import coil.request.ImageRequest
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.database.FavoriteArticle
 import srimani7.apps.feedfly.ui.ArticleFavoriteToggle
-import srimani7.apps.feedfly.ui.DescriptionText
+import srimani7.apps.feedfly.ui.HtmlImage
 import srimani7.apps.feedfly.ui.ShowImageDialog
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 import srimani7.apps.feedfly.viewmodel.RssViewModal
@@ -174,14 +174,11 @@ fun FavoriteArticleCard(item: FavoriteArticle, onPinChange: (Long, Boolean) -> U
                     .padding(12.dp, 10.dp)
             )
             item.description?.let {
-                DescriptionText(
-                    description = it,
-                    modifier = Modifier.padding(12.dp, 8.dp)
-                ) { src ->
+                HtmlImage(text = it, imageGetter = { src ->
                     imageSrc = src
                     RssViewModal.info(src)
                     ColorDrawable(Color.GRAY)
-                }
+                })
             }
             Row(
                 modifier = Modifier

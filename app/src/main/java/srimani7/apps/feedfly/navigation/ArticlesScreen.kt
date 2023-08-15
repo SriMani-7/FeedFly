@@ -99,9 +99,10 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             feedArticles?.let {
-                RssItemsColumn(it) { id, changed ->
-                    viewModal.updateArticle(id, changed)
-                }
+                RssItemsColumn(
+                    dateListMap = it,
+                    updateArticle = viewModal::updateArticle
+                )
             }
             AnimatedVisibility(parsingState == ArticlesUIState.Loading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())

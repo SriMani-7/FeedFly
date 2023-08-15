@@ -93,6 +93,10 @@ interface FeedDao {
     @Query("select * from feeds")
     fun getFeedUrls(): Flow<List<Feed>>
 
+    @Transaction
+    @Query("select title, link, category, pinned, pub_date, description, author, article_id from articles where article_id = :id")
+    fun getFeedArticle(id: Long): Flow<FeedArticle?>
+
 }
 
 fun dbErrorLog(message: String, throwable: Throwable? = null) {
