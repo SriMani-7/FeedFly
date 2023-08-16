@@ -91,7 +91,8 @@ fun RssItemsColumn(
                     }
                 }
                 items(entry.value,
-                    key = { it.id }
+                    key = { it.id },
+                    contentType = { "article" }
                 ) { feedArticle ->
                     RssItemCard(
                         feedArticle,
@@ -174,7 +175,7 @@ fun ExoPlayerCard(
 @Composable
 fun RssItemCard(
     item: FeedArticle,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onPlayAudio: (String) -> Unit,
     onPinChange: (Boolean) -> Unit
 ) {
