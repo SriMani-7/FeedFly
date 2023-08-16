@@ -12,6 +12,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -189,7 +190,7 @@ fun RssItemCard(
     OutlinedCard(
         onClick = { scope.launch { articleModalState.show() } },
         shape = MaterialTheme.shapes.medium,
-        border = CardDefaults.outlinedCardBorder().copy(.5.dp),
+        border = CardDefaults.outlinedCardBorder().copy(.4.dp),
         modifier = modifier
     ) {
         item.description?.let {
@@ -207,13 +208,15 @@ fun RssItemCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Normal,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (item.title.isNotBlank()) {
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             if (item.category.isNotBlank())
                 Text(
                     text = item.category,
@@ -266,6 +269,7 @@ fun ArticleMediaHeader(
 
 @Composable
 fun ArticleImage(imageSrc: String) {
+    var shoImage by remember { mutableStateOf(false) }
     AsyncImage(
         model = imageSrc.replaceFirst("http:", "https:"),
         contentDescription = "image",
@@ -273,12 +277,16 @@ fun ArticleImage(imageSrc: String) {
         alignment = Alignment.TopCenter,
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(16 / 8f),
+            .aspectRatio(16 / 8f)
+            .clickable { shoImage = true },
         filterQuality = FilterQuality.Medium,
         transform = {
             AsyncImagePainter.DefaultTransform.invoke(it)
         }
     )
+    if (shoImage) ShowImageDialog(imageSrc = imageSrc) {
+        shoImage = false
+    }
 }
 
 fun shareText(text: String, context: Context) {

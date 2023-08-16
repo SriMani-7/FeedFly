@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -23,16 +24,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Dialog
 import androidx.core.text.HtmlCompat
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import srimani7.apps.feedfly.R
 
 @Composable
 fun HtmlImage(text: String, imageGetter: ImageGetter) {
@@ -65,12 +65,12 @@ fun ShowImageDialog(
                     onClick = onDismiss
                 )
         ) {
+            CircularProgressIndicator(Modifier.align(Alignment.Center))
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(imageSrc)
                     .crossfade(true)
                     .build(),
-                placeholder = painterResource(R.drawable.baseline_photo_size_select_actual_24),
                 contentDescription = "image",
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.Center,
@@ -89,7 +89,7 @@ fun ShowImageDialog(
                 onClick = onDismiss,
                 modifier = Modifier.align(Alignment.TopEnd)
             ) {
-                Icon(Icons.Default.Close, "close")
+                Icon(Icons.Default.Close, "close", tint = Color.White)
             }
         }
     }
