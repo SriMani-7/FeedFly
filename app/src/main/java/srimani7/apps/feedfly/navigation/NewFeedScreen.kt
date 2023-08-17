@@ -1,4 +1,5 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class
 )
 
@@ -44,7 +45,7 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
     val parseState by homeViewModal.parsingState.collectAsStateWithLifecycle()
 
     var active by rememberSaveable { mutableStateOf(true) }
-    val groups by homeViewModal.groupNameFlow.collectAsState(null)
+    val groups by homeViewModal.groupNameFlow.collectAsState()
     var openGroupsPicker by remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState()
 
@@ -101,9 +102,9 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
                     val success = parseState as ParsingState.Success
                     RssItemsColumn(success.channel.items)
                     if (openGroupsPicker) GroupsPicker(
-                        null,
+                        "Others",
                         bottomSheetState,
-                        groups,
+                        groups.ifEmpty { listOf("Others") },
                         true,
                         { openGroupsPicker = false }) {
                         homeViewModal.save(success.channel, it)
@@ -114,4 +115,3 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
         }
     }
 }
-

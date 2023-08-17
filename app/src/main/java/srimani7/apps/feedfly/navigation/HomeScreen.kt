@@ -1,11 +1,10 @@
 @file:OptIn(
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class, ExperimentalLayoutApi::class
+    ExperimentalFoundationApi::class, ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class
 )
 
 package srimani7.apps.feedfly.navigation
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,8 +34,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -45,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults.exitUntilCollapsedScrollBehavior
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -64,99 +62,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import srimani7.apps.feedfly.MainNavigation
+import srimani7.apps.feedfly.database.FeedDto
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    homeViewModal: HomeViewModal
+    homeViewModal: HomeViewModal,
+    navigate: (String) -> Unit
 ) {
-    val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle(initialValue = null)
-    val groups by homeViewModal.groupNameFlow.collectAsState(null)
-    var openGroupsPicker by remember { mutableStateOf(false) }
-    val currentGroup = rememberSaveable { mutableStateOf<String?>(null) }
-    val filteredFeeds by remember(currentGroup.value, allFeeds) {
-        mutableStateOf(allFeeds?.filter { it.group == currentGroup.value })
-    }
-
-    val bottomSheetState = rememberModalBottomSheetState()
+    val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle()
+    val groups by homeViewModal.groupNameFlow.collectAsState()
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
-        topBar = {
-            Column {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            "FeedFly",
-                            fontFamily = FontFamily.SansSerif,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    },
-                    actions = {
-                        IconButton(onClick = { navController.navigate(InsertFeedScreen.route) }) {
-                            Icon(Icons.Default.Add, contentDescription = "Add")
-                        }
-                    },
-                    scrollBehavior = scrollBehavior,
-                )
-                LazyRow(
-                    contentPadding = PaddingValues(12.dp, 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
-                ) {
-                    item {
-                        FeedFilterChip(
-                            selected = homeViewModal.currentFilter == HomeFilter.ALL,
-                            onClick = { homeViewModal.currentFilter = HomeFilter.ALL },
-                            label = HomeFilter.ALL.label
-                        )
-                    }
-                    item {
-                        FeedFilterChip(
-                            selected = homeViewModal.currentFilter == HomeFilter.GROUPED,
-                            label = currentGroup.value ?: "Other feeds",
-                            trailingIcon = Icons.Default.ArrowDropDown,
-                            onClick = {
-                                openGroupsPicker = homeViewModal.currentFilter == HomeFilter.GROUPED
-                                homeViewModal.currentFilter = HomeFilter.GROUPED
-                            }
-                        )
-                    }
-                }
-            }
-        },
+        topBar = { HomeAppbar(scrollBehavior) },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .padding(paddingValues)
+            Modifier
                 .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            AnimatedVisibility(visible = homeViewModal.isLoading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            if (groups.isEmpty()) {
+                Text(
+                    "No feeds",
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Center
+                )
+            } else FeedsHome(groups, allFeeds) {
+                navigate(MainNavigation.articlesScreenRoute(it))
             }
-            when (homeViewModal.currentFilter) {
-                HomeFilter.ALL -> allFeeds?.let {
-                    FeedGroupList(it) { feedId ->
-                        navController.navigate(Home.ArticlesScreen.destination + "/${feedId}")
-                    }
-                }
-
-                HomeFilter.GROUPED -> filteredFeeds?.let {
-                    FeedGroupList(it) { feedId ->
-                        navController.navigate(Home.ArticlesScreen.destination + "/${feedId}")
-                    }
-                }
-            }
-
         }
-        if (openGroupsPicker) GroupsPicker(currentGroup.value, bottomSheetState = bottomSheetState,
-            groups = groups,
-            onPick = { currentGroup.value = it },
-            onClose = { openGroupsPicker = false }
-        )
     }
 
 }
@@ -180,12 +118,12 @@ fun FeedFilterChip(
 
 @Composable
 fun GroupsPicker(
-    selected: String?,
+    selected: String,
     bottomSheetState: SheetState,
-    groups: List<String?>?,
+    groups: List<String>,
     addNew: Boolean = false,
     onClose: () -> Unit,
-    onPick: (String?) -> Unit
+    onPick: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
@@ -226,29 +164,28 @@ fun GroupsPicker(
             }
         }
     ) {
-        if (groups != null)
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
-                groups.forEach {
-                    ElevatedFilterChip(selected = selected == it, onClick = {
-                        scope.launch { bottomSheetState.hide() }.invokeOnCompletion { _ ->
-                            if (!bottomSheetState.isVisible) {
-                                onPick(it)
-                                onClose()
-                            }
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.verticalScroll(rememberScrollState())
+        ) {
+            groups.forEach {
+                ElevatedFilterChip(selected = selected == it, onClick = {
+                    scope.launch { bottomSheetState.hide() }.invokeOnCompletion { _ ->
+                        if (!bottomSheetState.isVisible) {
+                            onPick(it)
+                            onClose()
                         }
-                    }, label = {
-                        Text(
-                            it ?: "Other feeds",
-                            textAlign = TextAlign.Start,
-                            fontWeight = FontWeight.Normal
-                        )
-                    })
-                }
+                    }
+                }, label = {
+                    Text(
+                        it,
+                        textAlign = TextAlign.Start,
+                        fontWeight = FontWeight.Normal
+                    )
+                })
             }
+        }
         Spacer(modifier = Modifier.height(30.dp))
     }
     if (showDialog) AlertDialog(
@@ -276,7 +213,62 @@ fun GroupsPicker(
     )
 }
 
-sealed class HomeFilter(val label: String) {
-    object ALL : HomeFilter("All feeds")
-    object GROUPED : HomeFilter("Groups")
+@Composable
+fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                "FeedFly",
+                fontFamily = FontFamily.SansSerif,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        scrollBehavior = scrollBehavior,
+    )
+}
+
+@Composable
+fun FeedsHome(
+    groups: List<String>,
+    allFeeds: List<FeedDto>,
+    onClick: (Long) -> Unit
+) {
+    var currentGroup by rememberSaveable { mutableStateOf(groups[0]) }
+    var showAll by rememberSaveable { mutableStateOf(true) }
+    var openGroupsPicker by remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState()
+    val filteredFeeds by remember(currentGroup, showAll) {
+        mutableStateOf(allFeeds.filter {
+            if (showAll) true
+            else it.group == currentGroup
+        })
+    }
+
+    Column(Modifier.fillMaxSize()) {
+        LazyRow(
+            contentPadding = PaddingValues(12.dp, 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            item {
+                FeedFilterChip(showAll, "All feeds") { showAll = true }
+            }
+            item {
+                FeedFilterChip(
+                    selected = !showAll,
+                    label = currentGroup,
+                    trailingIcon = Icons.Default.ArrowDropDown,
+                    onClick = {
+                        openGroupsPicker = true
+                        showAll = false
+                    }
+                )
+            }
+        }
+        FeedGroupList(filteredFeeds, onClick)
+    }
+    if (openGroupsPicker) GroupsPicker(currentGroup, bottomSheetState = bottomSheetState,
+        groups = groups,
+        onPick = { currentGroup = it },
+        onClose = { openGroupsPicker = false }
+    )
 }

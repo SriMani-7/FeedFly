@@ -59,7 +59,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
         NavHost(navController, Home.HomeScreen.route, modifier = Modifier) {
             navigation(Home.HomeScreen.destination, Home.HomeScreen.route) {
                 composable(Home.HomeScreen.destination) {
-                    HomeScreen(navController, homeViewModal)
+                    HomeScreen(homeViewModal, navController::navigate)
                 }
                 composable(
                     Home.ArticlesScreen.destination + "/{id}", arguments = listOf(
@@ -104,4 +104,9 @@ fun BackButton(navController: NavController) {
     IconButton(onClick = { navController.popBackStack() }) {
         Icon(Icons.Default.ArrowBack, "back")
     }
+}
+
+object MainNavigation {
+    fun newFeedRoute() = InsertFeedScreen.route
+    fun articlesScreenRoute(id: Long) = Home.ArticlesScreen.destination + "/${id}"
 }

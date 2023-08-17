@@ -18,14 +18,14 @@ data class Feed(
     @ColumnInfo("link") val link: String,
     @ColumnInfo("feed_title") val title: String,
     @ColumnInfo("last_build_date") val lastBuildDate: Date? = null,
-    @ColumnInfo("group_name") val group: String? = null,
+    @ColumnInfo("group_name", defaultValue = "Others") val group: String = "Others",
     @ColumnInfo("language_code") val language: String? = null,
     @ColumnInfo("managing_editor_email") val managingEditor: String? = null,
     @ColumnInfo("copyright") val copyright: String? = null,
     @PrimaryKey(autoGenerate = true) val id: Long = 0
 ) {
 
-    constructor(channel: Channel, group: String? = null) : this(
+    constructor(channel: Channel, group: String) : this(
         feedUrl = channel.feedUrl,
         description = channel.description,
         link = channel.link ?: "",

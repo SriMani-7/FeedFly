@@ -36,22 +36,16 @@ interface FeedDao {
     @Query("select * from feeds order by last_build_date desc")
     fun getAllFeeds(): Flow<List<FeedDto>>
 
-    @Update
-    suspend fun updateArticle(articleItem: ArticleItem)
-
-    @Query("select * from feeds where group_name is null")
-    fun getOtherFeeds(): Flow<List<Feed>?>
-
     @Transaction
     @MapInfo(keyColumn = "name")
     @Query("SELECT feeds.group_name AS name, title, articles.link, articles.category, articles.pub_date, articles.pinned,articles.description, articles.author, articles.article_id FROM feeds INNER JOIN articles as articles ON feeds.id = articles.feed_id WHERE articles.pinned = :isPinned")
-    fun getFavoriteFeedArticles(isPinned: Boolean = true): Flow<Map<String?, List<FeedArticle>>>
+    fun getFavoriteFeedArticles(isPinned: Boolean = true): Flow<Map<String, List<FeedArticle>>>
 
     @Query("update articles set pinned = :pinned where article_id = :id")
     suspend fun updateArticlePin(id: Long, pinned: Boolean)
 
     @Query("select distinct group_name from feeds")
-    fun getGroups(): Flow<List<String?>>
+    fun getGroups(): Flow<List<String>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(feedImage: FeedImage)

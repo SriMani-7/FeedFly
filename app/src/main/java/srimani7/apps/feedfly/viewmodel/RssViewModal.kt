@@ -32,7 +32,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
 
     val feedStateFlow = feedDao.getFeed(feedId).stateIn(viewModelScope, SharingStarted.Lazily, null)
-    val groupNameFlow by lazy { feedDao.getGroups() }
+    val groupNameFlow by lazy { feedDao.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList()) }
 
     private val _uiState = MutableStateFlow<ArticlesUIState>(ArticlesUIState.Loading)
     val uiStateStateFlow = _uiState.asStateFlow()

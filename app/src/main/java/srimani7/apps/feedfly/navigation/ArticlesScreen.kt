@@ -57,7 +57,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
 
     val hostState = remember { SnackbarHostState() }
 
-    val groups by viewModal.groupNameFlow.collectAsState(null)
+    val groups by viewModal.groupNameFlow.collectAsState()
     var openGroupsPicker by remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState()
 
@@ -109,10 +109,10 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
             }
         }
 
-        if (openGroupsPicker) GroupsPicker(
-            feed?.group,
+        if (openGroupsPicker && feed != null) GroupsPicker(
+            feed!!.group,
             bottomSheetState,
-            groups,
+            groups.ifEmpty { listOf("Others") },
             true,
             { openGroupsPicker = false }) {
             viewModal.updateFeed(feed?.copy(group = it))

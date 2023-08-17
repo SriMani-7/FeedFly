@@ -16,12 +16,13 @@ import srimani7.apps.feedfly.database.entity.FeedImage
 
 @Database(
     entities = [Feed::class, ArticleItem::class, FeedImage::class, ArticleMedia::class],
-    version = 4,
+    version = 5,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3), // Unique index - title+link in articles
-        AutoMigration(3,4, AppDatabase.Migration4::class), // group names null to others
+        AutoMigration(3, 4, AppDatabase.Migration4::class), // group names null to others
+        AutoMigration(4, 5)
     ]
 )
 @TypeConverters(Converters::class)
@@ -42,7 +43,7 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
             val version = instance.openHelper.readableDatabase.version
-            Toast.makeText(context, ""+version, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "" + version, Toast.LENGTH_SHORT).show()
             return instance
         }
     }
