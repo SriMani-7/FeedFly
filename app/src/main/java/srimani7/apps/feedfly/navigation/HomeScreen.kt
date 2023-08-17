@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -34,6 +35,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -77,7 +79,7 @@ fun HomeScreen(
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
-        topBar = { HomeAppbar(scrollBehavior) },
+        topBar = { HomeAppbar(scrollBehavior, navigate) },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
     ) { paddingValues ->
         Box(
@@ -85,15 +87,10 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (groups.isEmpty()) {
-                Text(
-                    "No feeds",
-                    style = MaterialTheme.typography.headlineSmall,
-                    textAlign = TextAlign.Center
-                )
-            } else FeedsHome(groups, allFeeds) {
-                navigate(MainNavigation.articlesScreenRoute(it))
-            }
+            if (groups.isNotEmpty())
+                FeedsHome(groups, allFeeds) {
+                    navigate(MainNavigation.articlesScreenRoute(it))
+                }
         }
     }
 
@@ -214,7 +211,7 @@ fun GroupsPicker(
 }
 
 @Composable
-fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?) {
+fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -222,6 +219,11 @@ fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?) {
                 fontFamily = FontFamily.SansSerif,
                 style = MaterialTheme.typography.titleLarge
             )
+        },
+        actions = {
+          IconButton(onClick = { navigate(MainNavigation.newFeedRoute())}) {
+              Icon(Icons.Default.Add, "Add")
+          }
         },
         scrollBehavior = scrollBehavior,
     )
@@ -239,10 +241,12 @@ fun FeedsHome(
     val bottomSheetState = rememberModalBottomSheetState()
     val filteredFeeds by remember(currentGroup, showAll) {
         mutableStateOf(allFeeds.filter {
-            if (showAll) true
-            else it.group == currentGroup
+            it.group == currentGroup
         })
     }
+
+    val allListState = rememberLazyListState()
+    val listState = rememberLazyListState()
 
     Column(Modifier.fillMaxSize()) {
         LazyRow(
@@ -264,7 +268,8 @@ fun FeedsHome(
                 )
             }
         }
-        FeedGroupList(filteredFeeds, onClick)
+        if (showAll) FeedGroupList(allFeeds, allListState, onClick)
+        else FeedGroupList(filteredFeeds, listState, onClick)
     }
     if (openGroupsPicker) GroupsPicker(currentGroup, bottomSheetState = bottomSheetState,
         groups = groups,

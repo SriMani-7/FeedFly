@@ -1,7 +1,6 @@
 package srimani7.apps.feedfly.database
 
 import android.content.Context
-import android.widget.Toast
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
@@ -42,8 +41,6 @@ abstract class AppDatabase : RoomDatabase() {
                     ).build()
                 }
             }
-            val version = instance.openHelper.readableDatabase.version
-            Toast.makeText(context, "" + version, Toast.LENGTH_SHORT).show()
             return instance
         }
     }
