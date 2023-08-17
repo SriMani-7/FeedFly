@@ -101,6 +101,7 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
                     val success = parseState as ParsingState.Success
                     RssItemsColumn(success.channel.items)
                     if (openGroupsPicker) GroupsPicker(
+                        null,
                         bottomSheetState,
                         groups,
                         true,

@@ -110,6 +110,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
         }
 
         if (openGroupsPicker) GroupsPicker(
+            feed?.group,
             bottomSheetState,
             groups,
             true,

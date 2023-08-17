@@ -1,6 +1,6 @@
 @file:OptIn(
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
+    ExperimentalFoundationApi::class, ExperimentalLayoutApi::class
 )
 
 package srimani7.apps.feedfly.navigation
@@ -10,6 +10,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,9 +21,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -150,7 +152,7 @@ fun HomeScreen(
             }
 
         }
-        if (openGroupsPicker) GroupsPicker(bottomSheetState = bottomSheetState,
+        if (openGroupsPicker) GroupsPicker(currentGroup.value, bottomSheetState = bottomSheetState,
             groups = groups,
             onPick = { currentGroup.value = it },
             onClose = { openGroupsPicker = false }
@@ -178,6 +180,7 @@ fun FeedFilterChip(
 
 @Composable
 fun GroupsPicker(
+    selected: String?,
     bottomSheetState: SheetState,
     groups: List<String?>?,
     addNew: Boolean = false,
@@ -224,33 +227,27 @@ fun GroupsPicker(
         }
     ) {
         if (groups != null)
-            LazyColumn(
-                contentPadding = PaddingValues(10.dp, 12.dp),
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
-                items(groups, key = { it ?: "Other feeds" }) {
-                    TextButton(
-                        onClick = {
-                            scope.launch { bottomSheetState.hide() }.invokeOnCompletion { _ ->
-                                if (!bottomSheetState.isVisible) {
-                                    onPick(it)
-                                    onClose()
-                                }
+                groups.forEach {
+                    ElevatedFilterChip(selected = selected == it, onClick = {
+                        scope.launch { bottomSheetState.hide() }.invokeOnCompletion { _ ->
+                            if (!bottomSheetState.isVisible) {
+                                onPick(it)
+                                onClose()
                             }
-                        },
-                        shape = MaterialTheme.shapes.large,
-                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
-                    ) {
+                        }
+                    }, label = {
                         Text(
                             it ?: "Other feeds",
                             textAlign = TextAlign.Start,
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .fillMaxWidth(),
                             fontWeight = FontWeight.Normal
                         )
-                    }
+                    })
                 }
-
             }
         Spacer(modifier = Modifier.height(30.dp))
     }
