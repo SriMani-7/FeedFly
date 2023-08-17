@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
+)
 
 package srimani7.apps.feedfly.navigation
 
@@ -6,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
@@ -30,7 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import srimani7.apps.feedfly.ui.ArticleImage
+import srimani7.apps.feedfly.ui.RssItemsColumn
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 import srimani7.apps.rssparser.ParsingState
 
@@ -98,16 +99,7 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
 
                 is ParsingState.Success -> {
                     val success = parseState as ParsingState.Success
-                    LazyColumn {
-                        success.channel.items.forEach {
-                            item {
-                                Column {
-                                    it.enclosure?.url?.let { it1 -> ArticleImage(imageSrc = it1) }
-                                    Text(text = it.title ?: "")
-                                }
-                            }
-                        }
-                    }
+                    RssItemsColumn(success.channel.items)
                     if (openGroupsPicker) GroupsPicker(
                         bottomSheetState,
                         groups,

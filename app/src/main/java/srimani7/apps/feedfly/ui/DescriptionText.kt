@@ -32,7 +32,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import androidx.core.text.HtmlCompat
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
+import srimani7.apps.feedfly.R
 
 @Composable
 fun HtmlImage(text: String, imageGetter: ImageGetter) {
@@ -68,8 +70,10 @@ fun ShowImageDialog(
             CircularProgressIndicator(Modifier.align(Alignment.Center))
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageSrc)
+                    .data(imageSrc.replaceFirst("http:", "https:"))
                     .crossfade(true)
+                    .error(R.drawable.baseline_error_outline_24)
+                    .diskCachePolicy(CachePolicy.DISABLED)
                     .build(),
                 contentDescription = "image",
                 contentScale = ContentScale.Fit,

@@ -80,6 +80,7 @@ class RssParser {
                 "author" -> item.author = parser.readText("author")
                 "title" -> item.title = parser.readText("title")
                 "description" -> item.description = parser.readText("description")
+                "content:encoded" -> item.description = parser.readText("content:encoded")
                 "link" -> item.link = parser.readText("link")
                 "pubDate" -> item.pubDate = parser.readText("pubDate")
                 "enclosure" -> item.enclosure = readEnclosure(parser)

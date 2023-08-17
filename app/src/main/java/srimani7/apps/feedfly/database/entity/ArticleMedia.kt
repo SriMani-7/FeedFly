@@ -48,4 +48,8 @@ data class ArticleMedia(
         IMAGE, AUDIO
     }
 
+    companion object {
+        fun isImage(type: String?): Boolean = type?.contains("image") == true
+    }
+
 }

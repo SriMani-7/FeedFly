@@ -20,7 +20,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,7 +30,7 @@ import srimani7.apps.feedfly.viewmodel.HomeViewModal
 fun FavoriteScreen(homeViewModal: HomeViewModal) {
     val articleGroups by homeViewModal.favoriteArticles.collectAsState(null)
     var currentGroup by remember { mutableStateOf(articleGroups?.keys?.first()) }
-    var articles by rememberSaveable(currentGroup) {
+    var articles by remember(currentGroup) {
         mutableStateOf(articleGroups?.get(currentGroup))
     }
     Scaffold(

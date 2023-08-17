@@ -1,6 +1,7 @@
 package srimani7.apps.feedfly.viewmodel
 
 import android.app.Application
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -45,7 +46,12 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
 
     fun save(channel: Channel, groupName: String?) {
         viewModelScope.launch {
-            feedDao.insertFeedUrl(Feed(channel, groupName))
+            try {
+                feedDao.insertFeedUrl(Feed(channel, groupName))
+            } catch (e: Exception) {
+                Toast.makeText(getApplication(), e.message, Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+            }
         }
     }
 
