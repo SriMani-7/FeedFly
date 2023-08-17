@@ -19,7 +19,7 @@ import java.util.Date
             onUpdate = ForeignKey.CASCADE
         )
     ], indices = [
-        Index(value = ["title", "link"], unique = true)
+        Index(value = ["feed_id", "title", "link"], unique = true)
     ]
 )
 data class ArticleItem(
