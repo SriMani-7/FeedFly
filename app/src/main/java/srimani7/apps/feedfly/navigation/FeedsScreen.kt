@@ -98,7 +98,7 @@ fun FeedCard(feedDto: FeedDto, onClick: () -> Unit) {
                         Text(
                             text = it,
                             style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Normal,
+                            fontWeight = FontWeight.Light,
                         )
                     }
                 }

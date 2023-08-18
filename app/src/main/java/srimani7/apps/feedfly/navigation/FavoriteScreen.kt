@@ -57,7 +57,7 @@ fun FavoriteScreen(homeViewModal: HomeViewModal) {
                                 onClick = {
                                     currentGroup = it
                                 },
-                                label = { Text(text = it ?: "Others") }
+                                label = { Text(text = it) }
                             )
                         }
                     }

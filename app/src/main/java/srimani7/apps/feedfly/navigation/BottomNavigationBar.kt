@@ -1,47 +1,69 @@
 package srimani7.apps.feedfly.navigation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import srimani7.apps.feedfly.R
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController, modifier: Modifier = Modifier) {
-    var currentScreen by rememberSaveable { mutableStateOf(Home.HomeScreen.route) }
-    val items = rememberSaveable {
-        listOf(
-            Home.HomeScreen to R.drawable.home_fill_24px,
-            Favorites.FavoriteScreen to R.drawable.favorite_fill_24,
-            Settings.SettingsScreen to R.drawable.settings_fill_24px,
-        )
+fun BottomNavigationBar(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    navItems: List<NavItem> = listOf(NavItem.Home, NavItem.Favorites, NavItem.Settings)
+) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    val showBottomBar by remember(currentDestination?.route) {
+        derivedStateOf {
+            Screen.showBottomBar(currentDestination?.route)
+        }
     }
-    NavigationBar(
-        modifier = modifier,
-    ) {
-        items.forEach { item ->
-            NavigationBarItem(
-                selected = item.first.route == currentScreen,
-                onClick = {
-                    currentScreen = item.first.route
-                    navController.navigate(item.first.route)
-                },
-                icon = { Icon(painterResource(item.second), null) },
-                colors = NavigationBarItemDefaults.colors(
-                    unselectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f),
-                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                ),
-            )
+    AnimatedVisibility(showBottomBar, modifier = modifier, exit = fadeOut()) {
+        NavigationBar {
+            navItems.forEach { navItem ->
+                BottomNavItem(selected = currentDestination?.hierarchy?.any { it.route == navItem.navRoute } == true,
+                    navItem = navItem) {
+                    navController.navigate(navItem.navRoute) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            }
         }
     }
 }
 
+@Composable
+fun RowScope.BottomNavItem(selected: Boolean, navItem: NavItem, onClick: () -> Unit) {
+    NavigationBarItem(
+        selected = selected,
+        onClick = onClick,
+        icon = { Icon(painterResource(navItem.iconRes), null) },
+        colors = NavigationBarItemDefaults.colors(
+            unselectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(
+                alpha = 0.5f
+            ),
+            selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        ),
+        label = { Text(navItem.label) },
+        alwaysShowLabel = selected
+    )
+}

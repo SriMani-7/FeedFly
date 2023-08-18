@@ -73,12 +73,12 @@ import srimani7.apps.feedfly.viewmodel.HomeViewModal
 @Composable
 fun HomeScreen(
     homeViewModal: HomeViewModal,
-    currentGroup: String?,
     navigate: (String) -> Unit
 ) {
     val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle()
     val groups by homeViewModal.groupNameFlow.collectAsState()
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val settings by homeViewModal.settingsStateFlow.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = { HomeAppbar(scrollBehavior, navigate) },
@@ -91,7 +91,7 @@ fun HomeScreen(
         ) {
             if (groups.isNotEmpty())
                 FeedsHome(
-                    currentGroup = currentGroup,
+                    currentGroup = settings.currentGroup,
                     groups = groups,
                     allFeeds,
                     updateGroup = homeViewModal::updateCurrentGroup

@@ -1,20 +1,29 @@
 package srimani7.apps.feedfly.navigation
 
-sealed class Screen(
-    val destination: String,
-    val route: String
-)
+import androidx.annotation.DrawableRes
+import srimani7.apps.feedfly.R
 
-sealed class Home(destination: String): Screen(destination,"home_nav_route") {
-    object HomeScreen: Home("home_screen_destination")
-    object ArticlesScreen: Home("articles_screen_destination")
+sealed class Screen(val destination: String) {
+    object FavoriteScreen : Screen("favorite_screen_destination")
+    object HomeScreen : Screen("home_screen_destination")
+    object ArticlesScreen : Screen("articles_screen_destination")
+    object SettingsScreen : Screen("settings_main_destination")
+    object InsertFeedScreen : Screen("insert_feed_screen")
+
+    companion object {
+        fun showBottomBar(route: String?) = when(route) {
+            HomeScreen.destination, FavoriteScreen.destination, SettingsScreen.destination -> true
+            else -> false
+        }
+    }
 }
 
-sealed class Favorites(destination: String): Screen(destination, "favorites_nav_route") {
-    object FavoriteScreen: Favorites("favorite_screen_destination")
+sealed class NavItem(
+    val label: String,
+    @DrawableRes val iconRes: Int,
+    val navRoute: String
+) {
+    object Home : NavItem("Home", R.drawable.home_fill_24px, "home_route")
+    object Favorites : NavItem("Favorites", R.drawable.favorite_fill_24, "favorites_route")
+    object Settings : NavItem("Settings", R.drawable.settings_fill_24px, "settings_route")
 }
-sealed class Settings(destination: String): Screen(destination,"settings_nav_route") {
-    object SettingsScreen: Settings("settings_main_destination")
-}
-
-object InsertFeedScreen: Screen("insert_feed_screen", "insert_feed_route")
