@@ -49,6 +49,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,6 +73,7 @@ import srimani7.apps.feedfly.viewmodel.HomeViewModal
 @Composable
 fun HomeScreen(
     homeViewModal: HomeViewModal,
+    currentGroup: String?,
     navigate: (String) -> Unit
 ) {
     val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle()
@@ -88,7 +90,12 @@ fun HomeScreen(
                 .padding(paddingValues)
         ) {
             if (groups.isNotEmpty())
-                FeedsHome(groups, allFeeds) {
+                FeedsHome(
+                    currentGroup = currentGroup,
+                    groups = groups,
+                    allFeeds,
+                    updateGroup = homeViewModal::updateCurrentGroup
+                ) {
                     navigate(MainNavigation.articlesScreenRoute(it))
                 }
         }
@@ -221,9 +228,9 @@ fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> U
             )
         },
         actions = {
-          IconButton(onClick = { navigate(MainNavigation.newFeedRoute())}) {
-              Icon(Icons.Default.Add, "Add")
-          }
+            IconButton(onClick = { navigate(MainNavigation.newFeedRoute()) }) {
+                Icon(Icons.Default.Add, "Add")
+            }
         },
         scrollBehavior = scrollBehavior,
     )
@@ -231,18 +238,20 @@ fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> U
 
 @Composable
 fun FeedsHome(
+    currentGroup: String?,
     groups: List<String>,
     allFeeds: List<FeedDto>,
+    updateGroup: (String) -> Unit,
     onClick: (Long) -> Unit
 ) {
-    var currentGroup by rememberSaveable { mutableStateOf(groups[0]) }
-    var showAll by rememberSaveable { mutableStateOf(true) }
+    var selectedGroup by remember { mutableStateOf(currentGroup ?: groups[0]) }
+    var showAll by rememberSaveable { mutableStateOf(currentGroup.isNullOrBlank()) }
     var openGroupsPicker by remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState()
-    val filteredFeeds by remember(currentGroup, showAll) {
-        mutableStateOf(allFeeds.filter {
-            it.group == currentGroup
-        })
+    val filteredFeeds by remember {
+        derivedStateOf {
+            allFeeds.filter { it.group == selectedGroup }
+        }
     }
 
     val allListState = rememberLazyListState()
@@ -259,10 +268,12 @@ fun FeedsHome(
             item {
                 FeedFilterChip(
                     selected = !showAll,
-                    label = currentGroup,
+                    label = selectedGroup,
                     trailingIcon = Icons.Default.ArrowDropDown,
                     onClick = {
-                        openGroupsPicker = true
+                        if (!showAll) {
+                            openGroupsPicker = true
+                        }
                         showAll = false
                     }
                 )
@@ -271,9 +282,12 @@ fun FeedsHome(
         if (showAll) FeedGroupList(allFeeds, allListState, onClick)
         else FeedGroupList(filteredFeeds, listState, onClick)
     }
-    if (openGroupsPicker) GroupsPicker(currentGroup, bottomSheetState = bottomSheetState,
+    if (openGroupsPicker) GroupsPicker(selectedGroup, bottomSheetState = bottomSheetState,
         groups = groups,
-        onPick = { currentGroup = it },
+        onPick = {
+            updateGroup(it)
+            selectedGroup = it
+        },
         onClose = { openGroupsPicker = false }
     )
 }

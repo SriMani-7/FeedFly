@@ -18,11 +18,20 @@ import srimani7.apps.rssparser.elements.Channel
 class HomeViewModal(application: Application) : AndroidViewModel(application) {
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
     private val userSettingsRepo by lazy { UserSettingsRepo(application) }
-    val allFeedsFlow by lazy { feedDao.getAllFeeds().stateIn(viewModelScope, SharingStarted.Lazily, emptyList()) }
+    val allFeedsFlow by lazy {
+        feedDao.getAllFeeds().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    }
     val favoriteArticles by lazy { feedDao.getFavoriteFeedArticles() }
-    val groupNameFlow by lazy { feedDao.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList()) }
+    val groupNameFlow by lazy {
+        feedDao.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    }
 
-    val appThemeState = userSettingsRepo.appThemeFlow(viewModelScope)
+    val settingsStateFlow = userSettingsRepo.settingsFlow.stateIn(
+        viewModelScope,
+        SharingStarted.Lazily,
+        UserSettingsRepo.Settings(AppTheme.DARK, "")
+    )
+
     private val rssParserRepository = RssParserRepository()
     val parsingState = rssParserRepository.parsingState
 
@@ -49,6 +58,10 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
                 e.printStackTrace()
             }
         }
+    }
+
+    fun updateCurrentGroup(s: String) {
+        viewModelScope.launch(Dispatchers.IO) { userSettingsRepo.setCurrentGroup(s) }
     }
 
 }

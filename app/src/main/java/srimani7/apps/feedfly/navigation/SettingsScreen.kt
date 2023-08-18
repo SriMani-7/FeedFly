@@ -16,18 +16,14 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import srimani7.apps.feedfly.data.AppTheme
-import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
 @Composable
-fun SettingsScreen(homeViewModal: HomeViewModal) {
-    val selectedTheme by homeViewModal.appThemeState.collectAsState()
+fun SettingsScreen(selectedTheme: AppTheme, updateSettings: (AppTheme) -> Unit) {
     Scaffold(
         topBar = {
             MediumTopAppBar(
@@ -55,7 +51,7 @@ fun SettingsScreen(homeViewModal: HomeViewModal) {
                             .selectable(
                                 selected = appTheme == selectedTheme,
                                 onClick = {
-                                    homeViewModal.updateSettings(appTheme)
+                                    updateSettings(appTheme)
                                 },
                                 role = Role.RadioButton
                             )

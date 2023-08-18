@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -44,6 +45,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
     val navController = rememberNavController()
     val currentRoute by navController.currentBackStackEntryAsState()
     var showBottomBar by remember { mutableStateOf(true) }
+    val settings by homeViewModal.settingsStateFlow.collectAsStateWithLifecycle()
 
     LaunchedEffect(currentRoute) {
         showBottomBar = when (currentRoute?.destination?.route) {
@@ -55,11 +57,15 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         NavHost(navController, Home.HomeScreen.route, modifier = Modifier) {
             navigation(Home.HomeScreen.destination, Home.HomeScreen.route) {
                 composable(Home.HomeScreen.destination) {
-                    HomeScreen(homeViewModal, navController::navigate)
+                    HomeScreen(homeViewModal, settings.currentGroup, navController::navigate)
                 }
                 composable(
                     Home.ArticlesScreen.destination + "/{id}", arguments = listOf(
@@ -76,7 +82,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             }
             navigation(Settings.SettingsScreen.destination, Settings.SettingsScreen.route) {
                 composable(Settings.SettingsScreen.destination) {
-                    SettingsScreen(homeViewModal)
+                    SettingsScreen(settings.theme, homeViewModal::updateSettings)
                 }
             }
 

@@ -35,11 +35,11 @@ class MainActivity : ComponentActivity() {
             } else Toast.makeText(this, "Un supported MIME type", Toast.LENGTH_SHORT).show()
         }
         setContent {
-            val appTheme by viewModel.appThemeState.collectAsState()
+            val appTheme by viewModel.settingsStateFlow.collectAsState()
             val isDarkTheme = isSystemInDarkTheme()
             val darkTheme by remember(appTheme) {
                 mutableStateOf(
-                    when (appTheme) {
+                    when (appTheme.theme) {
                         AppTheme.SYSTEM_DEFAULT -> isDarkTheme
                         AppTheme.LIGHT -> false
                         AppTheme.DARK -> true
