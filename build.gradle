@@ -5,36 +5,3 @@ plugins {
     alias libs.plugins.kotlin.android apply false
     alias libs.plugins.ksp apply false
 }
-
-ext {
-
-    // jetpack compose
-    compose_bom_version = '2023.06.01'
-    compose_compiler_version = "1.4.6"
-    accompanist_version = "0.30.0"
-    coil_compose_version = "2.4.0"
-
-    // Architecture components
-    activity_version = '1.7.2'
-    navigation_version = '2.6.0'
-    lifecycle_version = '2.6.1'
-    androidx_datastore_version = "1.1.0-alpha04"
-    androidx_core_version = "1.10.1"
-    androidx_annotation_version = "1.6.0"
-
-    // Room
-    room_version = "2.5.2"
-
-    // Networking
-    okhttp_version = "4.11.0"
-
-    // other
-    androidx_splashscreen_version = "1.0.1"
-    androidx_appcompat_version = "1.6.1"
-    androidx_browser_version = "1.5.0"
-
-    // Testing
-    junit_version = "4.13.2"
-    androidx_junit_version = "1.1.5"
-    androidx_expresso_version = "3.5.1"
-}
