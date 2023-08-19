@@ -56,6 +56,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -78,7 +79,8 @@ fun RssItemsColumn(
     viewModel: MediaViewModel = viewModel(),
     updateArticle: (Long, Boolean) -> Unit
 ) {
-    val lazyListState = rememberLazyListState()
+    val lazyListState = rememberLazyListState(0, initialFirstVisibleItemScrollOffset = 30)
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
@@ -89,7 +91,7 @@ fun RssItemsColumn(
             dateListMap.forEach { entry ->
                 entry.key?.let { date ->
                     stickyHeader {
-                        ArticleHeader(date)
+                        if (entry.value.size > 3) ArticleHeader(date)
                     }
                 }
                 items(entry.value,
@@ -99,7 +101,14 @@ fun RssItemsColumn(
                     RssItemCard(
                         feedArticle,
                         modifier = Modifier.animateItemPlacement(),
-                        onPlayAudio = viewModel::play
+                        onPlayAudio = viewModel::play,
+                        pubTime = remember {
+                            if (entry.value.size < 3) {
+                                DateParser.formatDate(feedArticle.pubDate, false) ?: ""
+                            } else {
+                                DateParser.formatTime(feedArticle.pubDate) ?: ""
+                            }
+                        },
                     ) { updateArticle(feedArticle.id, it) }
                 }
             }
@@ -178,13 +187,13 @@ fun ExoPlayerCard(
 fun RssItemCard(
     item: FeedArticle,
     modifier: Modifier = Modifier,
+    pubTime: String = DateParser.formatTime(item.pubDate) ?: "",
     onPlayAudio: (String) -> Unit,
     onPinChange: (Boolean) -> Unit
 ) {
     var descriptionUri by rememberSaveable {
         mutableStateOf<String?>(null)
     }
-    val pubTime by remember { mutableStateOf(DateParser.formatTime(item.pubDate) ?: "") }
     val articleModalState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
@@ -207,22 +216,22 @@ fun RssItemCard(
             modifier = Modifier
                 .padding(start = 14.dp, end = 14.dp, top = 16.dp, bottom = 10.dp)
                 .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (item.title.isNotBlank()) {
                 Text(
                     text = item.title,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Normal,
                     maxLines = 3,
+                    fontSize = 15.sp,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
             }
             if (item.category.isNotBlank())
                 Text(
                     text = item.category,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Normal,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

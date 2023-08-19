@@ -43,7 +43,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     val groupedArticles = feedDao
         .getArticles(feedId)
         .transform { feedArticles ->
-            emit(feedArticles.groupBy { DateParser.formatDate(it.pubDate) })
+            emit(feedArticles.groupBy { DateParser.formatDate(it.pubDate, false) })
         }
 
     init {

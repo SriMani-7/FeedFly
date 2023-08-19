@@ -248,7 +248,7 @@ fun FeedsHome(
     var showAll by rememberSaveable { mutableStateOf(currentGroup.isNullOrBlank()) }
     var openGroupsPicker by remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState()
-    val filteredFeeds by remember {
+    val filteredFeeds by remember(allFeeds) {
         derivedStateOf {
             allFeeds.filter { it.group == selectedGroup }
         }
