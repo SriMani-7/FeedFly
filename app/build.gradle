@@ -19,6 +19,7 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -28,6 +29,9 @@ android {
         }
     }
     compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_18
         targetCompatibility JavaVersion.VERSION_18
     }
@@ -97,4 +101,6 @@ dependencies {
     implementation project(path: ':rss-parser')
 
     implementation libs.androidx.media3.exoplayer
+
+    coreLibraryDesugaring libs.desugar.jdk.libs
 }
