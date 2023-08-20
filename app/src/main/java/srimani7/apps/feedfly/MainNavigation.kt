@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -20,6 +21,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
@@ -29,6 +31,7 @@ import srimani7.apps.feedfly.navigation.FavoriteScreen
 import srimani7.apps.feedfly.navigation.HomeScreen
 import srimani7.apps.feedfly.navigation.NavItem
 import srimani7.apps.feedfly.navigation.NewFeedScreen
+import srimani7.apps.feedfly.navigation.RemoveArticlesScreen
 import srimani7.apps.feedfly.navigation.Screen
 import srimani7.apps.feedfly.navigation.SettingsScreen
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
@@ -58,6 +61,21 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
 
             composable(Screen.InsertFeedScreen.destination) {
                 NewFeedScreen(homeViewModal, addLink) { navController.popBackStack() }
+            }
+
+            dialog(
+                route = Screen.RemoveArticlesScreen.destination+"/{feedId}",
+                dialogProperties = DialogProperties(
+                    dismissOnClickOutside = false,
+                    dismissOnBackPress = false
+                ), arguments = listOf(
+                    navArgument("feedId") { type = NavType.LongType }
+                )
+            ) {
+                val feedId = it.arguments?.getLong("feeId")
+                RemoveArticlesScreen(navController::popBackStack) {
+                    homeViewModal.deleteOldArticles(feedId, it)
+                }
             }
         }
         BottomNavigationBar(navController, Modifier.align(Alignment.BottomCenter))

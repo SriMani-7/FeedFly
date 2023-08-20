@@ -86,11 +86,19 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                         }
                     }
                 }, actions = {
-                    FeedActions(options = listOf("Delete", "Refresh", "Change Group")) {
+                    FeedActions(
+                        options = listOf(
+                            "Delete",
+                            "Refresh",
+                            "Change Group",
+                            "Remove old articles"
+                        )
+                    ) {
                         when (it) {
                             "Delete" -> viewModal.delete(feed)
                             "Refresh" -> viewModal.refresh(feed)
                             "Change Group" -> openGroupsPicker = true
+                            "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feedId)
                         }
                     }
                 }

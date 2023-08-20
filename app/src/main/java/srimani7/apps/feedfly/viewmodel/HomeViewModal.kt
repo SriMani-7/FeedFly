@@ -64,5 +64,9 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) { userSettingsRepo.setCurrentGroup(s) }
     }
 
+    fun deleteOldArticles(feedId: Long?, days: Int) {
+
+
+    }
 }
 

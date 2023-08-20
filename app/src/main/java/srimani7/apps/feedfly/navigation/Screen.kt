@@ -9,6 +9,7 @@ sealed class Screen(val destination: String) {
     object ArticlesScreen : Screen("articles_screen_destination")
     object SettingsScreen : Screen("settings_main_destination")
     object InsertFeedScreen : Screen("insert_feed_screen")
+    object RemoveArticlesScreen: Screen("remove_articles_screen")
 
     companion object {
         fun showBottomBar(route: String?) = when(route) {
