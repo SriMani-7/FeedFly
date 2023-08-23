@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.Flow
 import srimani7.apps.feedfly.database.entity.ArticleItem
 import srimani7.apps.feedfly.database.entity.Feed
 import srimani7.apps.feedfly.database.entity.FeedImage
+import java.time.Instant
+import java.util.Date
 
 @Dao
 interface FeedDao {
@@ -50,8 +52,30 @@ interface FeedDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun update(feedImage: FeedImage)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(feedImage: ArticleItem): Long
+    @Query(
+        """INSERT INTO articles (title, link, category, feed_id, lastFetch, pub_date, description, author, pinned)
+    SELECT :title,:link,:category,:feedId,:lastFetch,:pubDate,:description,:author,:pinned
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM articles_trash
+        WHERE title = :title AND link = :link and feed_id = :feedId
+    ) and not exists (
+        SELECT 1
+        FROM articles
+        WHERE title = :title AND link = :link and feed_id = :feedId
+    )"""
+    )
+    suspend fun insertArticle(
+        title: String,
+        link: String,
+        category: String,
+        feedId: Long,
+        lastFetch: Date?,
+        pubDate: Date?,
+        description: String?,
+        author: String?,
+        pinned: Boolean = false,
+    ): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(feedImage: FeedImage): Long
@@ -90,6 +114,19 @@ interface FeedDao {
     @Transaction
     @Query("select title, link, category, pinned, pub_date, description, author, article_id from articles where article_id = :id")
     fun getFeedArticle(id: Long): Flow<FeedArticle?>
+
+    @Transaction
+    suspend fun removeOldArticles(feedId: Long, threshold: Long) {
+        val current = Instant.now().toEpochMilli()
+        moveToTrash(feedId, threshold, current)
+        deleteArticles(feedId, threshold)
+    }
+
+    @Query("delete from articles where pinned = :pinned and pub_date <= :threshold and feed_id = :feedId")
+    fun deleteArticles(feedId: Long, threshold: Long, pinned: Boolean = false)
+
+    @Query("insert into articles_trash (title, link, feed_id, last_delete) select title, link, feed_id, :date from articles where pinned = :pinned and pub_date <= :threshold and feed_id = :feedId")
+    fun moveToTrash(feedId: Long, threshold: Long, date: Long, pinned: Boolean = false)
 
 }
 

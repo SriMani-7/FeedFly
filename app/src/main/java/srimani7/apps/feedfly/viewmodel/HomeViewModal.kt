@@ -5,7 +5,9 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.data.AppTheme
@@ -14,6 +16,8 @@ import srimani7.apps.feedfly.database.AppDatabase
 import srimani7.apps.feedfly.database.entity.Feed
 import srimani7.apps.feedfly.rss.RssParserRepository
 import srimani7.apps.rssparser.elements.Channel
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class HomeViewModal(application: Application) : AndroidViewModel(application) {
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
@@ -64,9 +68,26 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) { userSettingsRepo.setCurrentGroup(s) }
     }
 
+    private val _deltingState = MutableStateFlow(false)
+    val deletingStateFlow = _deltingState.asStateFlow()
+
     fun deleteOldArticles(feedId: Long?, days: Int) {
-
-
+        if (feedId == null || feedId <= 0 || days < 1) {
+            Toast.makeText(getApplication(), "Invalid parameters $feedId and $days", Toast.LENGTH_SHORT).show()
+            return
+        }
+        _deltingState.value = true
+        val now = Instant.now()
+        val threshold = now.minus(days.toLong(), ChronoUnit.DAYS).toEpochMilli()
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                feedDao.removeOldArticles(feedId, threshold)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _deltingState.value = false
+            }
+        }
     }
 }
 
