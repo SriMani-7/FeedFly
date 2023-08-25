@@ -45,6 +45,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
     val navController = rememberNavController()
     val settings by homeViewModal.settingsStateFlow.collectAsStateWithLifecycle()
     val deletingState by homeViewModal.deletingStateFlow.collectAsStateWithLifecycle()
+
     Box(
         modifier = Modifier
             .fillMaxSize()

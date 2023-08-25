@@ -21,7 +21,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.RssItemsColumn
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 import srimani7.apps.rssparser.ParsingState
@@ -46,8 +46,7 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
 
     var active by rememberSaveable { mutableStateOf(true) }
     val groups by homeViewModal.groupNameFlow.collectAsState()
-    var openGroupsPicker by remember { mutableStateOf(false) }
-    val bottomSheetState = rememberModalBottomSheetState()
+    val openGroupsPicker = remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -77,8 +76,7 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
 
             }
         }, floatingActionButton = {
-            FloatingActionButton(onClick = { openGroupsPicker = true }) {
-
+            FloatingActionButton(onClick = { openGroupsPicker.value = true }) {
                 Icon(Icons.Default.Done, "done")
             }
         }
@@ -101,12 +99,12 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
                 is ParsingState.Success -> {
                     val success = parseState as ParsingState.Success
                     RssItemsColumn(success.channel.items)
-                    if (openGroupsPicker) GroupsPicker(
-                        "Others",
-                        bottomSheetState,
-                        groups.ifEmpty { listOf("Others") },
-                        true,
-                        { openGroupsPicker = false }) {
+                    GroupsPicker(
+                        selected = "Others",
+                        groups = groups.ifEmpty { listOf("Others") },
+                        state = openGroupsPicker,
+                        addNew = true
+                    ) {
                         homeViewModal.save(success.channel, it)
                         onDismiss()
                     }
