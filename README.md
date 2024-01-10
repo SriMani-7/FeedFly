@@ -2,6 +2,8 @@
 
 # FeedFly - Read News on the Fly
 
+🚧 Under Construction 🚧 - We've got the big stuff done, and now we're giving the app some extra love to make sure every little detail is just right. We're working hard to make it smooth and polished for you!
+
 ## Overview
 
 FeedFly is a sleek and efficient RSS feed reader designed to provide users with a seamless and personalized news-reading experience. 
