@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package srimani7.apps.feedfly.navigation
 
@@ -25,7 +25,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,27 +39,26 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
+import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.RssItemsColumn
+import srimani7.apps.feedfly.viewmodel.ArticlesUIState
 import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
-import srimani7.apps.rssparser.ParsingState
 
 @Composable
-fun RssScreen(feedId: Long, navController: NavHostController) {
+fun ArticlesScreen(feedId: Long, navController: NavHostController) {
     val context = LocalContext.current
     val viewModal = viewModel(initializer = {
         RssViewModal(feedId, (context as Activity).application)
     })
-    val parsingState by viewModal.parsingState.collectAsState()
+    val parsingState by viewModal.uiStateStateFlow.collectAsState()
     val feedArticles by viewModal.groupedArticles.collectAsState(initial = null)
-    val feed by viewModal.feed.collectAsState(initial = null)
+    val feed by viewModal.feedStateFlow.collectAsState(initial = null)
 
     val hostState = remember { SnackbarHostState() }
 
-    val groups by viewModal.groupNameFlow.collectAsState(null)
-    var openGroupsPicker by remember { mutableStateOf(false) }
-    val bottomSheetState = rememberModalBottomSheetState()
-
+    val groups by viewModal.groupNameFlow.collectAsState()
+    val openGroupsPicker = remember { mutableStateOf(false) }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState) },
         topBar = {
@@ -86,11 +84,19 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
                         }
                     }
                 }, actions = {
-                    FeedActions(options = listOf("Delete", "Refresh", "Change Group")) {
+                    FeedActions(
+                        options = listOf(
+                            "Delete",
+                            "Refresh",
+                            "Change Group",
+                            "Remove old articles"
+                        )
+                    ) {
                         when (it) {
                             "Delete" -> viewModal.delete(feed)
                             "Refresh" -> viewModal.refresh(feed)
-                            "Change Group" -> openGroupsPicker = true
+                            "Change Group" -> openGroupsPicker.value = true
+                            "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feedId)
                         }
                     }
                 }
@@ -98,34 +104,33 @@ fun RssScreen(feedId: Long, navController: NavHostController) {
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            feedArticles?.let {
-                RssItemsColumn(it) { id, changed ->
-                    viewModal.updateArticle(id, changed)
+            when (parsingState) {
+                ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> feedArticles?.let {
+                    RssItemsColumn(
+                        dateListMap = it,
+                        updateArticle = viewModal::updateArticle
+                    )
                 }
-            }
-            AnimatedVisibility(parsingState == ParsingState.Processing) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+
+                ArticlesUIState.Loading -> AnimatedVisibility(parsingState == ArticlesUIState.Loading) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
             }
         }
 
-        if (openGroupsPicker) GroupsPicker(
-            bottomSheetState,
-            groups,
-            true,
-            { openGroupsPicker = false }) {
+        if (feed != null) GroupsPicker(
+            selected = feed!!.group,
+            groups = groups.ifEmpty { listOf("Others") },
+            state = openGroupsPicker,
+            addNew = true
+        ) {
             viewModal.updateFeed(feed?.copy(group = it))
         }
     }
 
     LaunchedEffect(parsingState) {
-        val message = when (parsingState) {
-            is ParsingState.Failure -> (parsingState as ParsingState.Failure).exception.message
-                ?: "Unknown error"
-
-            is ParsingState.Completed -> "Fetching completed"
-            is ParsingState.LastBuild -> "You are up-to date"
-            else -> return@LaunchedEffect
-        }
+        val message =
+            (parsingState as? ArticlesUIState.Failure)?.message ?: return@LaunchedEffect
         hostState.showSnackbar(message, duration = SnackbarDuration.Short)
     }
 

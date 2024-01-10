@@ -44,7 +44,10 @@ internal fun XmlPullParser.skip() {
     while (depth2 != 0) {
         when (next()) {
             XmlPullParser.END_TAG -> depth2--
-            XmlPullParser.START_TAG -> depth2++
+            XmlPullParser.START_TAG -> {
+                debugLog("skip $name")
+                depth2++
+            }
         }
     }
 }

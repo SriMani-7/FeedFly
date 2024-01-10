@@ -7,45 +7,85 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import srimani7.apps.feedfly.database.AppDatabase
+import srimani7.apps.feedfly.database.dbErrorLog
+import srimani7.apps.feedfly.database.dbInfoLog
 import srimani7.apps.feedfly.database.entity.ArticleItem
-import srimani7.apps.feedfly.database.entity.ArticleMedia
 import srimani7.apps.feedfly.database.entity.Feed
 import srimani7.apps.feedfly.database.entity.FeedImage
+import srimani7.apps.feedfly.rss.RssParserRepository
 import srimani7.apps.rssparser.DateParser
-import srimani7.apps.rssparser.OkHttpWebService
 import srimani7.apps.rssparser.ParsingState
 import srimani7.apps.rssparser.ParsingState.LastBuild
 import srimani7.apps.rssparser.ParsingState.Processing
-import srimani7.apps.rssparser.RssParser
 import srimani7.apps.rssparser.elements.Channel
 import java.util.Date
 
 class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(application) {
-    private val rssParser by lazy { RssParser() }
-    private val okHttpWebService by lazy { OkHttpWebService() }
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
 
-    val feed = feedDao.getFeed(feedId)
-    val groupNameFlow by lazy { feedDao.getGroups() }
+    val feedStateFlow = feedDao.getFeed(feedId).stateIn(viewModelScope, SharingStarted.Lazily, null)
+    val groupNameFlow by lazy {
+        feedDao.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    }
 
-    private val _parsingState = MutableStateFlow<ParsingState>(Processing)
-    val parsingState: StateFlow<ParsingState> = _parsingState
+    private val _uiState = MutableStateFlow<ArticlesUIState>(ArticlesUIState.Loading)
+    val uiStateStateFlow = _uiState.asStateFlow()
     private var lastBuildDate: Date? = null
+
+    private val rssParserRepository by lazy { RssParserRepository() }
 
     val groupedArticles = feedDao
         .getArticles(feedId)
         .transform { feedArticles ->
-            emit(feedArticles.groupBy { DateParser.formatDate(it.pubDate) })
+            emit(feedArticles.groupBy { DateParser.formatDate(it.pubDate, false) })
         }
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            rssParserRepository.parsingState.collectLatest { parsingState ->
+                when (parsingState) {
+                    is ParsingState.Failure -> {
+                        _uiState.value = ArticlesUIState.Failure(
+                            parsingState.exception.message ?: "Please try again"
+                        )
+                    }
+
+                    is ParsingState.Success -> {
+                        val channel = parsingState.channel
+                        if (channel.lastBuildDate == null) {
+                            lastBuildDate = Date()
+                            channel.lastBuildDate = lastBuildDate
+                        } else lastBuildDate = channel.lastBuildDate
+                        if (feedStateFlow.value != null) {
+                            val fee = feedStateFlow.value?.copy(channel)!!
+                            parseAndInsert(fee, channel)
+                        }
+                        _uiState.value = ArticlesUIState.COMPLETED
+                    }
+
+                    LastBuild -> {
+                        lastBuildDate = feedStateFlow.value?.lastBuildDate
+                        _uiState.value = ArticlesUIState.COMPLETED
+                    }
+
+                    Processing -> _uiState.value = ArticlesUIState.Loading
+                    ParsingState.Completed -> {}
+                }
+            }
+        }
+    }
 
     fun parseXml(feed: Feed) {
         if (feed.lastBuildDate != null && lastBuildDate == feed.lastBuildDate) {
-            _parsingState.value = LastBuild
+            _uiState.value = ArticlesUIState.COMPLETED
             return
         }
         info(feed.lastBuildDate.toString() + " " + lastBuildDate)
@@ -54,38 +94,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
 
     private fun load(feed: Feed) {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                _parsingState.value = Processing
-                val streamResult = okHttpWebService.inputStreamResult(feed.feedUrl)
-                val state = streamResult.getOrThrow().let {
-                    rssParser.parse(it, feed.lastBuildDate)
-                }
-                when (state) {
-                    is ParsingState.Failure -> {
-                        state.exception.printStackTrace()
-                        _parsingState.value = state
-                    }
-
-                    is ParsingState.Success -> {
-                        if (state.channel.lastBuildDate == null) {
-                            lastBuildDate = Date()
-                            state.channel.lastBuildDate = lastBuildDate
-                        } else lastBuildDate = state.channel.lastBuildDate
-                        val fee = feed.copy(state.channel)
-                        parseAndInsert(fee, state.channel)
-                        _parsingState.value = ParsingState.Completed
-                    }
-
-                    Processing, ParsingState.Completed -> _parsingState.value = state
-                    LastBuild -> {
-                        lastBuildDate = feed.lastBuildDate
-                        _parsingState.value = state
-                    }
-                }
-            } catch (e: Exception) {
-                _parsingState.value = ParsingState.Failure(e)
-                e.printStackTrace()
-            }
+            rssParserRepository.parseUrl(feed.feedUrl, feed.lastBuildDate)
         }
     }
 
@@ -103,20 +112,35 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         feedDao.updateFeedUrl(feed)
         channel.image?.let {
             launch {
-                feedDao.insertOrUpdate(FeedImage(it, feed.id))
+                feedDao.insert(FeedImage(it, feed.id))
                 cancel()
             }
         }
         channel.items.forEach { channelItem ->
             val article = ArticleItem(channelItem, feed.id)
-            feedDao.insertOrUpdate(article)
-            if (channelItem.enclosure != null) {
-                launch {
-                    feedDao.getArticle(article.link).collect {
-                        if (it > 0)
-                            feedDao.insert(ArticleMedia(channelItem.enclosure!!, it))
-                        cancel()
-                    }
+            val rowId = feedDao.insertArticle(
+                title = article.title,
+                link = article.link,
+                category = article.category,
+                feedId = article.feedId,
+                lastFetch = article.lastFetched, pubDate = article.pubDate,
+                description = article.description, author = article.author
+            )
+            val enclosure = channelItem.enclosure
+            if (enclosure != null && rowId != -1L) launch {
+                try {
+                    feedDao.insertArticleMedia(
+                        mediaSize = enclosure.length,
+                        mediaType = enclosure.type,
+                        url = enclosure.url,
+                        articleLink = article.link,
+                        articleTitle = article.title
+                    )
+                    dbInfoLog("Inserted media")
+                } catch (e: Exception) {
+                    dbErrorLog("For the $enclosure ${article.title} ${article.link}", e)
+                } finally {
+                    cancel()
                 }
             }
         }
@@ -138,4 +162,10 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         if (copy == null) return
         viewModelScope.launch { feedDao.updateFeedUrl(copy) }
     }
+}
+
+sealed class ArticlesUIState {
+    object Loading : ArticlesUIState()
+    object COMPLETED : ArticlesUIState()
+    data class Failure(val message: String) : ArticlesUIState()
 }

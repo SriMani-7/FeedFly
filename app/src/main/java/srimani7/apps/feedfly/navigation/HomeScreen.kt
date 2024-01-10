@@ -1,156 +1,89 @@
 @file:OptIn(
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class
 )
 
 package srimani7.apps.feedfly.navigation
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults.exitUntilCollapsedScrollBehavior
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import kotlinx.coroutines.launch
+import srimani7.apps.feedfly.MainNavigation
+import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.database.FeedDto
+import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
+
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    homeViewModal: HomeViewModal
+    homeViewModal: HomeViewModal,
+    navigate: (String) -> Unit
 ) {
-    val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle(initialValue = null)
-    val groups by homeViewModal.groupNameFlow.collectAsState(null)
-    var openGroupsPicker by remember { mutableStateOf(false) }
-    val currentGroup = rememberSaveable { mutableStateOf<String?>(null) }
-    val filteredFeeds by remember(currentGroup.value, allFeeds) {
-        mutableStateOf(allFeeds?.filter { it.group == currentGroup.value })
-    }
-
-    val bottomSheetState = rememberModalBottomSheetState()
+    val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle()
+    val groups by homeViewModal.groupNameFlow.collectAsStateWithLifecycle()
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val settings = homeViewModal.settingsStateFlow.collectAsStateWithLifecycle()
+    val groupPickerState = remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = {
-            Column {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            "FeedFly",
-                            fontFamily = FontFamily.SansSerif,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    },
-                    actions = {
-                        IconButton(onClick = { navController.navigate(InsertFeedScreen.route) }) {
-                            Icon(Icons.Default.Add, contentDescription = "Add")
-                        }
-                    },
-                    scrollBehavior = scrollBehavior,
-                )
-                LazyRow(
-                    contentPadding = PaddingValues(12.dp, 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
-                ) {
-                    listOf(HomeFilter.ALL, HomeFilter.LATEST).forEach {
-                        item {
-                            FeedFilterChip(
-                                selected = homeViewModal.currentFilter == it,
-                                onClick = { homeViewModal.currentFilter = it },
-                                label = it.label
-                            )
-                        }
-                    }
-                    item {
-                        FeedFilterChip(
-                            selected = homeViewModal.currentFilter == HomeFilter.GROUPED,
-                            label = currentGroup.value ?: "Other feeds",
-                            trailingIcon = Icons.Default.ArrowDropDown,
-                            onClick = {
-                                openGroupsPicker = homeViewModal.currentFilter == HomeFilter.GROUPED
-                                homeViewModal.currentFilter = HomeFilter.GROUPED
-                            }
-                        )
-                    }
-                }
-            }
-        },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = { HomeAppbar(scrollBehavior, navigate) },
+        //modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .padding(paddingValues)
+            Modifier
                 .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            AnimatedVisibility(visible = homeViewModal.isLoading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-            }
-            when (homeViewModal.currentFilter) {
-                HomeFilter.ALL -> allFeeds?.let {
-                    FeedGroupList(it) { feedId ->
-                        navController.navigate(Home.ArticlesScreen.destination + "/${feedId}")
-                    }
-                }
-
-                HomeFilter.LATEST -> {}
-                HomeFilter.GROUPED -> filteredFeeds?.let {
-                    FeedGroupList(it) { feedId ->
-                        navController.navigate(Home.ArticlesScreen.destination + "/${feedId}")
-                    }
+            if (groups.isNotEmpty()) {
+                FeedsHome(
+                    currentGroup = settings,
+                    allFeeds,
+                    openGroupPicker = { groupPickerState.value = true }
+                ) {
+                    navigate(MainNavigation.articlesScreenRoute(it))
                 }
             }
-
         }
-        if (openGroupsPicker) GroupsPicker(bottomSheetState = bottomSheetState,
+        GroupsPicker(
+            selected = settings.value.currentGroup,
             groups = groups,
-            onPick = { currentGroup.value = it },
-            onClose = { openGroupsPicker = false }
+            state = groupPickerState,
+            onPick = homeViewModal::updateCurrentGroup
         )
     }
 
@@ -174,84 +107,68 @@ fun FeedFilterChip(
 }
 
 @Composable
-fun GroupsPicker(
-    bottomSheetState: SheetState,
-    groups: List<String?>?,
-    addNew: Boolean = false,
-    onClose: () -> Unit,
-    onPick: (String?) -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    var showDialog by remember { mutableStateOf(false) }
-    var prompt by remember { mutableStateOf("") }
-
-    ModalBottomSheet(
-        onDismissRequest = { onClose() },
-        sheetState = bottomSheetState,
-        windowInsets = WindowInsets(0)
-    ) {
-        if (groups != null)
-            LazyVerticalStaggeredGrid(
-                contentPadding = PaddingValues(10.dp, 12.dp),
-                columns = StaggeredGridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(3.dp),
-                verticalItemSpacing = 3.dp,
-                modifier = Modifier.weight(.8f)
-            ) {
-                items(groups, key = { it ?: "Other feeds"}) {
-                    TextButton(
-                        onClick = {
-                            scope.launch { bottomSheetState.hide() }.invokeOnCompletion { _ ->
-                                if (!bottomSheetState.isVisible) {
-                                    onPick(it)
-                                    onClose()
-                                }
-                            }
-                        }, modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.large
-                    ) {
-                        Text(it ?: "Other feeds")
-                    }
-                }
-
-            }
-        if (addNew) Button(
-            onClick = {
-                showDialog = true
-            }, modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp, 8.dp)
-        ) {
-            Text("Add new group")
-        } else Spacer(modifier = Modifier.height(30.dp))
-    }
-    if (showDialog) AlertDialog(
-        onDismissRequest = { showDialog = false },
-        confirmButton = {
-            TextButton(onClick = {
-                if (prompt.isNotBlank()) {
-                    showDialog = false
-                    onPick(prompt)
-                    onClose()
-                }
-            }) {
-                Text("Done")
+fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> Unit) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                "FeedFly",
+                fontFamily = FontFamily.SansSerif,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        actions = {
+            IconButton(onClick = { navigate(MainNavigation.newFeedRoute()) }) {
+                Icon(Icons.Default.Add, "Add")
             }
         },
-        dismissButton = {
-            TextButton(onClick = { showDialog = false }) {
-                Text("Cancel")
-            }
-        }, title = {
-            Text("New feed group")
-        }, text = {
-            TextField(value = prompt, onValueChange = { prompt = it })
-        }
+        scrollBehavior = scrollBehavior,
     )
 }
 
-sealed class HomeFilter(val label: String) {
-    object ALL : HomeFilter("All feeds")
-    object LATEST : HomeFilter("Latest")
-    object GROUPED : HomeFilter("Groups")
+@Composable
+fun FeedsHome(
+    currentGroup: State<UserSettingsRepo.Settings>,
+    allFeeds: List<FeedDto>,
+    openGroupPicker: () -> Unit,
+    onClick: (Long) -> Unit
+) {
+
+    val settings by remember { currentGroup }
+    var selectedIndex by remember { mutableIntStateOf(if (settings.currentGroup.isBlank()) 0 else 1) }
+    val filteredFeeds by remember {
+        derivedStateOf { allFeeds.filter { it.group == settings.currentGroup } }
+    }
+
+    val allListState = rememberLazyListState()
+    val listState = rememberLazyListState()
+
+    Column(Modifier.fillMaxSize()) {
+        LazyRow(
+            contentPadding = PaddingValues(12.dp, 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            item {
+                FeedFilterChip(selectedIndex == 0, "All feeds") {
+                    selectedIndex = 0
+                }
+            }
+            item {
+                FeedFilterChip(
+                    selected = selectedIndex == 1,
+                    label = settings.currentGroup,
+                    trailingIcon = Icons.Default.ArrowDropDown,
+                    onClick = {
+                        if (selectedIndex == 1) openGroupPicker()
+                        selectedIndex = 1
+                    }
+                )
+            }
+        }
+        Crossfade(selectedIndex, label = "", animationSpec = spring()) {
+            when (it) {
+                0 -> FeedGroupList(allFeeds, allListState, onClick)
+                1 -> FeedGroupList(filteredFeeds, listState, onClick)
+            }
+        }
+    }
 }

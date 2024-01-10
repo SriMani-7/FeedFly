@@ -1,19 +1,20 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-
 package srimani7.apps.feedfly.navigation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,16 +36,19 @@ import srimani7.apps.feedfly.database.FeedDto
 import srimani7.apps.rssparser.DateParser
 
 @Composable
-fun FeedGroupList(groups: List<FeedDto>, onClick: (Long) -> Unit) {
+fun FeedGroupList(
+    groups: List<FeedDto>,
+    state: LazyListState = rememberLazyListState(),
+    onClick: (Long) -> Unit
+) {
     LazyColumn(
-        contentPadding = PaddingValues(vertical = 16.dp),
+        contentPadding = PaddingValues(top = 14.dp, bottom = 80.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        state = state
     ) {
-        groups.forEach { feedDto ->
-            item(key = feedDto.id) {
-                FeedCard(feedDto) { onClick(feedDto.id) }
-            }
+        items(groups, key = {it.id}) { feedDto ->
+            FeedCard(feedDto) { onClick(feedDto.id) }
         }
     }
 }
@@ -52,34 +57,35 @@ fun FeedGroupList(groups: List<FeedDto>, onClick: (Long) -> Unit) {
 fun FeedCard(feedDto: FeedDto, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
-        shape = MaterialTheme.shapes.large,
+        shape = RectangleShape,
         color = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground
+        contentColor = MaterialTheme.colorScheme.onBackground,
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.padding(14.dp, 14.dp),
-        ) {
-            AsyncImage(
-                model = feedDto.feedImageDto?.imageUrl,
-                contentDescription = "image",
-                contentScale = ContentScale.FillHeight,
-                filterQuality = FilterQuality.Medium,
-                alignment = Alignment.CenterStart,
-                modifier = Modifier
-                    .size(42.dp)
-                    .background(Color.LightGray, CircleShape)
-                    .clip(CircleShape),
-                placeholder = painterResource(R.drawable.rss_feed_24px),
-            )
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.padding(14.dp, 14.dp),
+            ) {
+                AsyncImage(
+                    model = feedDto.feedImageDto?.imageUrl,
+                    contentDescription = "image",
+                    contentScale = ContentScale.FillHeight,
+                    filterQuality = FilterQuality.Medium,
+                    alignment = Alignment.CenterStart,
+                    modifier = Modifier
+                        .size(42.dp)
+                        .background(Color.LightGray, CircleShape)
+                        .clip(CircleShape),
+                    placeholder = painterResource(R.drawable.rss_feed_24px),
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = feedDto.title,
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
+                        fontWeight = FontWeight.Medium,
                     )
                     DateParser.formatDate(feedDto.lastBuildDate)?.let {
                         Text(
@@ -89,17 +95,8 @@ fun FeedCard(feedDto: FeedDto, onClick: () -> Unit) {
                         )
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(
-                        text = feedDto.description ?: "",
-                        modifier = Modifier.weight(1f),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Light,
-                    )
-                }
             }
+            Divider()
         }
     }
 }

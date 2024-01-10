@@ -282,7 +282,7 @@ object DateParser {
         return dateFormater.format(date)
     }
 
-    fun formatDate(date: Date?): String? {
+    fun formatDate(date: Date?, extras: Boolean = true): String? {
         if (date == null) return null
         val currentDate = Date()
         val calendar = Calendar.getInstance()
@@ -292,20 +292,25 @@ object DateParser {
         calendar.time = date
         val inputDay = calendar.get(Calendar.DAY_OF_YEAR)
 
+        if (!extras) {
+            return when {
+                currentDay - inputDay == 1 -> "Yesterday"
+                currentDay == inputDay -> "Today"
+                else -> DateFormat.getDateInstance().format(date)
+            }
+        }
+
         val timeDifference = currentDate.time - date.time
         val hoursDifference = timeDifference / (1000 * 60 * 60)
         val minutesDifference = timeDifference / (1000 * 60)
 
         return when {
-            hoursDifference <= 0 -> {
-                when {
-                    minutesDifference < 1 -> "Just now"
-                    minutesDifference < 10 -> "$minutesDifference minutes ago"
-                    else -> "$minutesDifference minutes ago"
-                }
+            extras && hoursDifference in 0..12  -> {
+                if (hoursDifference >= 1) "$hoursDifference hrs ago"
+                else if (minutesDifference < 1) "Just now"
+                else "$minutesDifference min ago"
             }
 
-            hoursDifference < 12 -> "$hoursDifference hours ago"
             currentDay - inputDay == 1 -> "Yesterday"
             currentDay == inputDay -> "Today"
             else -> DateFormat.getDateInstance().format(date)

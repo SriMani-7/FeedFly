@@ -40,11 +40,11 @@ android {
 
 dependencies {
 
-    implementation "com.squareup.okhttp3:okhttp:$project.okhttp_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
+    implementation libs.okhttp
+    implementation libs.kotlinx.coroutines.android
 
-    implementation "androidx.core:core-ktx:$project.androidx_core_version"
-    testImplementation "junit:junit:$project.junit_version"
-    androidTestImplementation "androidx.test.ext:junit:$project.androidx_junit_version"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$project.androidx_expresso_version"
+    implementation libs.androidx.core.ktx
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
 }
