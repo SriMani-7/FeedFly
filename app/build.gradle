@@ -19,15 +19,20 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        multiDexEnabled true
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_18
         targetCompatibility JavaVersion.VERSION_18
     }
@@ -97,4 +102,6 @@ dependencies {
     implementation project(path: ':rss-parser')
 
     implementation libs.androidx.media3.exoplayer
+
+    coreLibraryDesugaring libs.desugar.jdk.libs
 }

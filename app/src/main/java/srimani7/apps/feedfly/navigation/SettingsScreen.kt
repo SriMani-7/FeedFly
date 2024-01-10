@@ -1,4 +1,7 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
+)
 
 package srimani7.apps.feedfly.navigation
 
@@ -34,7 +37,10 @@ import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.data.AppTheme
 
 @Composable
-fun SettingsScreen(selectedTheme: AppTheme, updateSettings: (AppTheme) -> Unit) {
+fun SettingsScreen(
+    selectedTheme: AppTheme,
+    updateSettings: (AppTheme) -> Unit
+) {
     Scaffold(
         topBar = {
             ThemeSegmentedButton(selectedTheme, updateSettings)
@@ -77,7 +83,11 @@ fun ThemeSegmentedButton(theme: AppTheme, onToggle: (AppTheme) -> Unit) {
                         border = null,
                         modifier = Modifier.size(38.dp),
                     ) {
-                        Icon(painterResource(themeIntPair.second), themeIntPair.first.toString(), modifier = Modifier.size(22.dp))
+                        Icon(
+                            painterResource(themeIntPair.second),
+                            themeIntPair.first.toString(),
+                            modifier = Modifier.size(22.dp)
+                        )
                     }
                 }
             }
@@ -91,5 +101,5 @@ fun ThemeSettingPreview() {
     var theme by remember {
         mutableStateOf(AppTheme.SYSTEM_DEFAULT)
     }
-    ThemeSegmentedButton(theme, onToggle = { theme = it })
+    SettingsScreen(theme) { theme = it }
 }

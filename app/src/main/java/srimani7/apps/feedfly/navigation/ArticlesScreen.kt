@@ -25,7 +25,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
+import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.RssItemsColumn
 import srimani7.apps.feedfly.viewmodel.ArticlesUIState
 import srimani7.apps.feedfly.viewmodel.RssViewModal
@@ -58,9 +58,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
     val hostState = remember { SnackbarHostState() }
 
     val groups by viewModal.groupNameFlow.collectAsState()
-    var openGroupsPicker by remember { mutableStateOf(false) }
-    val bottomSheetState = rememberModalBottomSheetState()
-
+    val openGroupsPicker = remember { mutableStateOf(false) }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState) },
         topBar = {
@@ -86,11 +84,19 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                         }
                     }
                 }, actions = {
-                    FeedActions(options = listOf("Delete", "Refresh", "Change Group")) {
+                    FeedActions(
+                        options = listOf(
+                            "Delete",
+                            "Refresh",
+                            "Change Group",
+                            "Remove old articles"
+                        )
+                    ) {
                         when (it) {
                             "Delete" -> viewModal.delete(feed)
                             "Refresh" -> viewModal.refresh(feed)
-                            "Change Group" -> openGroupsPicker = true
+                            "Change Group" -> openGroupsPicker.value = true
+                            "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feedId)
                         }
                     }
                 }
@@ -98,29 +104,33 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            feedArticles?.let {
-                RssItemsColumn(
-                    dateListMap = it,
-                    updateArticle = viewModal::updateArticle
-                )
-            }
-            AnimatedVisibility(parsingState == ArticlesUIState.Loading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            when (parsingState) {
+                ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> feedArticles?.let {
+                    RssItemsColumn(
+                        dateListMap = it,
+                        updateArticle = viewModal::updateArticle
+                    )
+                }
+
+                ArticlesUIState.Loading -> AnimatedVisibility(parsingState == ArticlesUIState.Loading) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
             }
         }
 
-        if (openGroupsPicker && feed != null) GroupsPicker(
-            feed!!.group,
-            bottomSheetState,
-            groups.ifEmpty { listOf("Others") },
-            true,
-            { openGroupsPicker = false }) {
+        if (feed != null) GroupsPicker(
+            selected = feed!!.group,
+            groups = groups.ifEmpty { listOf("Others") },
+            state = openGroupsPicker,
+            addNew = true
+        ) {
             viewModal.updateFeed(feed?.copy(group = it))
         }
     }
 
     LaunchedEffect(parsingState) {
-        val message = (parsingState as? ArticlesUIState.Failure)?.message ?: return@LaunchedEffect
+        val message =
+            (parsingState as? ArticlesUIState.Failure)?.message ?: return@LaunchedEffect
         hostState.showSnackbar(message, duration = SnackbarDuration.Short)
     }
 

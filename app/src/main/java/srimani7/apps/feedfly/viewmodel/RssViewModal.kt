@@ -32,7 +32,9 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
 
     val feedStateFlow = feedDao.getFeed(feedId).stateIn(viewModelScope, SharingStarted.Lazily, null)
-    val groupNameFlow by lazy { feedDao.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList()) }
+    val groupNameFlow by lazy {
+        feedDao.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    }
 
     private val _uiState = MutableStateFlow<ArticlesUIState>(ArticlesUIState.Loading)
     val uiStateStateFlow = _uiState.asStateFlow()
@@ -116,7 +118,14 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         }
         channel.items.forEach { channelItem ->
             val article = ArticleItem(channelItem, feed.id)
-            val rowId = feedDao.insert(article)
+            val rowId = feedDao.insertArticle(
+                title = article.title,
+                link = article.link,
+                category = article.category,
+                feedId = article.feedId,
+                lastFetch = article.lastFetched, pubDate = article.pubDate,
+                description = article.description, author = article.author
+            )
             val enclosure = channelItem.enclosure
             if (enclosure != null && rowId != -1L) launch {
                 try {

@@ -1,8 +1,5 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-
 package srimani7.apps.feedfly.navigation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,10 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,7 +27,6 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -51,10 +47,8 @@ fun FeedGroupList(
         modifier = Modifier.fillMaxSize(),
         state = state
     ) {
-        groups.forEach { feedDto ->
-            item(key = feedDto.id) {
-                FeedCard(feedDto) { onClick(feedDto.id) }
-            }
+        items(groups, key = {it.id}) { feedDto ->
+            FeedCard(feedDto) { onClick(feedDto.id) }
         }
     }
 }
@@ -91,8 +85,7 @@ fun FeedCard(feedDto: FeedDto, onClick: () -> Unit) {
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        fontWeight = FontWeight.Normal,
-                        fontFamily = FontFamily.SansSerif
+                        fontWeight = FontWeight.Medium,
                     )
                     DateParser.formatDate(feedDto.lastBuildDate)?.let {
                         Text(

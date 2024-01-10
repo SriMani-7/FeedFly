@@ -2,17 +2,22 @@ package srimani7.apps.feedfly
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -20,6 +25,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
@@ -29,6 +35,7 @@ import srimani7.apps.feedfly.navigation.FavoriteScreen
 import srimani7.apps.feedfly.navigation.HomeScreen
 import srimani7.apps.feedfly.navigation.NavItem
 import srimani7.apps.feedfly.navigation.NewFeedScreen
+import srimani7.apps.feedfly.navigation.RemoveArticlesScreen
 import srimani7.apps.feedfly.navigation.Screen
 import srimani7.apps.feedfly.navigation.SettingsScreen
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
@@ -37,6 +44,7 @@ import srimani7.apps.feedfly.viewmodel.HomeViewModal
 fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
     val navController = rememberNavController()
     val settings by homeViewModal.settingsStateFlow.collectAsStateWithLifecycle()
+    val deletingState by homeViewModal.deletingStateFlow.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier
@@ -59,8 +67,32 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             composable(Screen.InsertFeedScreen.destination) {
                 NewFeedScreen(homeViewModal, addLink) { navController.popBackStack() }
             }
+
+            dialog(
+                route = Screen.RemoveArticlesScreen.destination + "/{feedId}",
+                arguments = listOf(
+                    navArgument("feedId") { type = NavType.LongType }
+                )
+            ) {
+                val feedId = it.arguments?.getLong("feedId")
+                RemoveArticlesScreen(navController::popBackStack) {
+                    homeViewModal.deleteOldArticles(feedId, it)
+                    navController.popBackStack()
+                }
+            }
         }
-        BottomNavigationBar(navController, Modifier.align(Alignment.BottomCenter))
+        Column(Modifier.align(Alignment.BottomCenter)) {
+            if (deletingState) {
+                Text(
+                    text = "Articles removing",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp, 12.dp)
+                        .background(MaterialTheme.colorScheme.surface)
+                )
+            }
+            BottomNavigationBar(navController)
+        }
     }
     LaunchedEffect(addLink) {
         addLink?.let { navController.navigate(Screen.InsertFeedScreen.destination) }

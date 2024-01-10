@@ -79,7 +79,7 @@ fun RssItemsColumn(
     viewModel: MediaViewModel = viewModel(),
     updateArticle: (Long, Boolean) -> Unit
 ) {
-    val lazyListState = rememberLazyListState(0, initialFirstVisibleItemScrollOffset = 30)
+    val lazyListState = rememberLazyListState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -91,7 +91,7 @@ fun RssItemsColumn(
             dateListMap.forEach { entry ->
                 entry.key?.let { date ->
                     stickyHeader {
-                        if (entry.value.size > 3) ArticleHeader(date)
+                        if (entry.value.size >= 2) ArticleHeader(date)
                     }
                 }
                 items(entry.value,
@@ -103,7 +103,7 @@ fun RssItemsColumn(
                         modifier = Modifier.animateItemPlacement(),
                         onPlayAudio = viewModel::play,
                         pubTime = remember {
-                            if (entry.value.size < 3) {
+                            if (entry.value.size < 2) {
                                 DateParser.formatDate(feedArticle.pubDate, false) ?: ""
                             } else {
                                 DateParser.formatTime(feedArticle.pubDate) ?: ""
