@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId 'srimani7.apps.feedfly'
-        minSdk 22
+        minSdk 23
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -19,15 +19,20 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        multiDexEnabled true
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_18
         targetCompatibility JavaVersion.VERSION_18
     }
@@ -38,7 +43,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion project.compose_compiler_version
+        kotlinCompilerExtensionVersion libs.versions.composeCompiler.get()
     }
     packagingOptions {
         resources {
@@ -52,43 +57,51 @@ android {
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:$project.androidx_core_version"
-    implementation "androidx.core:core-splashscreen:$project.androidx_splashscreen_version"
-    implementation "androidx.annotation:annotation:$project.androidx_annotation_version"
-    implementation "androidx.appcompat:appcompat:$project.androidx_appcompat_version"
-    implementation "androidx.datastore:datastore-preferences-android:$project.androidx_datastore_version"
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.core.splashscreen
+    implementation libs.androidx.annotation
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.datastore.preferences.android
 
-    implementation "androidx.activity:activity-compose:$project.activity_version"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$project.lifecycle_version"
-    implementation "androidx.navigation:navigation-compose:$project.navigation_version"
-    implementation "androidx.browser:browser:$project.androidx_browser_version"
+    implementation libs.androidx.activity.compose
+    implementation libs.androidx.lifecycle.viewmodel.compose
+    implementation libs.androidx.lifecycle.runtime.compose
+    implementation libs.androidx.navigation.compose
+    implementation libs.androidx.browser
 
     // Testing dependencies
-    testImplementation "junit:junit:$project.junit_version"
-    androidTestImplementation "androidx.test.ext:junit:$project.androidx_junit_version"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$project.androidx_expresso_version"
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
 
     // Jetpack compose
-    implementation platform("androidx.compose:compose-bom:$project.compose_bom_version")
+    implementation platform(libs.androidx.compose.bom)
 
     implementation "androidx.compose.ui:ui"
     implementation "androidx.compose.ui:ui-tooling-preview"
     implementation "androidx.compose.material3:material3"
     implementation "androidx.compose.foundation:foundation"
-    implementation "com.google.accompanist:accompanist-systemuicontroller:$project.accompanist_version"
+    implementation libs.accompanist.systemuicontroller
 
-    androidTestImplementation platform("androidx.compose:compose-bom:$project.compose_bom_version")
+    androidTestImplementation platform(libs.androidx.compose.bom)
 
     androidTestImplementation "androidx.compose.ui:ui-test-junit4"
     debugImplementation "androidx.compose.ui:ui-tooling"
     debugImplementation "androidx.compose.ui:ui-test-manifest"
 
-    implementation "com.squareup.okhttp3:okhttp:$project.okhttp_version"
-    implementation "io.coil-kt:coil-compose:$project.coil_compose_version"
+    implementation libs.okhttp
+    implementation libs.coil.compose
 
     // room persistence library
-    implementation "androidx.room:room-ktx:$project.room_version"
-    implementation "androidx.room:room-runtime:$project.room_version"
-    annotationProcessor "androidx.room:room-compiler:$project.room_version"
-    ksp "androidx.room:room-compiler:$project.room_version"
+    implementation libs.androidx.room.ktx
+    implementation libs.androidx.room.runtime
+    annotationProcessor libs.androidx.room.compiler
+    ksp libs.androidx.room.compiler
+
+    // module dependencies
+    implementation project(path: ':rss-parser')
+
+    implementation libs.androidx.media3.exoplayer
+
+    coreLibraryDesugaring libs.desugar.jdk.libs
 }
