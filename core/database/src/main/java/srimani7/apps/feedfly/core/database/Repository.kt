@@ -18,6 +18,7 @@ import java.util.Date
 
 class Repository(application: Application) {
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
+    private val articleDao by lazy { AppDatabase.getInstance(application).articleDao() }
 
     fun getArticles(feedId: Long) = feedDao.getArticles(feedId)
     fun getFeed(feedId: Long) = feedDao.getFeed(feedId)
@@ -159,4 +160,8 @@ class Repository(application: Application) {
         managingEditor = managingEditor,
         copyright = copyright
     )
+
+    suspend fun deleteArticle(articleId: Long) {
+        articleDao.deleteArticle(articleId)
+    }
 }

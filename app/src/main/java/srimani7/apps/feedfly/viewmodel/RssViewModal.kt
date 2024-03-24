@@ -119,6 +119,12 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         if (copy == null) return
         viewModelScope.launch { databaseRepo.updateFeedUrl(copy) }
     }
+
+    fun deleteArticle(articleId: Long) {
+        viewModelScope.launch {
+           databaseRepo.deleteArticle(articleId)
+        }
+    }
 }
 
 sealed class ArticlesUIState {

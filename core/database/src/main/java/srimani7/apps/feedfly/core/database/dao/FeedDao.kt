@@ -15,7 +15,6 @@ import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
-import java.time.Instant
 import java.util.Date
 
 @Dao
@@ -119,7 +118,7 @@ interface FeedDao {
 
     @Transaction
     suspend fun removeOldArticles(feedId: Long, threshold: Long) {
-        val current = Instant.now().toEpochMilli()
+        val current = Date().time
         moveToTrash(feedId, threshold, current)
         deleteArticles(feedId, threshold)
     }

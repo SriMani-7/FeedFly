@@ -4,10 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -57,11 +55,11 @@ fun RowScope.BottomNavItem(selected: Boolean, navItem: NavItem, onClick: () -> U
         selected = selected,
         onClick = onClick,
         icon = { Icon(painterResource(navItem.iconRes), null) },
-        colors = NavigationBarItemDefaults.colors(
-            unselectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(0.6f),
-            unselectedTextColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(0.6f),
-            selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        ),
+//        colors = NavigationBarItemDefaults.colors(
+//            unselectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(0.9f),
+//            unselectedTextColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(0.9f),
+//            selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+//        ),
         label = { Text(navItem.label) },
     )
 }

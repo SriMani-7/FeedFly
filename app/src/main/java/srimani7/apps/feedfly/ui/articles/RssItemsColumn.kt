@@ -2,18 +2,35 @@ package srimani7.apps.feedfly.ui.articles
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import srimani7.apps.feedfly.audio.MediaViewModel
@@ -22,12 +39,13 @@ import srimani7.apps.feedfly.ui.ExoPlayerCard
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RssItemsColumn(
     dateListMap: Map<String?, List<FeedArticle>>,
     viewModel: MediaViewModel = viewModel(),
-    updateArticle: (Long, Boolean) -> Unit
+    updateArticle: (Long, Boolean) -> Unit,
+    onDeleteArticle: (Long) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -48,12 +66,26 @@ fun RssItemsColumn(
                     key = { it.id },
                     contentType = { "article" }
                 ) { feedArticle ->
-                    RssItemCard(
-                        feedArticle,
-                        modifier = Modifier.animateItemPlacement(),
-                        onPlayAudio = viewModel::play,
-                        pubTime = DateParser.formatTime(feedArticle.pubDate) ?: "",
-                    ) { updateArticle(feedArticle.id, it) }
+
+                    val currentItem by rememberUpdatedState(feedArticle.id)
+                    val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
+                        if (it == SwipeToDismissBoxValue.EndToStart) {
+                            onDeleteArticle(currentItem)
+                            true
+                        } else false
+                    })
+
+                    DismissibleRssItem(
+                        state = dismissState,
+                        modifier = Modifier.animateItemPlacement()
+                    ) {
+                        RssItemCard(
+                            feedArticle,
+                            modifier = Modifier.animateItemPlacement(),
+                            onPlayAudio = viewModel::play,
+                            pubTime = DateParser.formatTime(feedArticle.pubDate) ?: "",
+                        ) { updateArticle(feedArticle.id, it) }
+                    }
                 }
             }
         }
@@ -78,6 +110,42 @@ fun RssItemsColumn(
     }
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DismissibleRssItem(
+    state: SwipeToDismissBoxState,
+    modifier: Modifier = Modifier,
+    content: @Composable RowScope.() -> Unit
+) {
+    SwipeToDismissBox(
+        modifier = modifier,
+        state = state,
+        enableDismissFromEndToStart = true,
+        content = content,
+        backgroundContent = {
+            val color =
+                if (state.dismissDirection == SwipeToDismissBoxValue.EndToStart) MaterialTheme.colorScheme.errorContainer
+                else Color.Transparent
+
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color, MaterialTheme.shapes.medium)
+                    .padding(12.dp, 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Spacer(modifier = Modifier)
+                Icon(
+                    Icons.Default.Delete,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    contentDescription = "delete"
+                )
+            }
+        }
+    )
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
