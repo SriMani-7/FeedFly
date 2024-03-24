@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.ui.theme.favorite_color
+import srimani7.apps.feedfly.core.design.favorite_color
 
 @Composable
 fun ArticleFavoriteToggle(pinned: Boolean, onPinChange: (Boolean) -> Unit) {

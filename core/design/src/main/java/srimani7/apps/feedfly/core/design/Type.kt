@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.ui.theme
+package srimani7.apps.feedfly.core.design
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

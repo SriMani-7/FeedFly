@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.ui.theme
+package srimani7.apps.feedfly.core.design
 
 import androidx.compose.ui.graphics.Color
 
