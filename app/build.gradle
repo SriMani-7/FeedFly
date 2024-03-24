@@ -68,6 +68,7 @@ dependencies {
     implementation libs.androidx.lifecycle.runtime.compose
     implementation libs.androidx.navigation.compose
     implementation libs.androidx.browser
+    implementation project(':core:design')
 
     // Testing dependencies
     testImplementation libs.junit
