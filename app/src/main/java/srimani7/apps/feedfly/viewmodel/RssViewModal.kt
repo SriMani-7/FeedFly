@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import srimani7.apps.feedfly.core.database.Repository
-import srimani7.apps.feedfly.core.database.dbErrorLog
-import srimani7.apps.feedfly.core.database.dbInfoLog
+import srimani7.apps.feedfly.core.database.dao.dbErrorLog
+import srimani7.apps.feedfly.core.database.dao.dbInfoLog
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage

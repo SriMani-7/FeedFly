@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.core.database
+package srimani7.apps.feedfly.core.database.dto
 
 import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey

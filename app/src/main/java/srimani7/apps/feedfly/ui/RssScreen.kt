@@ -67,7 +67,7 @@ import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.audio.AudioMetaData
 import srimani7.apps.feedfly.audio.MediaViewModel
 import srimani7.apps.feedfly.audio.SongState
-import srimani7.apps.feedfly.core.database.FeedArticle
+import srimani7.apps.feedfly.core.database.dto.FeedArticle
 import srimani7.apps.feedfly.core.database.entity.ArticleMedia
 import srimani7.apps.feedfly.navigation.ArticleViewScreen
 import srimani7.apps.rssparser.DateParser

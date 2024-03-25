@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.core.database
+package srimani7.apps.feedfly.core.database.dao
 
 import android.util.Log
 import androidx.room.Dao
@@ -10,6 +10,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import srimani7.apps.feedfly.core.database.dto.FeedArticle
+import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage

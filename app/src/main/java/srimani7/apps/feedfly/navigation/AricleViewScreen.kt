@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.core.database.FeedArticle
+import srimani7.apps.feedfly.core.database.dto.FeedArticle
 import srimani7.apps.feedfly.ui.ArticleFavoriteToggle
 import srimani7.apps.feedfly.ui.DescriptionWebView
 import srimani7.apps.feedfly.ui.openInBrowser
