@@ -1,10 +1,7 @@
-package srimani7.apps.feedfly.rss
+package srimani7.apps.rssparser
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import srimani7.apps.rssparser.OkHttpWebService
-import srimani7.apps.rssparser.ParsingState
-import srimani7.apps.rssparser.RssParser
 import java.util.Date
 
 class RssParserRepository {

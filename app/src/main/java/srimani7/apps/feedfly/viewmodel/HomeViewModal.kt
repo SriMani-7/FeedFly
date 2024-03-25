@@ -14,7 +14,7 @@ import srimani7.apps.feedfly.core.database.Repository
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.data.AppTheme
 import srimani7.apps.feedfly.data.UserSettingsRepo
-import srimani7.apps.feedfly.rss.RssParserRepository
+import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.elements.Channel
 import java.time.Instant
 import java.time.temporal.ChronoUnit

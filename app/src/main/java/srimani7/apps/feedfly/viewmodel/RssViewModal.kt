@@ -20,11 +20,11 @@ import srimani7.apps.feedfly.core.database.dao.dbInfoLog
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
-import srimani7.apps.feedfly.rss.RssParserRepository
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.ParsingState
 import srimani7.apps.rssparser.ParsingState.LastBuild
 import srimani7.apps.rssparser.ParsingState.Processing
+import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.elements.Channel
 import java.util.Date
 
