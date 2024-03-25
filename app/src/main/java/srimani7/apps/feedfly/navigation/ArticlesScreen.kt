@@ -40,7 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
 import srimani7.apps.feedfly.ui.GroupsPicker
-import srimani7.apps.feedfly.ui.RssItemsColumn
+import srimani7.apps.feedfly.ui.articles.RssItemsColumn
 import srimani7.apps.feedfly.viewmodel.ArticlesUIState
 import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser

@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.ui
+package srimani7.apps.feedfly.ui.articles
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth

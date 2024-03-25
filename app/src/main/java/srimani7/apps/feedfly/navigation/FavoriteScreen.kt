@@ -23,7 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import srimani7.apps.feedfly.ui.RssItemCard
+import srimani7.apps.feedfly.ui.articles.RssItemCard
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
 @Composable

@@ -1,7 +1,7 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+package srimani7.apps.feedfly.ui.articles
 
-package srimani7.apps.feedfly.navigation
-
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -13,23 +13,25 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.core.database.dto.FeedArticle
 import srimani7.apps.feedfly.ui.DescriptionWebView
-import srimani7.apps.feedfly.ui.articles.ArticleFavoriteToggle
 import srimani7.apps.feedfly.ui.openInBrowser
 import srimani7.apps.feedfly.ui.shareText
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArticleViewScreen(
-    feedArticle: FeedArticle,
+    description: String?,
+    link: String,
     sheetState: SheetState,
-    onPinChange: (Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -39,17 +41,14 @@ fun ArticleViewScreen(
         dragHandle = {
             BottomAppBar(
                 actions = {
-                    ArticleFavoriteToggle(pinned = feedArticle.pinned) {
-                        onPinChange(it)
-                    }
                     listOf(
                         "Share" to R.drawable.share_24px,
                         "browser" to R.drawable.open_in_browser_24px
                     ).forEach {
                         IconButton(onClick = {
                             when (it.first) {
-                                "browser" -> openInBrowser(feedArticle.link, context)
-                                "Share" -> shareText(feedArticle.link, context)
+                                "browser" -> openInBrowser(link, context)
+                                "Share" -> shareText(link, context)
                             }
                         }) {
                             Icon(painterResource(it.second), it.first)
@@ -64,14 +63,20 @@ fun ArticleViewScreen(
         }
     ) {
         Divider()
-        feedArticle.description?.let { description ->
+        if (description != null)
             AndroidView(
                 factory = {
                     DescriptionWebView(it, description)
                 },
                 modifier = Modifier.verticalScroll(rememberScrollState())
+            ) else {
+            Text(
+                text = "No description",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp, 20.dp),
+                textAlign = TextAlign.Center
             )
         }
     }
 }
-
