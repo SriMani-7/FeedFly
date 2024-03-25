@@ -1,6 +1,6 @@
-package srimani7.apps.feedfly.database
+package srimani7.apps.feedfly.core.database
 
-import srimani7.apps.feedfly.database.entity.ArticleItem
+import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import java.util.Date
 
 data class MutableArticle(

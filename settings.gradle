@@ -16,3 +16,4 @@ rootProject.name = "FeedFly"
 include ':app'
 include ':rss-parser'
 include ':core:design'
+include ':core:database'

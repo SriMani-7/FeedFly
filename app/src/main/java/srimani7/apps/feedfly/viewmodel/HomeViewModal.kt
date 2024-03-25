@@ -10,24 +10,24 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import srimani7.apps.feedfly.core.database.Repository
+import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.data.AppTheme
 import srimani7.apps.feedfly.data.UserSettingsRepo
-import srimani7.apps.feedfly.database.AppDatabase
-import srimani7.apps.feedfly.database.entity.Feed
 import srimani7.apps.feedfly.rss.RssParserRepository
 import srimani7.apps.rssparser.elements.Channel
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class HomeViewModal(application: Application) : AndroidViewModel(application) {
-    private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
+    private val repository = Repository(application)
     private val userSettingsRepo by lazy { UserSettingsRepo(application) }
     val allFeedsFlow by lazy {
-        feedDao.getAllFeeds().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        repository.getAllFeeds().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
-    val favoriteArticles by lazy { feedDao.getFavoriteFeedArticles() }
+    val favoriteArticles by lazy { repository.getFavoriteFeedArticles() }
     val groupNameFlow by lazy {
-        feedDao.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        repository.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
     val settingsStateFlow = userSettingsRepo.settingsFlow.stateIn(
@@ -50,13 +50,13 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateArticle(id: Long, pinned: Boolean) {
-        viewModelScope.launch { feedDao.updateArticlePin(id, pinned) }
+        viewModelScope.launch { repository.updateArticlePin(id, pinned) }
     }
 
     fun save(channel: Channel, groupName: String) {
         viewModelScope.launch {
             try {
-                feedDao.insertFeedUrl(Feed(channel, groupName))
+                repository.insertFeedUrl(Feed(channel, groupName))
             } catch (e: Exception) {
                 Toast.makeText(getApplication(), e.message, Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
@@ -81,7 +81,7 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
         val threshold = now.minus(days.toLong(), ChronoUnit.DAYS).toEpochMilli()
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                feedDao.removeOldArticles(feedId, threshold)
+                repository.removeOldArticles(feedId, threshold)
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {

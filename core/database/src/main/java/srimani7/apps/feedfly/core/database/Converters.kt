@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.database
+package srimani7.apps.feedfly.core.database
 
 import androidx.room.TypeConverter
 import java.util.Date

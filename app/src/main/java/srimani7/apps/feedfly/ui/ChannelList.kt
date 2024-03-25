@@ -53,7 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.audio.MediaViewModel
-import srimani7.apps.feedfly.database.entity.ArticleMedia
+import srimani7.apps.feedfly.core.database.entity.ArticleMedia
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
 import java.text.SimpleDateFormat

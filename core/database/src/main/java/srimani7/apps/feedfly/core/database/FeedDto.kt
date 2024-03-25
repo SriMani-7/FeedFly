@@ -1,9 +1,9 @@
-package srimani7.apps.feedfly.database
+package srimani7.apps.feedfly.core.database
 
 import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import srimani7.apps.feedfly.database.entity.FeedImage
+import srimani7.apps.feedfly.core.database.entity.FeedImage
 import java.util.Date
 
 class FeedDto(

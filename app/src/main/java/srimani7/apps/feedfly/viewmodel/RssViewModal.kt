@@ -14,12 +14,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import srimani7.apps.feedfly.database.AppDatabase
-import srimani7.apps.feedfly.database.dbErrorLog
-import srimani7.apps.feedfly.database.dbInfoLog
-import srimani7.apps.feedfly.database.entity.ArticleItem
-import srimani7.apps.feedfly.database.entity.Feed
-import srimani7.apps.feedfly.database.entity.FeedImage
+import srimani7.apps.feedfly.core.database.Repository
+import srimani7.apps.feedfly.core.database.dbErrorLog
+import srimani7.apps.feedfly.core.database.dbInfoLog
+import srimani7.apps.feedfly.core.database.entity.ArticleItem
+import srimani7.apps.feedfly.core.database.entity.Feed
+import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.rss.RssParserRepository
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.ParsingState
@@ -29,11 +29,12 @@ import srimani7.apps.rssparser.elements.Channel
 import java.util.Date
 
 class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(application) {
-    private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
 
-    val feedStateFlow = feedDao.getFeed(feedId).stateIn(viewModelScope, SharingStarted.Lazily, null)
+    private val repository = Repository(application)
+
+    val feedStateFlow = repository.getFeed(feedId).stateIn(viewModelScope, SharingStarted.Lazily, null)
     val groupNameFlow by lazy {
-        feedDao.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        repository.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
     private val _uiState = MutableStateFlow<ArticlesUIState>(ArticlesUIState.Loading)
@@ -42,7 +43,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
 
     private val rssParserRepository by lazy { RssParserRepository() }
 
-    val groupedArticles = feedDao
+    val groupedArticles = repository
         .getArticles(feedId)
         .transform { feedArticles ->
             emit(feedArticles.groupBy { DateParser.formatDate(it.pubDate, false) })
@@ -99,7 +100,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     }
 
     fun updateArticle(id: Long, pinned: Boolean) {
-        viewModelScope.launch { feedDao.updateArticlePin(id, pinned) }
+        viewModelScope.launch { repository.updateArticlePin(id, pinned) }
     }
 
     companion object {
@@ -109,16 +110,16 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     }
 
     private suspend fun parseAndInsert(feed: Feed, channel: Channel) = withContext(Dispatchers.IO) {
-        feedDao.updateFeedUrl(feed)
+        repository.updateFeedUrl(feed)
         channel.image?.let {
             launch {
-                feedDao.insert(FeedImage(it, feed.id))
+                repository.insert(FeedImage(it, feed.id))
                 cancel()
             }
         }
         channel.items.forEach { channelItem ->
             val article = ArticleItem(channelItem, feed.id)
-            val rowId = feedDao.insertArticle(
+            val rowId = repository.insertArticle(
                 title = article.title,
                 link = article.link,
                 category = article.category,
@@ -129,7 +130,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
             val enclosure = channelItem.enclosure
             if (enclosure != null && rowId != -1L) launch {
                 try {
-                    feedDao.insertArticleMedia(
+                    repository.insertArticleMedia(
                         mediaSize = enclosure.length,
                         mediaType = enclosure.type,
                         url = enclosure.url,
@@ -149,7 +150,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     fun delete(feed: Feed?) {
         if (feed == null) return
         viewModelScope.launch {
-            feedDao.delete(feed)
+            repository.delete(feed)
         }
     }
 
@@ -160,7 +161,7 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
 
     fun updateFeed(copy: Feed?) {
         if (copy == null) return
-        viewModelScope.launch { feedDao.updateFeedUrl(copy) }
+        viewModelScope.launch { repository.updateFeedUrl(copy) }
     }
 }
 

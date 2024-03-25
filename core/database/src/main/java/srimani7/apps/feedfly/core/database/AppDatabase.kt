@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.database
+package srimani7.apps.feedfly.core.database
 
 import android.content.Context
 import androidx.room.AutoMigration
@@ -8,11 +8,11 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.db.SupportSQLiteDatabase
-import srimani7.apps.feedfly.database.entity.ArticleItem
-import srimani7.apps.feedfly.database.entity.ArticleMedia
-import srimani7.apps.feedfly.database.entity.ArticleTrash
-import srimani7.apps.feedfly.database.entity.Feed
-import srimani7.apps.feedfly.database.entity.FeedImage
+import srimani7.apps.feedfly.core.database.entity.ArticleItem
+import srimani7.apps.feedfly.core.database.entity.ArticleMedia
+import srimani7.apps.feedfly.core.database.entity.ArticleTrash
+import srimani7.apps.feedfly.core.database.entity.Feed
+import srimani7.apps.feedfly.core.database.entity.FeedImage
 
 @Database(
     entities = [Feed::class,
