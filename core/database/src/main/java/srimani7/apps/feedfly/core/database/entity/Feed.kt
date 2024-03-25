@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import srimani7.apps.rssparser.elements.Channel
 import java.util.Date
 
 @Entity(
@@ -23,28 +22,4 @@ data class Feed(
     @ColumnInfo("managing_editor_email") val managingEditor: String? = null,
     @ColumnInfo("copyright") val copyright: String? = null,
     @PrimaryKey(autoGenerate = true) val id: Long = 0
-) {
-
-    constructor(channel: Channel, group: String) : this(
-        feedUrl = channel.feedUrl,
-        description = channel.description,
-        link = channel.link ?: "",
-        title = channel.title ?: "",
-        lastBuildDate = null,
-        group = group,
-        language = channel.language,
-        managingEditor = channel.managingEditor,
-        copyright = channel.copyright
-    )
-
-    fun copy(channel: Channel) = copy(
-        description = channel.description,
-        link = channel.link ?: "",
-        title = channel.title ?: "",
-        lastBuildDate = channel.lastBuildDate ?: Date(),
-        language = channel.language,
-        managingEditor = channel.managingEditor,
-        copyright = channel.copyright
-    )
-
-}
+)

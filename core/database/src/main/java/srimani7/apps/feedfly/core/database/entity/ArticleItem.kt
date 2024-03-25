@@ -5,8 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import srimani7.apps.rssparser.DateParser
-import srimani7.apps.rssparser.elements.ChannelItem
 import java.util.Date
 
 @Entity(
@@ -34,15 +32,4 @@ data class ArticleItem(
     @ColumnInfo("author") val author: String? = null,
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("article_id") val id: Long = 0
-) {
-    constructor(channelItem: ChannelItem, feedId: Long) : this(
-        title = channelItem.title ?: "",
-        link = channelItem.link ?: "",
-        category = channelItem.categories.joinToString(separator = ", "),
-        lastFetched = Date(),
-        pubDate = DateParser.parseDate(channelItem.pubDate),
-        description = channelItem.description,
-        author = channelItem.author,
-        feedId = feedId
-    )
-}
+)

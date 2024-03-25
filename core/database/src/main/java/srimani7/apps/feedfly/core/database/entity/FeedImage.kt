@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import srimani7.apps.rssparser.elements.ChannelImage
 
 @Entity(
     "feed_images", foreignKeys = [
@@ -31,16 +30,6 @@ data class FeedImage(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("id") val id: Long = 0
 ) {
-
-    constructor(channelImage: ChannelImage, feedId: Long) : this(
-        link = channelImage.link ?: "",
-        title = channelImage.title ?: "",
-        url = channelImage.url ?: "",
-        feedId = feedId,
-        description = channelImage.description,
-        height = channelImage.height ?: DEFAULT_HEIGHT,
-        width = channelImage.width ?: DEFAULT_WIDTH
-    )
 
     companion object {
         const val DEFAULT_WIDTH = 88

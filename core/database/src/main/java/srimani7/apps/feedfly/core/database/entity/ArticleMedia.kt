@@ -43,7 +43,6 @@ data class ArticleMedia(
             else -> null
         }
     }
-
     enum class MediaType {
         IMAGE, AUDIO
     }

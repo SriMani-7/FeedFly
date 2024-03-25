@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.Repository
-import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.data.AppTheme
 import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.rssparser.RssParserRepository
@@ -56,7 +55,7 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     fun save(channel: Channel, groupName: String) {
         viewModelScope.launch {
             try {
-                repository.insertFeedUrl(Feed(channel, groupName))
+                repository.insertFeedUrl(channel, groupName)
             } catch (e: Exception) {
                 Toast.makeText(getApplication(), e.message, Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
