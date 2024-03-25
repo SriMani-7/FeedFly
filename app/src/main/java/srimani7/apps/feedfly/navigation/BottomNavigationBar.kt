@@ -58,12 +58,10 @@ fun RowScope.BottomNavItem(selected: Boolean, navItem: NavItem, onClick: () -> U
         onClick = onClick,
         icon = { Icon(painterResource(navItem.iconRes), null) },
         colors = NavigationBarItemDefaults.colors(
-            unselectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(
-                alpha = 0.5f
-            ),
+            unselectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(0.6f),
+            unselectedTextColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(0.6f),
             selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
         ),
         label = { Text(navItem.label) },
-        alwaysShowLabel = selected
     )
 }
