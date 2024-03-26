@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -36,13 +35,13 @@ fun RssItemsColumn(
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(14.dp),
-            contentPadding = PaddingValues(8.dp, 15.dp),
+            contentPadding = PaddingValues(8.dp, 16.dp),
             state = lazyListState
         ) {
             dateListMap.forEach { entry ->
                 entry.key?.let { date ->
                     stickyHeader {
-                        if (entry.value.size >= 2) ArticleHeader(date)
+                        ArticleHeader(date)
                     }
                 }
                 items(entry.value,
@@ -53,13 +52,7 @@ fun RssItemsColumn(
                         feedArticle,
                         modifier = Modifier.animateItemPlacement(),
                         onPlayAudio = viewModel::play,
-                        pubTime = remember {
-                            if (entry.value.size < 2) {
-                                DateParser.formatDate(feedArticle.pubDate, false) ?: ""
-                            } else {
-                                DateParser.formatTime(feedArticle.pubDate) ?: ""
-                            }
-                        },
+                        pubTime = DateParser.formatTime(feedArticle.pubDate) ?: "",
                     ) { updateArticle(feedArticle.id, it) }
                 }
             }
