@@ -31,7 +31,6 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import srimani7.apps.feedfly.navigation.ArticlesScreen
 import srimani7.apps.feedfly.navigation.BottomNavigationBar
-import srimani7.apps.feedfly.navigation.FavoriteScreen
 import srimani7.apps.feedfly.navigation.HomeScreen
 import srimani7.apps.feedfly.navigation.NavItem
 import srimani7.apps.feedfly.navigation.NewFeedScreen
@@ -55,7 +54,9 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             homeNavigation(navController, homeViewModal)
             navigation(Screen.FavoriteScreen.destination, NavItem.Favorites.navRoute) {
                 composable(Screen.FavoriteScreen.destination) {
-                    FavoriteScreen(homeViewModal)
+                    Box {
+
+                    }
                 }
             }
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {

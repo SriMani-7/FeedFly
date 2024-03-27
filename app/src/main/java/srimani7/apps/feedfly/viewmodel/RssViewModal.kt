@@ -93,10 +93,6 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         }
     }
 
-    fun updateArticle(id: Long, pinned: Boolean) {
-        viewModelScope.launch { databaseRepo.updateArticlePin(id, pinned) }
-    }
-
     companion object {
         fun info(any: Any) {
             Log.i("vrss_", any.toString())

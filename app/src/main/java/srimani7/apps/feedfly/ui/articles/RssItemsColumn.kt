@@ -44,7 +44,6 @@ import srimani7.apps.rssparser.elements.ChannelItem
 fun RssItemsColumn(
     dateListMap: Map<String?, List<FeedArticle>>,
     viewModel: MediaViewModel = viewModel(),
-    updateArticle: (Long, Boolean) -> Unit,
     onDeleteArticle: (Long) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
@@ -82,9 +81,9 @@ fun RssItemsColumn(
                         RssItemCard(
                             feedArticle,
                             modifier = Modifier.animateItemPlacement(),
-                            onPlayAudio = viewModel::play,
                             pubTime = DateParser.formatTime(feedArticle.pubDate) ?: "",
-                        ) { updateArticle(feedArticle.id, it) }
+                            onPlayAudio = viewModel::play,
+                        )
                     }
                 }
             }

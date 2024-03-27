@@ -24,7 +24,6 @@ class Repository(application: Application) {
     fun getFeed(feedId: Long) = feedDao.getFeed(feedId)
     fun getGroups() = feedDao.getGroups()
     fun getAllFeeds() = feedDao.getAllFeeds()
-    fun getFavoriteFeedArticles() = feedDao.getFavoriteFeedArticles()
 
     suspend fun updateFeedUrl(copy: Feed) {
         feedDao.updateFeedUrl(copy)
@@ -66,10 +65,6 @@ class Repository(application: Application) {
 
     suspend fun insert(feedImage: FeedImage) {
         feedDao.insert(feedImage)
-    }
-
-    suspend fun updateArticlePin(id: Long, pinned: Boolean) {
-        feedDao.updateArticlePin(id, pinned)
     }
 
     suspend fun insertFeedUrl(channel: Channel, groupName: String) {

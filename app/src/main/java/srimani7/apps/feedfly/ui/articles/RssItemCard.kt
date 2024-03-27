@@ -45,8 +45,7 @@ fun RssItemCard(
     item: FeedArticle,
     modifier: Modifier = Modifier,
     pubTime: String = DateParser.formatTime(item.pubDate) ?: "",
-    onPlayAudio: (String) -> Unit,
-    onPinChange: (Boolean) -> Unit
+    onPlayAudio: (String) -> Unit
 ) {
     var descriptionUri by rememberSaveable {
         mutableStateOf<String?>(null)
@@ -109,12 +108,11 @@ fun RssItemCard(
 
             Row(modifier = Modifier.padding(end = 6.dp, bottom = 6.dp)) {
                 Spacer(modifier = Modifier.weight(1f))
-                ArticleFavoriteToggle(item.pinned) { onPinChange(it) }
             }
 
         }
         if (articleModalState.isVisible) {
-            ArticleViewScreen(item, articleModalState, onPinChange) {
+            ArticleViewScreen(item, articleModalState) {
                 scope.launch { articleModalState.hide() }
             }
         }
@@ -243,13 +241,11 @@ private fun RssItemCardPreview() {
                             link = "",
                             category = "Payments",
                             articleMedia = null,
-                            pinned = true,
                             description = "The Text composable has multiple optional parameters to style its content. Below, we’ve listed parameters that cover the most common use cases with text. For all the parameters of Text, see the Compose Text source code."
                         ),
                         pubTime = "22 MARCH 2024",
                         modifier = Modifier,
-                        onPlayAudio = {},
-                        onPinChange = {})
+                        onPlayAudio = {},)
                 }
                 items(3) {
                     RssItemCard(
@@ -263,13 +259,11 @@ private fun RssItemCardPreview() {
                                 url = "https://developer.android.com/static/images/jetpack/compose/m3-typography.png",
                                 articleId = 0
                             ),
-                            pinned = true,
                             description = "The Text composable has multiple optional parameters to style its content. Below, we’ve listed parameters that cover the most common use cases with text. For all the parameters of Text, see the Compose Text source code."
                         ),
                         pubTime = "22 MARCH 2024",
                         modifier = Modifier,
-                        onPlayAudio = {},
-                        onPinChange = {})
+                        onPlayAudio = {},)
                 }
             }
 

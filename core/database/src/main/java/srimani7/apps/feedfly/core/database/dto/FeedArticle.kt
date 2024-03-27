@@ -10,7 +10,6 @@ class FeedArticle(
     val title: String,
     val link: String,
     val category: String,
-    @ColumnInfo("pinned") val pinned: Boolean = false,
     @ColumnInfo("pub_date") val pubDate: Date? = null,
     val description: String? = null,
     @ColumnInfo("author") val author: String? = null,
