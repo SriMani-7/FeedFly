@@ -21,7 +21,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.database.dto.FeedArticle
 import srimani7.apps.feedfly.ui.DescriptionWebView
-import srimani7.apps.feedfly.ui.articles.ArticleFavoriteToggle
 import srimani7.apps.feedfly.ui.openInBrowser
 import srimani7.apps.feedfly.ui.shareText
 
@@ -29,7 +28,6 @@ import srimani7.apps.feedfly.ui.shareText
 fun ArticleViewScreen(
     feedArticle: FeedArticle,
     sheetState: SheetState,
-    onPinChange: (Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -39,9 +37,6 @@ fun ArticleViewScreen(
         dragHandle = {
             BottomAppBar(
                 actions = {
-                    ArticleFavoriteToggle(pinned = feedArticle.pinned) {
-                        onPinChange(it)
-                    }
                     listOf(
                         "Share" to R.drawable.share_24px,
                         "browser" to R.drawable.open_in_browser_24px
