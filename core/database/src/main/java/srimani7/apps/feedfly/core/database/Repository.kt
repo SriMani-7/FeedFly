@@ -160,3 +160,9 @@ class Repository(application: Application) {
         articleDao.deleteArticle(articleId)
     }
 }
+
+class LabelRepository(application: Application) {
+    private val articleDao by lazy { AppDatabase.getInstance(application).articleDao() }
+
+    fun getAllLabels() = articleDao.getLabels()
+}

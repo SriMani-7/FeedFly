@@ -1,5 +1,6 @@
 package srimani7.apps.feedfly
 
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -29,6 +32,8 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import srimani7.apps.feedfly.core.database.LabelRepository
+import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
 import srimani7.apps.feedfly.navigation.BottomNavigationBar
 import srimani7.apps.feedfly.navigation.HomeScreen
@@ -54,9 +59,9 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             homeNavigation(navController, homeViewModal)
             navigation(Screen.FavoriteScreen.destination, NavItem.Favorites.navRoute) {
                 composable(Screen.FavoriteScreen.destination) {
-                    Box {
-
-                    }
+                    val labelViewModel = viewModel<LabelViewModel>()
+                    val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
+                    LabelsScaffold(labelData = labels, onClick = { _, _ -> })
                 }
             }
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {
@@ -127,4 +132,10 @@ fun NavGraphBuilder.homeNavigation(navController: NavHostController, homeViewMod
             if (long != null && long > 0) ArticlesScreen(long, navController)
         }
     }
+}
+
+class LabelViewModel(application: Application) : AndroidViewModel(application) {
+    val labelRepository = LabelRepository(application)
+
+    val labels by lazy { labelRepository.getAllLabels() }
 }
