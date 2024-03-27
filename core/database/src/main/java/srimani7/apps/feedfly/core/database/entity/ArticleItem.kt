@@ -25,7 +25,6 @@ data class ArticleItem(
     val link: String,
     val category: String,
     @ColumnInfo("feed_id") val feedId: Long,
-    @ColumnInfo("pinned") val pinned: Boolean = false,
     @ColumnInfo("lastFetch") val lastFetched: Date? = null,
     @ColumnInfo("pub_date") val pubDate: Date? = null,
     val description: String? = null,
