@@ -159,6 +159,10 @@ class Repository(application: Application) {
     suspend fun deleteArticle(articleId: Long) {
         articleDao.deleteArticle(articleId)
     }
+
+    suspend fun moveArticleToPrivate(l: Long) {
+        articleDao.moveArticleToPrivate(l)
+    }
 }
 
 class LabelRepository(application: Application) {

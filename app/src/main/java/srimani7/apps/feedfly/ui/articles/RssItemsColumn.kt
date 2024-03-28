@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +46,7 @@ fun RssItemsColumn(
     dateListMap: Map<String?, List<FeedArticle>>,
     viewModel: MediaViewModel = viewModel(),
     onDeleteArticle: (Long) -> Unit,
+    onMoveToPrivate: (Long) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -68,10 +70,17 @@ fun RssItemsColumn(
 
                     val currentItem by rememberUpdatedState(feedArticle.id)
                     val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
-                        if (it == SwipeToDismissBoxValue.EndToStart) {
-                            onDeleteArticle(currentItem)
-                            true
-                        } else false
+                        when (it) {
+                            SwipeToDismissBoxValue.EndToStart -> {
+                                onDeleteArticle(currentItem)
+                                true
+                            }
+                            SwipeToDismissBoxValue.StartToEnd -> {
+                                onMoveToPrivate(currentItem)
+                                true
+                            }
+                            else -> false
+                        }
                     })
 
                     DismissibleRssItem(
@@ -121,6 +130,7 @@ fun DismissibleRssItem(
         modifier = modifier,
         state = state,
         enableDismissFromEndToStart = true,
+        enableDismissFromStartToEnd = true,
         content = content,
         backgroundContent = {
             val color =
@@ -135,6 +145,7 @@ fun DismissibleRssItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Icon(Icons.Default.Lock, "Private")
                 Spacer(modifier = Modifier)
                 Icon(
                     Icons.Default.Delete,

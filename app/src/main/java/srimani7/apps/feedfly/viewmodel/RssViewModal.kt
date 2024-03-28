@@ -121,6 +121,12 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
            databaseRepo.deleteArticle(articleId)
         }
     }
+
+    fun onMoveToPrivate(l: Long) {
+        viewModelScope.launch {
+            databaseRepo.moveArticleToPrivate(l)
+        }
+    }
 }
 
 sealed class ArticlesUIState {

@@ -108,7 +108,8 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                 ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> feedArticles?.let {
                     RssItemsColumn(
                         dateListMap = it,
-                        onDeleteArticle = viewModal::deleteArticle
+                        onDeleteArticle = viewModal::deleteArticle,
+                        onMoveToPrivate = viewModal::onMoveToPrivate
                     )
                 }
 
