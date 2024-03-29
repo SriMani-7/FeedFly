@@ -114,10 +114,19 @@ interface FeedDao {
         deleteArticles(feedId, threshold)
     }
 
-    @Query("delete from articles where pub_date <= :threshold and feed_id = :feedId")
+    @Query("""
+        DELETE from articles
+        where pub_date <= :threshold 
+        and feed_id = :feedId 
+        and article_id not in (select article_id from article_labels)
+    """)
     fun deleteArticles(feedId: Long, threshold: Long)
 
-    @Query("insert into articles_trash (title, link, feed_id, last_delete) select title, link, feed_id, :date from articles where pub_date <= :threshold and feed_id = :feedId")
+    @Query("""insert into articles_trash (title, link, feed_id, last_delete) 
+        select a.title, a.link, a.feed_id, :date 
+       from articles as a
+        left join article_labels as al on a.article_id = al.article_id
+        where (a.pub_date <= :threshold and a.feed_id = :feedId) and al.article_id is null""")
     fun moveToTrash(feedId: Long, threshold: Long, date: Long)
 
     @Query("""
