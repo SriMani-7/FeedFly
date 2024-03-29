@@ -3,6 +3,7 @@ package srimani7.apps.feedfly.core.database.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -21,10 +22,12 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE,
             onUpdate = ForeignKey.CASCADE,
         )
+    ], indices = [
+        Index("article_id", name = "article_labels_article_id_unique_index", unique = true)
     ]
 )
 data class ArticleLabel(
     @PrimaryKey(autoGenerate = true) val id: Long,
-    @ColumnInfo("article_id", index = true) val articleId: Long,
+    @ColumnInfo("article_id") val articleId: Long,
     @ColumnInfo("label_id", index = true) val labelId: Long,
 )

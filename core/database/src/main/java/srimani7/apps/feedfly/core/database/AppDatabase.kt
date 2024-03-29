@@ -28,7 +28,7 @@ import srimani7.apps.feedfly.core.database.entity.Label
         Label::class,
         ArticleLabel::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -55,7 +55,7 @@ abstract class AppDatabase : RoomDatabase() {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         AppDatabase::class.java, "daily-database"
-                    ).addMigrations(MIGRATION_7_8)
+                    ).addMigrations(MIGRATION_7_8, MIGRATION_8_9)
                         .build()
                 }
             }
@@ -79,6 +79,22 @@ abstract class AppDatabase : RoomDatabase() {
             database.execSQL("DROP TABLE `articles`")
             database.execSQL("ALTER TABLE `_new_articles` RENAME TO `articles`")
             database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_articles_feed_id_title_link` ON `articles` (`feed_id`, `title`, `link`)")
+        }
+
+        private val MIGRATION_8_9 = Migration(8, 9) { database ->
+            // delete rows from the article_labels table where the article_id is repeated more than once,
+            database.execSQL("DELETE FROM article_labels\n" +
+                    "WHERE id NOT IN (\n" +
+                    "    SELECT MIN(id)\n" +
+                    "    FROM article_labels\n" +
+                    "    GROUP BY article_id\n" +
+                    ");")
+
+            // Drop the index related to the article_column
+            database.execSQL("drop index if exists index_article_labels_article_id")
+
+            // Create unique index on article_labels
+            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `article_labels_article_id_unique_index` ON `article_labels` (`article_id`)")
         }
     }
 
