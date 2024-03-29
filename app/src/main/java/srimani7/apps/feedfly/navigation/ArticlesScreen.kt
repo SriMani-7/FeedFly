@@ -109,7 +109,10 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                     RssItemsColumn(
                         dateListMap = it,
                         onDeleteArticle = viewModal::deleteArticle,
-                        onMoveToPrivate = viewModal::onMoveToPrivate
+                        onMoveToPrivate = viewModal::onMoveToPrivate,
+                        onChangeArticleLabel = { aId, lId ->
+                            navController.navigate(Screen.ChangeLabelDialog.destination+"/$aId?label=${lId ?: -1L}")
+                        }
                     )
                 }
 

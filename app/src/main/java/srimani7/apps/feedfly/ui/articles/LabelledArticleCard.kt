@@ -45,7 +45,8 @@ import java.util.Date
 fun LabelledArticleCard(
     labelledArticle: LabelledArticle,
     modifier: Modifier = Modifier,
-    pubTime: String = DateParser.formatTime(labelledArticle.publishedTime) ?: ""
+    pubTime: String = DateParser.formatTime(labelledArticle.publishedTime) ?: "",
+    onChangeArticleLabel: (Long, Long?) -> Unit
 ) {
     val articleModalState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
@@ -102,10 +103,17 @@ fun LabelledArticleCard(
                 ArticleDescription(description = description)
             }
 
-            TextButton(onClick = { /*TODO*/ }, modifier = Modifier.padding(4.dp)) {
+            TextButton(onClick = {
+                onChangeArticleLabel(
+                    labelledArticle.articleId,
+                    labelledArticle.labelId
+                )
+            }, modifier = Modifier.padding(4.dp)) {
                 Icon(
                     painterResource(R.drawable.baseline_label_24), null, modifier = Modifier.size(
-                        ButtonDefaults.IconSize))
+                        ButtonDefaults.IconSize
+                    )
+                )
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                 Text(text = labelledArticle.label ?: "Add label")
             }
@@ -148,7 +156,7 @@ private fun RssItemCardPreview() {
                         mediaSrc = null,
                         label = "Review",
                         labelId = null
-                    ))
+                    ), onChangeArticleLabel = { _, _ -> })
                 }
             }
 

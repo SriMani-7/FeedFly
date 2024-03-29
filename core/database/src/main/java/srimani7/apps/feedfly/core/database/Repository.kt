@@ -171,4 +171,8 @@ class LabelRepository(application: Application) {
     private val articleDao by lazy { AppDatabase.getInstance(application).articleDao() }
 
     fun getAllLabels() = articleDao.getLabels()
+
+    suspend fun updateArticleLabel(articleId: Long, labelId: Long) = articleDao.updateLabel(articleId, labelId)
+
+    suspend fun removeArticleLabel(articleId: Long) = articleDao.removeArticleLabel(articleId)
 }

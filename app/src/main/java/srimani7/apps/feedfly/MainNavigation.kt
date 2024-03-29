@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -32,10 +33,12 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.LabelRepository
 import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
 import srimani7.apps.feedfly.navigation.BottomNavigationBar
+import srimani7.apps.feedfly.navigation.ChangeArticleLabelDialog
 import srimani7.apps.feedfly.navigation.HomeScreen
 import srimani7.apps.feedfly.navigation.NavItem
 import srimani7.apps.feedfly.navigation.NewFeedScreen
@@ -49,6 +52,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
     val navController = rememberNavController()
     val settings by homeViewModal.settingsStateFlow.collectAsStateWithLifecycle()
     val deletingState by homeViewModal.deletingStateFlow.collectAsStateWithLifecycle()
+    val labelViewModel = viewModel<LabelViewModel>()
 
     Box(
         modifier = Modifier
@@ -59,7 +63,6 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             homeNavigation(navController, homeViewModal)
             navigation(Screen.FavoriteScreen.destination, NavItem.Favorites.navRoute) {
                 composable(Screen.FavoriteScreen.destination) {
-                    val labelViewModel = viewModel<LabelViewModel>()
                     val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
                     LabelsScaffold(labelData = labels, onClick = { _, _ -> })
                 }
@@ -84,6 +87,30 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                 RemoveArticlesScreen(navController::popBackStack) {
                     homeViewModal.deleteOldArticles(feedId, it)
                     navController.popBackStack()
+                }
+            }
+
+            dialog(
+                route = Screen.ChangeLabelDialog.destination + "/{articleId}?label={label}",
+                arguments = listOf(
+                    navArgument("articleId") { type = NavType.LongType },
+                    navArgument("label") { type = NavType.LongType }
+                )
+            ) {
+                val articleId = it.arguments?.getLong("articleId")
+
+                val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
+
+                if (articleId != null) {
+                    ChangeArticleLabelDialog(
+                        pLabelId = it.arguments?.getLong("label"),
+                        labels = labels,
+                        cancel = navController::popBackStack,
+                        update = { labelId ->
+                            if (labelId == -1L) labelViewModel.removeArticleLabel(articleId)
+                            else labelViewModel.updateArticleLabel(articleId, labelId)
+                            navController.popBackStack()
+                        })
                 }
             }
         }
@@ -138,4 +165,12 @@ class LabelViewModel(application: Application) : AndroidViewModel(application) {
     val labelRepository = LabelRepository(application)
 
     val labels by lazy { labelRepository.getAllLabels() }
+
+    fun updateArticleLabel(articleId: Long, labelId: Long) {
+        viewModelScope.launch { labelRepository.updateArticleLabel(articleId, labelId) }
+    }
+
+    fun removeArticleLabel(articleId: Long) {
+        viewModelScope.launch { labelRepository.removeArticleLabel(articleId) }
+    }
 }

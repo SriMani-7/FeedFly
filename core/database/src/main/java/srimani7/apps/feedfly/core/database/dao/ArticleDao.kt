@@ -34,4 +34,10 @@ ORDER BY l.id
 
     @Query("insert into article_labels (article_id, label_id) values(:l, (select id from labels where label_name = 'private'))")
     suspend fun moveArticleToPrivate(l: Long)
+
+    @Query("REPLACE INTO article_labels (article_id, label_id) VALUES(:articleId, :labelId);")
+    suspend fun updateLabel(articleId: Long, labelId: Long)
+
+    @Query("delete from article_labels where article_id = :articleId")
+    suspend fun removeArticleLabel(articleId: Long)
 }
