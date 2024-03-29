@@ -64,7 +64,12 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             navigation(Screen.FavoriteScreen.destination, NavItem.Favorites.navRoute) {
                 composable(Screen.FavoriteScreen.destination) {
                     val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
-                    LabelsScaffold(labelData = labels, onClick = { _, _ -> })
+                    LabelsScaffold(
+                        labelData = labels,
+                        onClick = { _, _ -> },
+                        onAddNewLabel = {
+                        labelViewModel.addLabel(it)
+                    })
                 }
             }
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {
@@ -172,5 +177,9 @@ class LabelViewModel(application: Application) : AndroidViewModel(application) {
 
     fun removeArticleLabel(articleId: Long) {
         viewModelScope.launch { labelRepository.removeArticleLabel(articleId) }
+    }
+
+    fun addLabel(it: String) {
+        viewModelScope.launch { labelRepository.addLabel(it) }
     }
 }

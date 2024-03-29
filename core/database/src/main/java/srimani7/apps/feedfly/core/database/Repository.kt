@@ -8,8 +8,10 @@ import kotlinx.coroutines.withContext
 import srimani7.apps.feedfly.core.database.dao.dbErrorLog
 import srimani7.apps.feedfly.core.database.dao.dbInfoLog
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
+import srimani7.apps.feedfly.core.database.entity.ArticleLabelPriority
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
+import srimani7.apps.feedfly.core.database.entity.Label
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.Channel
 import srimani7.apps.rssparser.elements.ChannelImage
@@ -175,4 +177,8 @@ class LabelRepository(application: Application) {
     suspend fun updateArticleLabel(articleId: Long, labelId: Long) = articleDao.updateLabel(articleId, labelId)
 
     suspend fun removeArticleLabel(articleId: Long) = articleDao.removeArticleLabel(articleId)
+
+    suspend fun addLabel(it: String) {
+        articleDao.addLabel(Label(it, ArticleLabelPriority.NORMAL.toShort()))
+    }
 }

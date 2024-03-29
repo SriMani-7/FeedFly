@@ -1,9 +1,11 @@
 package srimani7.apps.feedfly.core.database.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import srimani7.apps.feedfly.core.database.entity.Label
 import srimani7.apps.feedfly.core.model.LabelData
 import java.util.Date
 
@@ -40,4 +42,7 @@ ORDER BY l.id
 
     @Query("delete from article_labels where article_id = :articleId")
     suspend fun removeArticleLabel(articleId: Long)
+
+    @Insert
+    suspend fun addLabel(label: Label)
 }
