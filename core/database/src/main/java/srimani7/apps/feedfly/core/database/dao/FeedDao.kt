@@ -14,6 +14,7 @@ import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
+import srimani7.apps.feedfly.core.model.LabelledArticle
 import java.util.Date
 
 @Dao
@@ -119,6 +120,18 @@ interface FeedDao {
     @Query("insert into articles_trash (title, link, feed_id, last_delete) select title, link, feed_id, :date from articles where pub_date <= :threshold and feed_id = :feedId")
     fun moveToTrash(feedId: Long, threshold: Long, date: Long)
 
+    @Query("""
+       SELECT a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
+       am.mime_type as mediaType, am.url as mediaSrc,
+       l.label_name as label, al.label_id as labelId
+        from articles as a
+        left join articles_media as am ON a.article_id == am.article_id
+        left join article_labels as al ON a.article_id == al.article_id
+        left join labels as l ON al.label_id == l.id
+        where a.feed_id = :feedId and (l.label_name != 'private' or l.label_name is null)
+        order by a.pub_date desc
+    """)
+    fun getLabelledArticles(feedId: Long): Flow<List<LabelledArticle>>
 }
 
 fun dbErrorLog(message: String, throwable: Throwable? = null) {

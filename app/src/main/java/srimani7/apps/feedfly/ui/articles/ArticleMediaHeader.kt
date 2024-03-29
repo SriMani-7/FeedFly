@@ -29,3 +29,22 @@ fun ArticleMediaHeader(
         else -> {}
     }
 }
+
+@Composable
+fun ArticleMediaHeader(
+    mediaType: String,
+    mediaSrc: String,
+    playAudio: (String) -> Unit
+) {
+
+    when {
+        mediaType.contains("image") -> ArticleImage(mediaSrc)
+        mediaType.contains("audio") -> {
+            IconButton(onClick = { playAudio(mediaSrc) }) {
+                Icon(Icons.Filled.PlayArrow, "Play")
+            }
+        }
+
+        else -> {}
+    }
+}

@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import srimani7.apps.feedfly.audio.MediaViewModel
-import srimani7.apps.feedfly.core.database.dto.FeedArticle
+import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.feedfly.ui.ExoPlayerCard
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
@@ -43,7 +43,7 @@ import srimani7.apps.rssparser.elements.ChannelItem
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RssItemsColumn(
-    dateListMap: Map<String?, List<FeedArticle>>,
+    dateListMap: Map<String?, List<LabelledArticle>>,
     viewModel: MediaViewModel = viewModel(),
     onDeleteArticle: (Long) -> Unit,
     onMoveToPrivate: (Long) -> Unit
@@ -64,11 +64,10 @@ fun RssItemsColumn(
                     }
                 }
                 items(entry.value,
-                    key = { it.id },
-                    contentType = { "article" }
+                    key = { it.articleId },
+                    contentType = { it.mediaType }
                 ) { feedArticle ->
-
-                    val currentItem by rememberUpdatedState(feedArticle.id)
+                    val currentItem by rememberUpdatedState(feedArticle.articleId)
                     val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
                         when (it) {
                             SwipeToDismissBoxValue.EndToStart -> {
@@ -76,8 +75,11 @@ fun RssItemsColumn(
                                 true
                             }
                             SwipeToDismissBoxValue.StartToEnd -> {
-                                onMoveToPrivate(currentItem)
-                                true
+                                if (feedArticle.label == null) {
+                                    onMoveToPrivate(currentItem)
+                                    true
+                                }
+                                else false
                             }
                             else -> false
                         }
@@ -87,11 +89,10 @@ fun RssItemsColumn(
                         state = dismissState,
                         modifier = Modifier.animateItemPlacement()
                     ) {
-                        RssItemCard(
+                        LabelledArticleCard(
                             feedArticle,
                             modifier = Modifier.animateItemPlacement(),
-                            pubTime = DateParser.formatTime(feedArticle.pubDate) ?: "",
-                            onPlayAudio = viewModel::play,
+                            pubTime = DateParser.formatTime(feedArticle.publishedTime) ?: "",
                         )
                     }
                 }

@@ -163,6 +163,8 @@ class Repository(application: Application) {
     suspend fun moveArticleToPrivate(l: Long) {
         articleDao.moveArticleToPrivate(l)
     }
+
+    fun getLabelledArticles(feedId: Long) = feedDao.getLabelledArticles(feedId)
 }
 
 class LabelRepository(application: Application) {

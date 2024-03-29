@@ -37,9 +37,9 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     private val rssParserRepository by lazy { RssParserRepository() }
 
     val groupedArticles = databaseRepo
-        .getArticles(feedId)
+        .getLabelledArticles(feedId)
         .transform { feedArticles ->
-            emit(feedArticles.groupBy { DateParser.formatDate(it.pubDate, false) })
+            emit(feedArticles.groupBy { DateParser.formatDate(it.publishedTime, false) })
         }
 
     init {
