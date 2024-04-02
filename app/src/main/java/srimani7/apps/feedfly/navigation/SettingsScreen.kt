@@ -5,11 +5,13 @@
 
 package srimani7.apps.feedfly.navigation
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,29 +23,30 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.OutlinedIconToggleButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.data.AppTheme
+import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    selectedTheme: AppTheme,
-    updateSettings: (AppTheme) -> Unit
+    viewModel: SettingsViewModel
 ) {
+    val settings by viewModel.settingsFlow.collectAsStateWithLifecycle(initialValue = UserSettingsRepo.Settings(AppTheme.SYSTEM_DEFAULT, "", false))
+
     Scaffold(
         topBar = {
-            ThemeSegmentedButton(selectedTheme, updateSettings)
+            ThemeSegmentedButton(settings.theme, viewModel::updateSettings)
         }
     ) { paddingValues ->
         LazyColumn(
@@ -51,11 +54,22 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(paddingValues)
         ) {
-
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                item {
+                    TextButton(onClick = { viewModel.useDynamicTheme(!settings.useDynamicTheme) }) {
+                        Text(text = "Use dynamic color theming")
+                        Spacer(modifier = Modifier.weight(1f))
+                        Switch(
+                            checked = settings.useDynamicTheme,
+                            onCheckedChange = { viewModel.useDynamicTheme(it) })
+                    }
+                }
+            }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemeSegmentedButton(theme: AppTheme, onToggle: (AppTheme) -> Unit) {
     MediumTopAppBar(
@@ -93,13 +107,4 @@ fun ThemeSegmentedButton(theme: AppTheme, onToggle: (AppTheme) -> Unit) {
             }
         }
     )
-}
-
-@Preview(wallpaper = Wallpapers.YELLOW_DOMINATED_EXAMPLE)
-@Composable
-fun ThemeSettingPreview() {
-    var theme by remember {
-        mutableStateOf(AppTheme.SYSTEM_DEFAULT)
-    }
-    SettingsScreen(theme) { theme = it }
 }
