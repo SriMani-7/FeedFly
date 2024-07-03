@@ -119,7 +119,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                             selected = selectedLabel == it.id,
                             onClick = { viewModal.applyLabelFilter(it.id) },
                             label = { Text(it.name) },
-                            trailingIcon = { Text(it.count.toString())}
+                            trailingIcon = { if(selectedLabel == it.id) Text(it.count.toString())}
                         )
                     }
                 }

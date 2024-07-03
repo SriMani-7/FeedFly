@@ -88,6 +88,7 @@ class RssViewModal(private val feedId: Long, application: Application) :
                 }
             }
         }
+        applyLabelFilter(null)
     }
 
     fun parseXml(feed: Feed) {
@@ -141,7 +142,7 @@ class RssViewModal(private val feedId: Long, application: Application) :
     }
 
     private var preArticleJob: Job? = null
-    fun applyLabelFilter(id: Long) {
+    fun applyLabelFilter(id: Long?) {
         selectedLabel.value = if (selectedLabel.value == id) null else id
         preArticleJob?.cancel()
         preArticleJob = viewModelScope.launch {
