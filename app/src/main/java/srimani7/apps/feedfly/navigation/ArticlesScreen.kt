@@ -4,6 +4,7 @@ package srimani7.apps.feedfly.navigation
 
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -64,6 +67,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
     val articles by viewModal.articles.collectAsStateWithLifecycle(initialValue = emptyList())
 
     val hostState = remember { SnackbarHostState() }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     val groups by viewModal.groupNameFlow.collectAsState()
     val openGroupsPicker = remember { mutableStateOf(false) }
@@ -108,11 +112,11 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                                 "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feedId)
                             }
                         }
-                    }
+                    }, scrollBehavior = scrollBehavior
                 )
                 LazyRow(
-                    contentPadding = PaddingValues(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    contentPadding = PaddingValues(8.dp, 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     items(articleLabels, key = { it.id }) {
                         ElevatedFilterChip(
@@ -126,7 +130,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
+        Box(modifier = Modifier.padding(paddingValues).nestedScroll(scrollBehavior.nestedScrollConnection)) {
             when (parsingState) {
                 ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> feedArticles?.let {
                     RssItemsColumn(
