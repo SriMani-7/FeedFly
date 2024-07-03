@@ -40,7 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
 import srimani7.apps.feedfly.ui.GroupsPicker
-import srimani7.apps.feedfly.ui.RssItemsColumn
+import srimani7.apps.feedfly.ui.articles.RssItemsColumn
 import srimani7.apps.feedfly.viewmodel.ArticlesUIState
 import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
@@ -108,7 +108,11 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                 ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> feedArticles?.let {
                     RssItemsColumn(
                         dateListMap = it,
-                        updateArticle = viewModal::updateArticle
+                        onDeleteArticle = viewModal::deleteArticle,
+                        onMoveToPrivate = viewModal::onMoveToPrivate,
+                        onChangeArticleLabel = { aId, lId ->
+                            navController.navigate(Screen.ChangeLabelDialog.destination+"/$aId?label=${lId ?: -1L}")
+                        }
                     )
                 }
 

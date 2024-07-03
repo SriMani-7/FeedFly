@@ -5,6 +5,6 @@
         <item name="windowSplashScreenAnimationDuration">300</item>
         <item name="windowSplashScreenBackground">#91687C</item>
         <item name="postSplashScreenTheme">@style/Theme.FeedFly</item>
-        <item name="android:windowFullscreen">true</item>
+        <item name="showTitle">false</item>
     </style>
 </resources>

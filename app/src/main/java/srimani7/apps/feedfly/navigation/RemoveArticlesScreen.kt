@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import srimani7.apps.feedfly.ui.NumberCapsule
-import srimani7.apps.feedfly.ui.theme.TheSecretDairyTheme
+import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
 
 @Composable
 fun RemoveArticlesScreen(

@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.MainNavigation
 import srimani7.apps.feedfly.data.UserSettingsRepo
-import srimani7.apps.feedfly.database.FeedDto
+import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 

@@ -1,5 +1,7 @@
 package srimani7.apps.feedfly.ui
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.text.Html
 import android.text.Layout
@@ -19,6 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 
 
@@ -91,3 +95,13 @@ fun fromHtml(
     HtmlCompat.FROM_HTML_MODE_LEGACY or HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_DIV or HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS,
     imageGetter, null
 )
+
+fun shareText(text: String, context: Context) {
+    val sendIntent = Intent()
+    sendIntent.action = Intent.ACTION_SEND
+    sendIntent.putExtra(Intent.EXTRA_TEXT, text)
+    sendIntent.type = "text/plain"
+
+    val shareIntent = Intent.createChooser(sendIntent, "Share link")
+    ContextCompat.startActivity(context, shareIntent, ActivityOptionsCompat.makeBasic().toBundle())
+}

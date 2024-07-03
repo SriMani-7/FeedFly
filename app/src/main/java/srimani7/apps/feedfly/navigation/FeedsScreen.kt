@@ -32,7 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.database.FeedDto
+import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.rssparser.DateParser
 
 @Composable
