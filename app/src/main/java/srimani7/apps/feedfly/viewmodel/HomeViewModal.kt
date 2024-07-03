@@ -24,7 +24,6 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     val allFeedsFlow by lazy {
         repository.getAllFeeds().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
-    val favoriteArticles by lazy { repository.getFavoriteFeedArticles() }
     val groupNameFlow by lazy {
         repository.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
@@ -46,10 +45,6 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
 
     fun updateSettings(newTheme: AppTheme) {
         viewModelScope.launch(Dispatchers.IO) { userSettingsRepo.updateSettings(newTheme) }
-    }
-
-    fun updateArticle(id: Long, pinned: Boolean) {
-        viewModelScope.launch { repository.updateArticlePin(id, pinned) }
     }
 
     fun save(channel: Channel, groupName: String) {

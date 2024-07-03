@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import srimani7.apps.feedfly.audio.MediaViewModel
-import srimani7.apps.feedfly.core.database.dto.FeedArticle
+import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.feedfly.ui.ExoPlayerCard
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
@@ -42,10 +43,11 @@ import srimani7.apps.rssparser.elements.ChannelItem
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RssItemsColumn(
-    dateListMap: Map<String?, List<FeedArticle>>,
+    dateListMap: Map<String?, List<LabelledArticle>>,
     viewModel: MediaViewModel = viewModel(),
-    updateArticle: (Long, Boolean) -> Unit,
     onDeleteArticle: (Long) -> Unit,
+    onMoveToPrivate: (Long) -> Unit,
+    onChangeArticleLabel: (Long, Long?) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -63,28 +65,37 @@ fun RssItemsColumn(
                     }
                 }
                 items(entry.value,
-                    key = { it.id },
-                    contentType = { "article" }
+                    key = { it.articleId },
+                    contentType = { it.mediaType }
                 ) { feedArticle ->
-
-                    val currentItem by rememberUpdatedState(feedArticle.id)
+                    val currentItem by rememberUpdatedState(feedArticle.articleId)
                     val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
-                        if (it == SwipeToDismissBoxValue.EndToStart) {
-                            onDeleteArticle(currentItem)
-                            true
-                        } else false
+                        when (it) {
+                            SwipeToDismissBoxValue.EndToStart -> {
+                                onDeleteArticle(currentItem)
+                                true
+                            }
+                            SwipeToDismissBoxValue.StartToEnd -> {
+                                if (feedArticle.label == null) {
+                                    onMoveToPrivate(currentItem)
+                                    true
+                                }
+                                else false
+                            }
+                            else -> false
+                        }
                     })
 
                     DismissibleRssItem(
                         state = dismissState,
                         modifier = Modifier.animateItemPlacement()
                     ) {
-                        RssItemCard(
+                        LabelledArticleCard(
                             feedArticle,
                             modifier = Modifier.animateItemPlacement(),
-                            onPlayAudio = viewModel::play,
-                            pubTime = DateParser.formatTime(feedArticle.pubDate) ?: "",
-                        ) { updateArticle(feedArticle.id, it) }
+                            pubTime = DateParser.formatTime(feedArticle.publishedTime) ?: "",
+                            onChangeArticleLabel = onChangeArticleLabel
+                        )
                     }
                 }
             }
@@ -122,6 +133,7 @@ fun DismissibleRssItem(
         modifier = modifier,
         state = state,
         enableDismissFromEndToStart = true,
+        enableDismissFromStartToEnd = true,
         content = content,
         backgroundContent = {
             val color =
@@ -136,6 +148,7 @@ fun DismissibleRssItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Icon(Icons.Default.Lock, "Private")
                 Spacer(modifier = Modifier)
                 Icon(
                     Icons.Default.Delete,

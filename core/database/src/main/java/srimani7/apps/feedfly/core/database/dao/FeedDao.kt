@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.MapInfo
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
@@ -15,6 +14,7 @@ import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
+import srimani7.apps.feedfly.core.model.LabelledArticle
 import java.util.Date
 
 @Dao
@@ -39,14 +39,6 @@ interface FeedDao {
     @Query("select * from feeds order by last_build_date desc")
     fun getAllFeeds(): Flow<List<FeedDto>>
 
-    @Transaction
-    @MapInfo(keyColumn = "name")
-    @Query("SELECT feeds.group_name AS name, title, articles.link, articles.category, articles.pub_date, articles.pinned,articles.description, articles.author, articles.article_id FROM feeds INNER JOIN articles as articles ON feeds.id = articles.feed_id WHERE articles.pinned = :isPinned")
-    fun getFavoriteFeedArticles(isPinned: Boolean = true): Flow<Map<String, List<FeedArticle>>>
-
-    @Query("update articles set pinned = :pinned where article_id = :id")
-    suspend fun updateArticlePin(id: Long, pinned: Boolean)
-
     @Query("select distinct group_name from feeds")
     fun getGroups(): Flow<List<String>>
 
@@ -54,8 +46,8 @@ interface FeedDao {
     suspend fun update(feedImage: FeedImage)
 
     @Query(
-        """INSERT INTO articles (title, link, category, feed_id, lastFetch, pub_date, description, author, pinned)
-    SELECT :title,:link,:category,:feedId,:lastFetch,:pubDate,:description,:author,:pinned
+        """INSERT INTO articles (title, link, category, feed_id, lastFetch, pub_date, description, author)
+    SELECT :title,:link,:category,:feedId,:lastFetch,:pubDate,:description,:author
     WHERE NOT EXISTS (
         SELECT 1
         FROM articles_trash
@@ -75,7 +67,6 @@ interface FeedDao {
         pubDate: Date?,
         description: String?,
         author: String?,
-        pinned: Boolean = false,
     ): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -96,11 +87,11 @@ interface FeedDao {
     )
 
     @Transaction
-    @Query("select title, link, category, pinned, pub_date, description, author, article_id from articles where feed_id = :feedId ORDER BY articles.pub_date desc")
+    @Query("select title, link, category, pub_date, description, author, article_id from articles where feed_id = :feedId ORDER BY articles.pub_date desc")
     fun getArticles(feedId: Long): Flow<List<FeedArticle>>
 
     @Transaction
-    @Query("select title, link, category, pinned, pub_date, description, author, article_id from articles ORDER BY articles.pub_date desc")
+    @Query("select title, link, category, pub_date, description, author, article_id from articles ORDER BY articles.pub_date desc")
     fun getArticles(): Flow<List<FeedArticle>>
 
     @Delete
@@ -113,7 +104,7 @@ interface FeedDao {
     fun getFeedUrls(): Flow<List<Feed>>
 
     @Transaction
-    @Query("select title, link, category, pinned, pub_date, description, author, article_id from articles where article_id = :id")
+    @Query("select title, link, category, pub_date, description, author, article_id from articles where article_id = :id")
     fun getFeedArticle(id: Long): Flow<FeedArticle?>
 
     @Transaction
@@ -123,12 +114,33 @@ interface FeedDao {
         deleteArticles(feedId, threshold)
     }
 
-    @Query("delete from articles where pinned = :pinned and pub_date <= :threshold and feed_id = :feedId")
-    fun deleteArticles(feedId: Long, threshold: Long, pinned: Boolean = false)
+    @Query("""
+        DELETE from articles
+        where pub_date <= :threshold 
+        and feed_id = :feedId 
+        and article_id not in (select article_id from article_labels)
+    """)
+    fun deleteArticles(feedId: Long, threshold: Long)
 
-    @Query("insert into articles_trash (title, link, feed_id, last_delete) select title, link, feed_id, :date from articles where pinned = :pinned and pub_date <= :threshold and feed_id = :feedId")
-    fun moveToTrash(feedId: Long, threshold: Long, date: Long, pinned: Boolean = false)
+    @Query("""insert into articles_trash (title, link, feed_id, last_delete) 
+        select a.title, a.link, a.feed_id, :date 
+       from articles as a
+        left join article_labels as al on a.article_id = al.article_id
+        where (a.pub_date <= :threshold and a.feed_id = :feedId) and al.article_id is null""")
+    fun moveToTrash(feedId: Long, threshold: Long, date: Long)
 
+    @Query("""
+       SELECT a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
+       am.mime_type as mediaType, am.url as mediaSrc,
+       l.label_name as label, al.label_id as labelId
+        from articles as a
+        left join articles_media as am ON a.article_id == am.article_id
+        left join article_labels as al ON a.article_id == al.article_id
+        left join labels as l ON al.label_id == l.id
+        where a.feed_id = :feedId and (l.label_name != 'private' or l.label_name is null)
+        order by a.pub_date desc
+    """)
+    fun getLabelledArticles(feedId: Long): Flow<List<LabelledArticle>>
 }
 
 fun dbErrorLog(message: String, throwable: Throwable? = null) {

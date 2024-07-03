@@ -8,8 +8,10 @@ import kotlinx.coroutines.withContext
 import srimani7.apps.feedfly.core.database.dao.dbErrorLog
 import srimani7.apps.feedfly.core.database.dao.dbInfoLog
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
+import srimani7.apps.feedfly.core.database.entity.ArticleLabelPriority
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
+import srimani7.apps.feedfly.core.database.entity.Label
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.Channel
 import srimani7.apps.rssparser.elements.ChannelImage
@@ -24,7 +26,6 @@ class Repository(application: Application) {
     fun getFeed(feedId: Long) = feedDao.getFeed(feedId)
     fun getGroups() = feedDao.getGroups()
     fun getAllFeeds() = feedDao.getAllFeeds()
-    fun getFavoriteFeedArticles() = feedDao.getFavoriteFeedArticles()
 
     suspend fun updateFeedUrl(copy: Feed) {
         feedDao.updateFeedUrl(copy)
@@ -66,10 +67,6 @@ class Repository(application: Application) {
 
     suspend fun insert(feedImage: FeedImage) {
         feedDao.insert(feedImage)
-    }
-
-    suspend fun updateArticlePin(id: Long, pinned: Boolean) {
-        feedDao.updateArticlePin(id, pinned)
     }
 
     suspend fun insertFeedUrl(channel: Channel, groupName: String) {
@@ -163,5 +160,25 @@ class Repository(application: Application) {
 
     suspend fun deleteArticle(articleId: Long) {
         articleDao.deleteArticle(articleId)
+    }
+
+    suspend fun moveArticleToPrivate(l: Long) {
+        articleDao.moveArticleToPrivate(l)
+    }
+
+    fun getLabelledArticles(feedId: Long) = feedDao.getLabelledArticles(feedId)
+}
+
+class LabelRepository(application: Application) {
+    private val articleDao by lazy { AppDatabase.getInstance(application).articleDao() }
+
+    fun getAllLabels() = articleDao.getLabels()
+
+    suspend fun updateArticleLabel(articleId: Long, labelId: Long) = articleDao.updateLabel(articleId, labelId)
+
+    suspend fun removeArticleLabel(articleId: Long) = articleDao.removeArticleLabel(articleId)
+
+    suspend fun addLabel(it: String) {
+        articleDao.addLabel(Label(it, ArticleLabelPriority.NORMAL.toShort()))
     }
 }

@@ -37,9 +37,9 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     private val rssParserRepository by lazy { RssParserRepository() }
 
     val groupedArticles = databaseRepo
-        .getArticles(feedId)
+        .getLabelledArticles(feedId)
         .transform { feedArticles ->
-            emit(feedArticles.groupBy { DateParser.formatDate(it.pubDate, false) })
+            emit(feedArticles.groupBy { DateParser.formatDate(it.publishedTime, false) })
         }
 
     init {
@@ -93,10 +93,6 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
         }
     }
 
-    fun updateArticle(id: Long, pinned: Boolean) {
-        viewModelScope.launch { databaseRepo.updateArticlePin(id, pinned) }
-    }
-
     companion object {
         fun info(any: Any) {
             Log.i("vrss_", any.toString())
@@ -123,6 +119,12 @@ class RssViewModal(feedId: Long, application: Application) : AndroidViewModel(ap
     fun deleteArticle(articleId: Long) {
         viewModelScope.launch {
            databaseRepo.deleteArticle(articleId)
+        }
+    }
+
+    fun onMoveToPrivate(l: Long) {
+        viewModelScope.launch {
+            databaseRepo.moveArticleToPrivate(l)
         }
     }
 }
