@@ -16,8 +16,8 @@ import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.Repository
-import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
+import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.ParsingState
 import srimani7.apps.rssparser.ParsingState.LastBuild
@@ -40,6 +40,9 @@ class RssViewModal(private val feedId: Long, application: Application) :
     private val _uiState = MutableStateFlow<ArticlesUIState>(ArticlesUIState.Loading)
     val uiStateStateFlow = _uiState.asStateFlow()
     private var lastBuildDate: Date? = null
+
+    private val _articlesFlow = MutableStateFlow(emptyList<LabelledArticle>())
+    val articles = _articlesFlow.asStateFlow()
 
     private val rssParserRepository by lazy { RssParserRepository() }
     val articlesLabelsFlow = databaseRepo.getArticleLabels(feedId)
@@ -134,6 +137,18 @@ class RssViewModal(private val feedId: Long, application: Application) :
     fun onMoveToPrivate(l: Long) {
         viewModelScope.launch {
             databaseRepo.moveArticleToPrivate(l)
+        }
+    }
+
+    private var preArticleJob: Job? = null
+    fun applyLabelFilter(id: Long) {
+        selectedLabel.value = if (selectedLabel.value == id) null else id
+        preArticleJob?.cancel()
+        preArticleJob = viewModelScope.launch {
+            databaseRepo.getFeedArticles(feedId, selectedLabel.value).collectLatest { articles ->
+                debugLog("collecting filtered articles for $id")
+                _articlesFlow.update { articles }
+            }
         }
     }
 }

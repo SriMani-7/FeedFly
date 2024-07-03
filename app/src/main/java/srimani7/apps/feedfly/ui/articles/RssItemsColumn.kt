@@ -43,7 +43,7 @@ import srimani7.apps.rssparser.elements.ChannelItem
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RssItemsColumn(
-    dateListMap: Map<String?, List<LabelledArticle>>,
+    dateListMap: List<LabelledArticle>,
     viewModel: MediaViewModel = viewModel(),
     onDeleteArticle: (Long) -> Unit,
     onMoveToPrivate: (Long) -> Unit,
@@ -58,45 +58,38 @@ fun RssItemsColumn(
             contentPadding = PaddingValues(8.dp, 16.dp),
             state = lazyListState
         ) {
-            dateListMap.forEach { entry ->
-                entry.key?.let { date ->
-                    stickyHeader {
-                        ArticleHeader(date)
-                    }
-                }
-                items(entry.value,
-                    key = { it.articleId },
-                    contentType = { it.mediaType }
-                ) { feedArticle ->
-                    val currentItem by rememberUpdatedState(feedArticle.articleId)
-                    val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
-                        when (it) {
-                            SwipeToDismissBoxValue.EndToStart -> {
-                                onDeleteArticle(currentItem)
+            items(dateListMap,
+                key = { it.articleId },
+                contentType = { it.mediaType }
+            ) { feedArticle ->
+                val currentItem by rememberUpdatedState(feedArticle.articleId)
+                val dismissState = rememberSwipeToDismissBoxState(confirmValueChange = {
+                    when (it) {
+                        SwipeToDismissBoxValue.EndToStart -> {
+                            onDeleteArticle(currentItem)
+                            true
+                        }
+                        SwipeToDismissBoxValue.StartToEnd -> {
+                            if (feedArticle.label == null) {
+                                onMoveToPrivate(currentItem)
                                 true
                             }
-                            SwipeToDismissBoxValue.StartToEnd -> {
-                                if (feedArticle.label == null) {
-                                    onMoveToPrivate(currentItem)
-                                    true
-                                }
-                                else false
-                            }
-                            else -> false
+                            else false
                         }
-                    })
-
-                    DismissibleRssItem(
-                        state = dismissState,
-                        modifier = Modifier.animateItemPlacement()
-                    ) {
-                        LabelledArticleCard(
-                            feedArticle,
-                            modifier = Modifier.animateItemPlacement(),
-                            pubTime = DateParser.formatTime(feedArticle.publishedTime) ?: "",
-                            onChangeArticleLabel = onChangeArticleLabel
-                        )
+                        else -> false
                     }
+                })
+
+                DismissibleRssItem(
+                    state = dismissState,
+                    modifier = Modifier.animateItemPlacement()
+                ) {
+                    LabelledArticleCard(
+                        feedArticle,
+                        modifier = Modifier.animateItemPlacement(),
+                        pubTime = DateParser.formatTime(feedArticle.publishedTime) ?: "",
+                        onChangeArticleLabel = onChangeArticleLabel
+                    )
                 }
             }
         }

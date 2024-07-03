@@ -151,6 +151,26 @@ interface FeedDao {
             group by l.id
     """)
     fun getArticleLabels(feedId: Long): Flow<List<LabelData>>
+
+    @Query("""
+        select a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
+       am.mime_type as mediaType, am.url as mediaSrc,
+       al.label_id as labelId from articles as a 
+        left join articles_media as am ON a.article_id == am.article_id
+            left join article_labels as al on a.article_id = al.article_id 
+            where a.feed_id = :id and al.label_id = :labelId
+    """)
+    fun getFeedArticles(id: Long, labelId: Long?): Flow<List<LabelledArticle>>
+
+    @Query("""
+        select a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
+       am.mime_type as mediaType, am.url as mediaSrc,
+       al.label_id as labelId from articles as a 
+        left join articles_media as am ON a.article_id == am.article_id
+            left join article_labels as al on a.article_id = al.article_id 
+            where a.feed_id = :feedId and al.label_id is null
+    """)
+    fun getFeedUnLabelledArticles(feedId: Long): Flow<List<LabelledArticle>>
 }
 
 fun dbErrorLog(message: String, throwable: Throwable? = null) {
