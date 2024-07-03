@@ -4,16 +4,20 @@ package srimani7.apps.feedfly.navigation
 
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
@@ -54,6 +59,9 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
     val parsingState by viewModal.uiStateStateFlow.collectAsState()
     val feedArticles by viewModal.groupedArticles.collectAsState(initial = null)
     val feed by viewModal.feedStateFlow.collectAsState(initial = null)
+    val articleLabels by viewModal.articlesLabelsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+    val selectedLabel by viewModal.selectedLabel
+    val articles by viewModal.articles.collectAsStateWithLifecycle(initialValue = emptyList())
 
     val hostState = remember { SnackbarHostState() }
 
@@ -62,45 +70,60 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
     Scaffold(
         snackbarHost = { SnackbarHost(hostState) },
         topBar = {
-            TopAppBar(
-                navigationIcon = { BackButton(navController) },
-                title = {
-                    Column {
-                        feed.also { feed ->
-                            feed?.title?.let {
-                                Text(
-                                    text = it,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
+            Column {
+                TopAppBar(
+                    navigationIcon = { BackButton(navController) },
+                    title = {
+                        Column {
+                            feed.also { feed ->
+                                feed?.title?.let {
+                                    Text(
+                                        text = it,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                DateParser.formatDate(feed?.lastBuildDate)?.let {
+                                    Text(
+                                        text = it,
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
                             }
-                            DateParser.formatDate(feed?.lastBuildDate)?.let {
-                                Text(
-                                    text = it,
-                                    style = MaterialTheme.typography.labelMedium
-                                )
+                        }
+                    }, actions = {
+                        FeedActions(
+                            options = listOf(
+                                "Delete",
+                                "Refresh",
+                                "Change Group",
+                                "Remove old articles"
+                            )
+                        ) {
+                            when (it) {
+                                "Delete" -> viewModal.delete(feed)
+                                "Refresh" -> viewModal.refresh(feed)
+                                "Change Group" -> openGroupsPicker.value = true
+                                "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feedId)
                             }
                         }
                     }
-                }, actions = {
-                    FeedActions(
-                        options = listOf(
-                            "Delete",
-                            "Refresh",
-                            "Change Group",
-                            "Remove old articles"
+                )
+                LazyRow(
+                    contentPadding = PaddingValues(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    items(articleLabels, key = { it.id }) {
+                        ElevatedFilterChip(
+                            selected = selectedLabel == it.id,
+                            onClick = { viewModal.applyLabelFilter(it.id) },
+                            label = { Text(it.name) },
+                            trailingIcon = { Text(it.count.toString())}
                         )
-                    ) {
-                        when (it) {
-                            "Delete" -> viewModal.delete(feed)
-                            "Refresh" -> viewModal.refresh(feed)
-                            "Change Group" -> openGroupsPicker.value = true
-                            "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feedId)
-                        }
                     }
                 }
-            )
+            }
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
@@ -111,7 +134,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                         onDeleteArticle = viewModal::deleteArticle,
                         onMoveToPrivate = viewModal::onMoveToPrivate,
                         onChangeArticleLabel = { aId, lId ->
-                            navController.navigate(Screen.ChangeLabelDialog.destination+"/$aId?label=${lId ?: -1L}")
+                            navController.navigate(Screen.ChangeLabelDialog.destination + "/$aId?label=${lId ?: -1L}")
                         }
                     )
                 }

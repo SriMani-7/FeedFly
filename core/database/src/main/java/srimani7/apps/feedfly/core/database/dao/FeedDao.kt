@@ -14,6 +14,7 @@ import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
+import srimani7.apps.feedfly.core.model.LabelData
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import java.util.Date
 
@@ -141,6 +142,15 @@ interface FeedDao {
         order by a.pub_date desc
     """)
     fun getLabelledArticles(feedId: Long): Flow<List<LabelledArticle>>
+
+    @Query("""
+        select l.label_name as name, l.id as id, l.priority as priority, count(*) as count from labels as l 
+            inner join article_labels as al on al.label_id = l.id
+            inner join articles as a on a.article_id == al.article_id
+            where a.feed_id = :feedId
+            group by l.id
+    """)
+    fun getArticleLabels(feedId: Long): Flow<List<LabelData>>
 }
 
 fun dbErrorLog(message: String, throwable: Throwable? = null) {

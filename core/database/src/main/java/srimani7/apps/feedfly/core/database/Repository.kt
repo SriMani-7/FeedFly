@@ -167,6 +167,7 @@ class Repository(application: Application) {
     }
 
     fun getLabelledArticles(feedId: Long) = feedDao.getLabelledArticles(feedId)
+    fun getArticleLabels(feedId: Long) = feedDao.getArticleLabels(feedId)
 }
 
 class LabelRepository(application: Application) {
