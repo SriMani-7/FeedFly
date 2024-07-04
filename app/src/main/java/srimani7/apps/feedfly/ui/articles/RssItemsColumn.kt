@@ -49,7 +49,6 @@ fun RssItemsColumn(
     dateListMap: List<LabelledArticle>,
     viewModel: MediaViewModel = viewModel(),
     onDeleteArticle: (Long) -> Unit,
-    onMoveToPrivate: (Long) -> Unit,
     onChangeArticleLabel: (Long, Long?) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
@@ -71,13 +70,6 @@ fun RssItemsColumn(
                         SwipeToDismissBoxValue.EndToStart -> {
                             onDeleteArticle(currentItem)
                             true
-                        }
-                        SwipeToDismissBoxValue.StartToEnd -> {
-                            if (feedArticle.label == null) {
-                                onMoveToPrivate(currentItem)
-                                true
-                            }
-                            else false
                         }
                         else -> false
                     }
@@ -129,7 +121,7 @@ fun DismissibleRssItem(
         modifier = modifier,
         state = state,
         enableDismissFromEndToStart = true,
-        enableDismissFromStartToEnd = true,
+        enableDismissFromStartToEnd = false,
         content = content,
         backgroundContent = {
             val direction = state.dismissDirection
