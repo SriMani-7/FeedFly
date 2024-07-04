@@ -11,7 +11,6 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import srimani7.apps.feedfly.core.database.dto.FeedArticle
 import srimani7.apps.feedfly.core.database.dto.FeedDto
-import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.model.LabelData
@@ -26,15 +25,8 @@ interface FeedDao {
     @Update
     suspend fun updateFeedUrl(feed: Feed)
 
-    @Transaction
-    @Query("select * from feeds INNER JOIN articles ON feeds.id = articles.feed_id WHERE feeds.id = :id ORDER BY articles.pub_date desc")
-    fun getFeedArticles(id: Long): Flow<List<ArticleItem>>
-
     @Query("select * from feeds where id = :id")
     fun getFeed(id: Long): Flow<Feed>
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertFeedArticles(articles: List<ArticleItem>)
 
     @Transaction
     @Query("select * from feeds order by last_build_date desc")
@@ -42,9 +34,6 @@ interface FeedDao {
 
     @Query("select distinct group_name from feeds")
     fun getGroups(): Flow<List<String>>
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun update(feedImage: FeedImage)
 
     @Query(
         """INSERT INTO articles (title, link, category, feed_id, lastFetch, pub_date, description, author)
@@ -91,22 +80,8 @@ interface FeedDao {
     @Query("select title, link, category, pub_date, description, author, article_id from articles where feed_id = :feedId ORDER BY articles.pub_date desc")
     fun getArticles(feedId: Long): Flow<List<FeedArticle>>
 
-    @Transaction
-    @Query("select title, link, category, pub_date, description, author, article_id from articles ORDER BY articles.pub_date desc")
-    fun getArticles(): Flow<List<FeedArticle>>
-
     @Delete
     suspend fun delete(feed: Feed)
-
-    @Query("select article_id from articles where link = :rowId")
-    fun getArticle(rowId: String): Flow<Long>
-
-    @Query("select * from feeds")
-    fun getFeedUrls(): Flow<List<Feed>>
-
-    @Transaction
-    @Query("select title, link, category, pub_date, description, author, article_id from articles where article_id = :id")
-    fun getFeedArticle(id: Long): Flow<FeedArticle?>
 
     @Transaction
     suspend fun removeOldArticles(feedId: Long, threshold: Long) {
