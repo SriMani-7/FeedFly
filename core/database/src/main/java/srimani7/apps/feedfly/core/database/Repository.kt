@@ -8,7 +8,6 @@ import kotlinx.coroutines.withContext
 import srimani7.apps.feedfly.core.database.dao.dbErrorLog
 import srimani7.apps.feedfly.core.database.dao.dbInfoLog
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
-import srimani7.apps.feedfly.core.database.entity.ArticleLabelPriority
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.database.entity.Label
@@ -181,6 +180,6 @@ class LabelRepository(application: Application) {
     suspend fun removeArticleLabel(articleId: Long) = articleDao.removeArticleLabel(articleId)
 
     suspend fun addLabel(it: String) {
-        articleDao.addLabel(Label(it, ArticleLabelPriority.NORMAL.toShort()))
+        articleDao.addLabel(Label(it, false))
     }
 }

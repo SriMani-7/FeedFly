@@ -26,7 +26,7 @@ interface ArticleDao {
     fun moveToTrash(articleId: Long, date: Long)
 
     @Query("""
-        SELECT l.id AS id, l.label_name As name, COUNT(al.article_id) AS count, l.priority as priority 
+        SELECT l.id AS id, l.label_name As name, COUNT(al.article_id) AS count, l.pinned as pinned 
 FROM labels l
 LEFT JOIN article_labels al ON l.id = al.label_id
 GROUP BY l.id

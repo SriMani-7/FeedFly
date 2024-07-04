@@ -120,6 +120,7 @@ interface FeedDao {
         where pub_date <= :threshold 
         and feed_id = :feedId 
         and article_id not in (select article_id from article_labels)
+        and is_private = 0
     """)
     fun deleteArticles(feedId: Long, threshold: Long)
 
@@ -127,7 +128,7 @@ interface FeedDao {
         select a.title, a.link, a.feed_id, :date 
        from articles as a
         left join article_labels as al on a.article_id = al.article_id
-        where (a.pub_date <= :threshold and a.feed_id = :feedId) and al.article_id is null""")
+        where (a.pub_date <= :threshold and a.feed_id = :feedId and is_private = 0) and al.article_id is null""")
     fun moveToTrash(feedId: Long, threshold: Long, date: Long)
 
     @Query("""
@@ -144,7 +145,7 @@ interface FeedDao {
     fun getLabelledArticles(feedId: Long): Flow<List<LabelledArticle>>
 
     @Query("""
-        select l.label_name as name, l.id as id, l.priority as priority, count(*) as count from labels as l 
+        select l.label_name as name, l.id as id, l.pinned as pinned, count(*) as count from labels as l 
             inner join article_labels as al on al.label_id = l.id
             inner join articles as a on a.article_id == al.article_id
             where a.feed_id = :feedId
