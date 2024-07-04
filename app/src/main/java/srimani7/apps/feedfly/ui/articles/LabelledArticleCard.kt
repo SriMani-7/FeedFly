@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -69,6 +68,17 @@ fun LabelledArticleCard(
         color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Column {
+            if (descriptionUri != null && !labelledArticle.isImage) {
+//                Spacer(modifier = Modifier.height(8.dp))
+                ArticleImage(descriptionUri!!)
+//                Spacer(modifier = Modifier.height(8.dp))
+
+            } else if (labelledArticle.mediaType != null && labelledArticle.mediaSrc != null) {
+//                Spacer(modifier = Modifier.height(8.dp))
+                ArticleMediaHeader(labelledArticle.mediaType!!, labelledArticle.mediaSrc!!, {})
+//                Spacer(modifier = Modifier.height(8.dp))
+
+            }
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
@@ -89,17 +99,7 @@ fun LabelledArticleCard(
                     .padding(horizontal = 14.dp),
             ) {
 
-                if (descriptionUri != null && !labelledArticle.isImage) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ArticleImage(descriptionUri!!)
-                    Spacer(modifier = Modifier.height(8.dp))
 
-                } else if (labelledArticle.mediaType != null && labelledArticle.mediaSrc != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ArticleMediaHeader(labelledArticle.mediaType!!, labelledArticle.mediaSrc!!, {})
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                }
                 ArticleDescription(description = description)
             }
 
