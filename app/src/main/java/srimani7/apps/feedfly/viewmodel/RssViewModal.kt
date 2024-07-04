@@ -12,13 +12,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.Repository
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.model.LabelledArticle
-import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.ParsingState
 import srimani7.apps.rssparser.ParsingState.LastBuild
 import srimani7.apps.rssparser.ParsingState.Processing
@@ -47,12 +45,6 @@ class RssViewModal(private val feedId: Long, application: Application) :
     private val rssParserRepository by lazy { RssParserRepository() }
     val articlesLabelsFlow = databaseRepo.getArticleLabels(feedId)
     val selectedLabel = mutableStateOf<Long?>(null)
-
-    val groupedArticles = databaseRepo
-        .getLabelledArticles(feedId)
-        .transform { feedArticles ->
-            emit(feedArticles.groupBy { DateParser.formatDate(it.publishedTime, false) })
-        }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
