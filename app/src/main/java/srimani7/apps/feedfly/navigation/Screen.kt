@@ -11,6 +11,7 @@ sealed class Screen(val destination: String) {
     object InsertFeedScreen : Screen("insert_feed_screen")
     object RemoveArticlesScreen: Screen("remove_articles_screen")
     object ChangeLabelDialog: Screen("change_article_label_dialog")
+    data object PrivateSpaceScreen: Screen("private_space")
 
     companion object {
         fun showBottomBar(route: String?) = when(route) {
