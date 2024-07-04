@@ -66,7 +66,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
     val articles by viewModal.articles.collectAsStateWithLifecycle(initialValue = emptyList())
 
     val hostState = remember { SnackbarHostState() }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val groups by viewModal.groupNameFlow.collectAsState()
     val openGroupsPicker = remember { mutableStateOf(false) }
@@ -129,7 +129,9 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).nestedScroll(scrollBehavior.nestedScrollConnection)) {
+        Box(modifier = Modifier
+            .padding(paddingValues)
+            .nestedScroll(scrollBehavior.nestedScrollConnection)) {
             when (parsingState) {
                 ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> feedArticles?.let {
                     RssItemsColumn(
