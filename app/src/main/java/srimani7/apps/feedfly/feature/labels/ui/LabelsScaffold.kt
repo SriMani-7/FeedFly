@@ -109,13 +109,13 @@ private fun LabelScaffoldPreview() {
     TheSecretDairyTheme {
         val list = remember {
             mutableStateListOf(
-                LabelData(1, "Favorites", 23, 0),
-                LabelData(1, "Favorites", 23, 0),
-                LabelData(1, "Favorites", 23, 0),
-                LabelData(1, "Favorites", 23, 0),
-                LabelData(1, "Favorites", 23, 0),
-                LabelData(1, "Favorites", 23, 0),
-                LabelData(1, "Favorites", 23, 0),
+                LabelData(1, "Favorites", 23, false),
+                LabelData(1, "Favorites", 23, false),
+                LabelData(1, "Favorites", 23, false),
+                LabelData(1, "Favorites", 23, false),
+                LabelData(1, "Favorites", 23, false),
+                LabelData(1, "Favorites", 23, false),
+                LabelData(1, "Favorites", 23, false),
             )
         }
         LabelsScaffold(labelData = list, {}) { _, _ -> }

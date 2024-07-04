@@ -144,7 +144,7 @@ interface FeedDao {
     fun getLabelledArticles(feedId: Long): Flow<List<LabelledArticle>>
 
     @Query("""
-        select l.label_name as name, l.id as id, l.priority as priority, count(*) as count from labels as l 
+        select l.label_name as name, l.id as id, l.pinned as pinned, count(*) as count from labels as l 
             inner join article_labels as al on al.label_id = l.id
             inner join articles as a on a.article_id == al.article_id
             where a.feed_id = :feedId

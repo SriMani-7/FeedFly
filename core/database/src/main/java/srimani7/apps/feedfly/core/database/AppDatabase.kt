@@ -18,6 +18,7 @@ import srimani7.apps.feedfly.core.database.entity.ArticleTrash
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.database.entity.Label
+import srimani7.apps.feedfly.core.database.migrations.Migration9to10
 
 @Database(
     entities = [Feed::class,
@@ -28,7 +29,7 @@ import srimani7.apps.feedfly.core.database.entity.Label
         Label::class,
         ArticleLabel::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -38,6 +39,7 @@ import srimani7.apps.feedfly.core.database.entity.Label
         AutoMigration(5, 6), // articles trash entity
         AutoMigration(6, 7), // Label & ArticleLabel entities
         // Manual migration from 7 to 8
+        AutoMigration(9, 10, Migration9to10::class), // isPrivate in article and removed priority in label
     ]
 )
 @TypeConverters(Converters::class)
