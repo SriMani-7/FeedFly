@@ -4,7 +4,6 @@ package srimani7.apps.feedfly.navigation
 
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -136,7 +135,6 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                     RssItemsColumn(
                         dateListMap = articles,
                         onDeleteArticle = viewModal::deleteArticle,
-                        onMoveToPrivate = viewModal::onMoveToPrivate,
                         onChangeArticleLabel = { aId, lId ->
                             navController.navigate(Screen.ChangeLabelDialog.destination + "/$aId?label=${lId ?: -1L}")
                         }
