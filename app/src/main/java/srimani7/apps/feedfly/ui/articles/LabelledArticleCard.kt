@@ -19,10 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -52,14 +51,6 @@ fun LabelledArticleCard(
     var descriptionUri by rememberSaveable {
         mutableStateOf<String?>(null)
     }
-    val description by remember {
-        derivedStateOf {
-            fromHtml(labelledArticle.description ?: "") {
-                descriptionUri = it
-                null
-            }.toString()
-        }
-    }
 
     Surface(
         onClick = { scope.launch { articleModalState.partialExpand() } },
@@ -69,15 +60,10 @@ fun LabelledArticleCard(
     ) {
         Column {
             if (descriptionUri != null && !labelledArticle.isImage) {
-//                Spacer(modifier = Modifier.height(8.dp))
                 ArticleImage(descriptionUri!!)
-//                Spacer(modifier = Modifier.height(8.dp))
 
             } else if (labelledArticle.mediaType != null && labelledArticle.mediaSrc != null) {
-//                Spacer(modifier = Modifier.height(8.dp))
                 ArticleMediaHeader(labelledArticle.mediaType!!, labelledArticle.mediaSrc!!, {})
-//                Spacer(modifier = Modifier.height(8.dp))
-
             }
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -93,14 +79,12 @@ fun LabelledArticleCard(
                 )
             }
 
-            Column(
+            if (descriptionUri == null && !labelledArticle.isImage) Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp),
             ) {
-
-
-                ArticleDescription(description = description)
+                ArticleDescription(description = labelledArticle.description)
             }
 
             TextButton(onClick = {
@@ -128,6 +112,12 @@ fun LabelledArticleCard(
                 }
             )
         }
+    }
+    LaunchedEffect(Unit) {
+        fromHtml(labelledArticle.description ?: "") {
+            if(descriptionUri == null) descriptionUri = it
+            null
+        }.toString()
     }
 }
 
