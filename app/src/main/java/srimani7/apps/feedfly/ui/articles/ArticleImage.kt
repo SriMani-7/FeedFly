@@ -26,7 +26,7 @@ fun ArticleImage(imageSrc: String) {
         alignment = Alignment.TopCenter,
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(16 / 9f)
+            .aspectRatio(16 / 8.3f)
             .clickable { shoImage = true }.clip(RectangleShape),
         filterQuality = FilterQuality.Medium,
     )

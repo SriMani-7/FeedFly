@@ -117,6 +117,7 @@ interface FeedDao {
         left join articles_media as am ON a.article_id == am.article_id
             left join article_labels as al on a.article_id = al.article_id 
             where (a.is_private = 0 and a.feed_id = :id) and ((:unlabelled = 1 and al.label_id is null) or al.label_id = :labelId)
+            order by a.pub_date desc
     """)
     fun getFeedArticles(id: Long, labelId: Long, unlabelled: Boolean): Flow<List<LabelledArticle>>
 
