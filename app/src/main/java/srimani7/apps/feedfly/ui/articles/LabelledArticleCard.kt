@@ -4,15 +4,18 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -20,13 +23,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,14 +56,6 @@ fun LabelledArticleCard(
     var descriptionUri by rememberSaveable {
         mutableStateOf<String?>(null)
     }
-    val description by remember {
-        derivedStateOf {
-            fromHtml(labelledArticle.description ?: "") {
-                descriptionUri = it
-                null
-            }.toString()
-        }
-    }
 
     Surface(
         onClick = { scope.launch { articleModalState.partialExpand() } },
@@ -69,11 +64,17 @@ fun LabelledArticleCard(
         color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Column {
+            if (descriptionUri != null && !labelledArticle.isImage) {
+                ArticleImage(descriptionUri!!)
+
+            } else if (labelledArticle.mediaType != null && labelledArticle.mediaSrc != null) {
+                ArticleMediaHeader(labelledArticle.mediaType!!, labelledArticle.mediaSrc!!, {})
+            }
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(14.dp, 16.dp)
+                    .padding(10.dp, 16.dp)
             ) {
                 ArticleTitle(title = labelledArticle.title)
                 Text(
@@ -83,39 +84,42 @@ fun LabelledArticleCard(
                 )
             }
 
-            Column(
+            if (descriptionUri == null && !labelledArticle.isImage) Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 14.dp),
+                    .padding(horizontal = 10.dp),
             ) {
-
-                if (descriptionUri != null && !labelledArticle.isImage) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ArticleImage(descriptionUri!!)
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                } else if (labelledArticle.mediaType != null && labelledArticle.mediaSrc != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ArticleMediaHeader(labelledArticle.mediaType!!, labelledArticle.mediaSrc!!, {})
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                }
-                ArticleDescription(description = description)
+                ArticleDescription(description = labelledArticle.description)
             }
 
-            TextButton(onClick = {
-                onChangeArticleLabel(
-                    labelledArticle.articleId,
-                    labelledArticle.labelId
-                )
-            }, modifier = Modifier.padding(4.dp)) {
-                Icon(
-                    painterResource(R.drawable.baseline_label_24), null, modifier = Modifier.size(
-                        ButtonDefaults.IconSize
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = {
+                        onChangeArticleLabel(
+                            labelledArticle.articleId,
+                            labelledArticle.labelId
+                        )
+                    }, modifier = Modifier.padding(4.dp), colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     )
-                )
-                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                Text(text = labelledArticle.label ?: "Add label")
+                ) {
+                    Icon(
+                        painterResource(R.drawable.baseline_label_24),
+                        null,
+                        modifier = Modifier.size(
+                            ButtonDefaults.IconSize
+                        )
+                    )
+                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(text = labelledArticle.label ?: "Add label")
+                }
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(Icons.Filled.MoreVert, null)
+                }
             }
         }
         if (articleModalState.isVisible) {
@@ -128,6 +132,12 @@ fun LabelledArticleCard(
                 }
             )
         }
+    }
+    LaunchedEffect(Unit) {
+        fromHtml(labelledArticle.description ?: "") {
+            if (descriptionUri == null) descriptionUri = it
+            null
+        }.toString()
     }
 }
 

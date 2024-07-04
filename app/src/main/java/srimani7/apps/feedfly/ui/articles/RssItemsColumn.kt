@@ -56,7 +56,7 @@ fun RssItemsColumn(
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
             contentPadding = PaddingValues(8.dp, 16.dp),
             state = lazyListState
         ) {
@@ -82,7 +82,7 @@ fun RssItemsColumn(
                     LabelledArticleCard(
                         feedArticle,
                         modifier = Modifier.animateItemPlacement(),
-                        pubTime = DateParser.formatTime(feedArticle.publishedTime) ?: "",
+                        pubTime = DateParser.formatDate(feedArticle.publishedTime, true) ?: "",
                         onChangeArticleLabel = onChangeArticleLabel
                     )
                 }
