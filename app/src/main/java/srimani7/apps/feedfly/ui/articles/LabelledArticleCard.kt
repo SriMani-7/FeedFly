@@ -74,7 +74,7 @@ fun LabelledArticleCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(14.dp, 16.dp)
+                    .padding(10.dp, 16.dp)
             ) {
                 ArticleTitle(title = labelledArticle.title)
                 Text(
@@ -87,7 +87,7 @@ fun LabelledArticleCard(
             if (descriptionUri == null && !labelledArticle.isImage) Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 14.dp),
+                    .padding(horizontal = 10.dp),
             ) {
                 ArticleDescription(description = labelledArticle.description)
             }
