@@ -26,9 +26,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.PrivateSpaceRepo
+import srimani7.apps.feedfly.core.model.PrivateArticle
+import srimani7.apps.feedfly.ui.articles.PrivateArticleCard
+import srimani7.apps.rssparser.DateParser
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +47,7 @@ fun PrivateSpaceScreen(navController: NavController) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val viewmodel = viewModel<PrivateSpaceViewmodel>()
     val groups by viewmodel.groupsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+    val articles by viewmodel.articlesFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
     Scaffold(
         topBar = {
@@ -62,8 +74,20 @@ fun PrivateSpaceScreen(navController: NavController) {
             }
         }
     ) { paddingValues ->
-        LazyColumn(modifier = Modifier.padding(paddingValues)) {
-
+        LazyColumn(
+            modifier = Modifier.padding(paddingValues),
+            contentPadding = PaddingValues(8.dp, 12.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            items(articles, key = { it.articleId }) { article ->
+                PrivateArticleCard(
+                    article = article,
+                    pubTime = DateParser.formatDate(article.publishedTime, true) ?: "",
+                    onUnLock = {
+                        viewmodel.unLockArticle(it)
+                    }
+                )
+            }
         }
     }
 
@@ -77,7 +101,30 @@ class PrivateSpaceViewmodel(application: Application) : AndroidViewModel(applica
     var selectedGroup by mutableStateOf("Others")
         private set
 
+    private val _articlesFlow = MutableStateFlow(emptyList<PrivateArticle>())
+    val articlesFlow = _articlesFlow.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            changeGroup("Others")
+        }
+    }
+
+    private var gJob: Job? = null
     fun changeGroup(group: String) {
         selectedGroup = group
+        gJob?.cancel()
+        gJob = viewModelScope.launch(Dispatchers.IO) {
+            repository.getPrivateArticles(group).collectLatest { articles ->
+                _articlesFlow.update { articles }
+            }
+        }
+
+    }
+
+    fun unLockArticle(it: Long) {
+        viewModelScope.launch {
+            repository.unLockArticle(it)
+        }
     }
 }
