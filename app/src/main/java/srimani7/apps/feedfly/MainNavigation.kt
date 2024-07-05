@@ -42,6 +42,7 @@ import srimani7.apps.feedfly.navigation.ChangeArticleLabelDialog
 import srimani7.apps.feedfly.navigation.HomeScreen
 import srimani7.apps.feedfly.navigation.NavItem
 import srimani7.apps.feedfly.navigation.NewFeedScreen
+import srimani7.apps.feedfly.navigation.PrivateSpaceScreen
 import srimani7.apps.feedfly.navigation.RemoveArticlesScreen
 import srimani7.apps.feedfly.navigation.Screen
 import srimani7.apps.feedfly.navigation.SettingsScreen
@@ -82,6 +83,9 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                 NewFeedScreen(homeViewModal, addLink) { navController.popBackStack() }
             }
 
+            composable(Screen.PrivateSpaceScreen.destination) {
+                PrivateSpaceScreen(navController = navController)
+            }
             dialog(
                 route = Screen.RemoveArticlesScreen.destination + "/{feedId}",
                 arguments = listOf(
@@ -148,6 +152,7 @@ fun BackButton(navController: NavController) {
 object MainNavigation {
     fun newFeedRoute() = Screen.InsertFeedScreen.destination
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
+    fun privateSpaceRoute() =  Screen.PrivateSpaceScreen.destination
 }
 
 fun NavGraphBuilder.homeNavigation(navController: NavHostController, homeViewModal: HomeViewModal) {

@@ -21,7 +21,6 @@ class Repository(application: Application) {
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
     private val articleDao by lazy { AppDatabase.getInstance(application).articleDao() }
 
-    fun getArticles(feedId: Long) = feedDao.getArticles(feedId)
     fun getFeed(feedId: Long) = feedDao.getFeed(feedId)
     fun getGroups() = feedDao.getGroups()
     fun getAllFeeds() = feedDao.getAllFeeds()
@@ -165,9 +164,8 @@ class Repository(application: Application) {
         articleDao.moveArticleToPrivate(l)
     }
 
-    fun getLabelledArticles(feedId: Long) = feedDao.getLabelledArticles(feedId)
     fun getArticleLabels(feedId: Long) = feedDao.getArticleLabels(feedId)
-    fun getFeedArticles(feedId: Long, id: Long?) = if(id == null) feedDao.getFeedUnLabelledArticles(feedId) else feedDao.getFeedArticles(feedId, id)
+    fun getFeedArticles(feedId: Long, id: Long?) = feedDao.getFeedArticles(feedId, id ?: -1, id == null)
 }
 
 class LabelRepository(application: Application) {

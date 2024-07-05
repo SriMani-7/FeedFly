@@ -7,6 +7,9 @@ package srimani7.apps.feedfly.navigation
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +21,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.exitUntilCollapsedScrollBehavior
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
@@ -43,8 +46,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.MainNavigation
-import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.feedfly.core.database.dto.FeedDto
+import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
@@ -106,14 +109,21 @@ fun FeedFilterChip(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> Unit) {
-    CenterAlignedTopAppBar(
+    TopAppBar(
         title = {
             Text(
                 "FeedFly",
                 fontFamily = FontFamily.SansSerif,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.combinedClickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onDoubleClick = { navigate(MainNavigation.privateSpaceRoute()) },
+                    onClick = {}
+                )
             )
         },
         actions = {

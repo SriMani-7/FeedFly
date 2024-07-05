@@ -9,9 +9,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
-import srimani7.apps.feedfly.core.database.dto.FeedArticle
 import srimani7.apps.feedfly.core.database.dto.FeedDto
-import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.model.LabelData
@@ -26,15 +24,8 @@ interface FeedDao {
     @Update
     suspend fun updateFeedUrl(feed: Feed)
 
-    @Transaction
-    @Query("select * from feeds INNER JOIN articles ON feeds.id = articles.feed_id WHERE feeds.id = :id ORDER BY articles.pub_date desc")
-    fun getFeedArticles(id: Long): Flow<List<ArticleItem>>
-
     @Query("select * from feeds where id = :id")
     fun getFeed(id: Long): Flow<Feed>
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertFeedArticles(articles: List<ArticleItem>)
 
     @Transaction
     @Query("select * from feeds order by last_build_date desc")
@@ -42,9 +33,6 @@ interface FeedDao {
 
     @Query("select distinct group_name from feeds")
     fun getGroups(): Flow<List<String>>
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun update(feedImage: FeedImage)
 
     @Query(
         """INSERT INTO articles (title, link, category, feed_id, lastFetch, pub_date, description, author)
@@ -87,26 +75,8 @@ interface FeedDao {
         articleTitle: String
     )
 
-    @Transaction
-    @Query("select title, link, category, pub_date, description, author, article_id from articles where feed_id = :feedId ORDER BY articles.pub_date desc")
-    fun getArticles(feedId: Long): Flow<List<FeedArticle>>
-
-    @Transaction
-    @Query("select title, link, category, pub_date, description, author, article_id from articles ORDER BY articles.pub_date desc")
-    fun getArticles(): Flow<List<FeedArticle>>
-
     @Delete
     suspend fun delete(feed: Feed)
-
-    @Query("select article_id from articles where link = :rowId")
-    fun getArticle(rowId: String): Flow<Long>
-
-    @Query("select * from feeds")
-    fun getFeedUrls(): Flow<List<Feed>>
-
-    @Transaction
-    @Query("select title, link, category, pub_date, description, author, article_id from articles where article_id = :id")
-    fun getFeedArticle(id: Long): Flow<FeedArticle?>
 
     @Transaction
     suspend fun removeOldArticles(feedId: Long, threshold: Long) {
@@ -132,19 +102,6 @@ interface FeedDao {
     fun moveToTrash(feedId: Long, threshold: Long, date: Long)
 
     @Query("""
-       SELECT a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
-       am.mime_type as mediaType, am.url as mediaSrc,
-       l.label_name as label, al.label_id as labelId
-        from articles as a
-        left join articles_media as am ON a.article_id == am.article_id
-        left join article_labels as al ON a.article_id == al.article_id
-        left join labels as l ON al.label_id == l.id
-        where a.feed_id = :feedId and (l.label_name != 'private' or l.label_name is null)
-        order by a.pub_date desc
-    """)
-    fun getLabelledArticles(feedId: Long): Flow<List<LabelledArticle>>
-
-    @Query("""
         select l.label_name as name, l.id as id, l.pinned as pinned, count(*) as count from labels as l 
             inner join article_labels as al on al.label_id = l.id
             inner join articles as a on a.article_id == al.article_id
@@ -159,19 +116,11 @@ interface FeedDao {
        al.label_id as labelId from articles as a 
         left join articles_media as am ON a.article_id == am.article_id
             left join article_labels as al on a.article_id = al.article_id 
-            where a.feed_id = :id and al.label_id = :labelId
+            where (a.is_private = 0 and a.feed_id = :id) and ((:unlabelled = 1 and al.label_id is null) or al.label_id = :labelId)
+            order by a.pub_date desc
     """)
-    fun getFeedArticles(id: Long, labelId: Long?): Flow<List<LabelledArticle>>
+    fun getFeedArticles(id: Long, labelId: Long, unlabelled: Boolean): Flow<List<LabelledArticle>>
 
-    @Query("""
-        select a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
-       am.mime_type as mediaType, am.url as mediaSrc,
-       al.label_id as labelId from articles as a 
-        left join articles_media as am ON a.article_id == am.article_id
-            left join article_labels as al on a.article_id = al.article_id 
-            where a.feed_id = :feedId and al.label_id is null
-    """)
-    fun getFeedUnLabelledArticles(feedId: Long): Flow<List<LabelledArticle>>
 }
 
 fun dbErrorLog(message: String, throwable: Throwable? = null) {

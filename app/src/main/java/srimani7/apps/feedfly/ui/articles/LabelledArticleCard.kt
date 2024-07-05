@@ -1,6 +1,8 @@
 package srimani7.apps.feedfly.ui.articles
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -43,12 +45,13 @@ import srimani7.apps.feedfly.ui.fromHtml
 import srimani7.apps.rssparser.DateParser
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun LabelledArticleCard(
     labelledArticle: LabelledArticle,
     modifier: Modifier = Modifier,
     pubTime: String = DateParser.formatTime(labelledArticle.publishedTime) ?: "",
+    onLongClick: (Long) -> Unit,
     onChangeArticleLabel: (Long, Long?) -> Unit
 ) {
     val articleModalState = rememberModalBottomSheetState()
@@ -58,9 +61,10 @@ fun LabelledArticleCard(
     }
 
     Surface(
-        onClick = { scope.launch { articleModalState.partialExpand() } },
         shape = MaterialTheme.shapes.medium,
-        modifier = modifier,
+        modifier = modifier.combinedClickable(onLongClick = {
+            onLongClick(labelledArticle.articleId)
+        }, onClick = { scope.launch { articleModalState.partialExpand() }}),
         color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Column {
@@ -166,7 +170,7 @@ private fun RssItemCardPreview() {
                         mediaSrc = null,
                         label = "Review",
                         labelId = null
-                    ), onChangeArticleLabel = { _, _ -> })
+                    ), onLongClick = {}, onChangeArticleLabel = { _, _ -> })
                 }
             }
 

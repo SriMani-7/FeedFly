@@ -59,7 +59,6 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
         RssViewModal(feedId, (context as Activity).application)
     })
     val parsingState by viewModal.uiStateStateFlow.collectAsState()
-    val feedArticles by viewModal.groupedArticles.collectAsState(initial = null)
     val feed by viewModal.feedStateFlow.collectAsState(initial = null)
     val articleLabels by viewModal.articlesLabelsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val selectedLabel by viewModal.selectedLabel
@@ -133,15 +132,14 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
             .padding(paddingValues)
             .nestedScroll(scrollBehavior.nestedScrollConnection)) {
             when (parsingState) {
-                ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> feedArticles?.let {
-                    RssItemsColumn(
-                        dateListMap = articles,
-                        onDeleteArticle = viewModal::deleteArticle,
-                        onChangeArticleLabel = { aId, lId ->
-                            navController.navigate(Screen.ChangeLabelDialog.destination + "/$aId?label=${lId ?: -1L}")
-                        }
-                    )
-                }
+                ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> RssItemsColumn(
+                    dateListMap = articles,
+                    onDeleteArticle = viewModal::deleteArticle,
+                    onLongClick = viewModal::onMoveToPrivate,
+                    onChangeArticleLabel = { aId, lId ->
+                        navController.navigate(Screen.ChangeLabelDialog.destination + "/$aId?label=${lId ?: -1L}")
+                    }
+                )
 
                 ArticlesUIState.Loading -> AnimatedVisibility(parsingState == ArticlesUIState.Loading) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
