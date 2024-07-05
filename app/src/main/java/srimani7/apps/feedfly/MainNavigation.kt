@@ -42,6 +42,7 @@ import srimani7.apps.feedfly.navigation.ChangeArticleLabelDialog
 import srimani7.apps.feedfly.navigation.HomeScreen
 import srimani7.apps.feedfly.navigation.NavItem
 import srimani7.apps.feedfly.navigation.NewFeedScreen
+import srimani7.apps.feedfly.navigation.PrivateSpaceScreen
 import srimani7.apps.feedfly.navigation.RemoveArticlesScreen
 import srimani7.apps.feedfly.navigation.Screen
 import srimani7.apps.feedfly.navigation.SettingsScreen
@@ -83,7 +84,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             }
 
             composable(Screen.PrivateSpaceScreen.destination) {
-                // TODO: implement private space screen
+                PrivateSpaceScreen(navController = navController)
             }
             dialog(
                 route = Screen.RemoveArticlesScreen.destination + "/{feedId}",

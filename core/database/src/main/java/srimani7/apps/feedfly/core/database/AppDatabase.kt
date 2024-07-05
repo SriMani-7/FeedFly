@@ -11,6 +11,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import srimani7.apps.feedfly.core.database.dao.ArticleDao
 import srimani7.apps.feedfly.core.database.dao.FeedDao
+import srimani7.apps.feedfly.core.database.dao.PrivateSpaceDao
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.ArticleLabel
 import srimani7.apps.feedfly.core.database.entity.ArticleMedia
@@ -46,6 +47,7 @@ import srimani7.apps.feedfly.core.database.migrations.Migration9to10
 abstract class AppDatabase : RoomDatabase() {
     abstract fun feedDao(): FeedDao
     abstract fun articleDao(): ArticleDao
+    abstract fun privateSpaceDao(): PrivateSpaceDao
 
     companion object {
         @Volatile
