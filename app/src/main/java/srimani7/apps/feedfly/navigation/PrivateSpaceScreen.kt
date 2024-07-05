@@ -76,7 +76,7 @@ fun PrivateSpaceScreen(navController: NavController) {
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier.padding(paddingValues),
-            contentPadding = PaddingValues(8.dp, 12.dp),
+            contentPadding = PaddingValues(10.dp, 10.dp, 10.dp, 15.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             items(articles, key = { it.articleId }) { article ->
