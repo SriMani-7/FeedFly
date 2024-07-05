@@ -49,6 +49,7 @@ fun RssItemsColumn(
     dateListMap: List<LabelledArticle>,
     viewModel: MediaViewModel = viewModel(),
     onDeleteArticle: (Long) -> Unit,
+    onLongClick: (Long) -> Unit,
     onChangeArticleLabel: (Long, Long?) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
@@ -83,6 +84,7 @@ fun RssItemsColumn(
                         feedArticle,
                         modifier = Modifier.animateItemPlacement(),
                         pubTime = DateParser.formatDate(feedArticle.publishedTime, true) ?: "",
+                        onLongClick = onLongClick,
                         onChangeArticleLabel = onChangeArticleLabel
                     )
                 }

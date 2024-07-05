@@ -133,6 +133,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                 ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> RssItemsColumn(
                     dateListMap = articles,
                     onDeleteArticle = viewModal::deleteArticle,
+                    onLongClick = viewModal::onMoveToPrivate,
                     onChangeArticleLabel = { aId, lId ->
                         navController.navigate(Screen.ChangeLabelDialog.destination + "/$aId?label=${lId ?: -1L}")
                     }

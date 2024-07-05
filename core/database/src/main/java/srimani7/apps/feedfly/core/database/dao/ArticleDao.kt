@@ -34,7 +34,7 @@ ORDER BY l.id
     """)
     fun getLabels(): Flow<List<LabelData>>
 
-    @Query("insert into article_labels (article_id, label_id) values(:l, (select id from labels where label_name = 'private'))")
+    @Query("update articles set is_private = 1 where article_id = :l")
     suspend fun moveArticleToPrivate(l: Long)
 
     @Query("REPLACE INTO article_labels (article_id, label_id) VALUES(:articleId, :labelId);")
