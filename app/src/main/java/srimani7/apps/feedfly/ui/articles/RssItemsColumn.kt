@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.audio.MediaViewModel
 import srimani7.apps.feedfly.core.model.LabelledArticle
+import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.feedfly.ui.ExoPlayerCard
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
@@ -47,6 +48,7 @@ import srimani7.apps.rssparser.elements.ChannelItem
 @Composable
 fun RssItemsColumn(
     dateListMap: List<LabelledArticle>,
+    articlePreference: UserSettingsRepo.ArticlePreference,
     viewModel: MediaViewModel = viewModel(),
     onDeleteArticle: (Long) -> Unit,
     onLongClick: (Long) -> Unit,
@@ -78,13 +80,16 @@ fun RssItemsColumn(
 
                 DismissibleRssItem(
                     state = dismissState,
+                    dismissRight = articlePreference.swipeToDelete,
                     modifier = Modifier.animateItemPlacement()
                 ) {
                     LabelledArticleCard(
                         feedArticle,
                         modifier = Modifier.animateItemPlacement(),
                         pubTime = DateParser.formatDate(feedArticle.publishedTime, true) ?: "",
-                        onLongClick = onLongClick,
+                        onLongClick = {
+                            if(articlePreference.longClickToPrivate) onLongClick(it)
+                        },
                         onChangeArticleLabel = onChangeArticleLabel
                     )
                 }
@@ -116,13 +121,14 @@ fun RssItemsColumn(
 @Composable
 fun DismissibleRssItem(
     state: SwipeToDismissBoxState,
+    dismissRight: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
     SwipeToDismissBox(
         modifier = modifier,
         state = state,
-        enableDismissFromEndToStart = true,
+        enableDismissFromEndToStart = dismissRight,
         enableDismissFromStartToEnd = false,
         content = content,
         backgroundContent = {
