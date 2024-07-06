@@ -11,16 +11,24 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -43,51 +51,73 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.MainNavigation
 import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.feedfly.data.UserSettingsRepo
-import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(
     homeViewModal: HomeViewModal,
     navigate: (String) -> Unit
 ) {
     val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle()
-    val groups by homeViewModal.groupNameFlow.collectAsStateWithLifecycle()
+    val groups by homeViewModal.feedGroupsFlow.collectAsStateWithLifecycle(emptyList())
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val settings = homeViewModal.settingsStateFlow.collectAsStateWithLifecycle()
     val groupPickerState = remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { HomeAppbar(scrollBehavior, navigate) },
-        //modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = { HomeAppbar(null, navigate) },
     ) { paddingValues ->
-        Box(
-            Modifier
-                .fillMaxSize()
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
                 .padding(paddingValues)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(14.dp, 12.dp, 14.dp, 100.dp)
         ) {
-            if (groups.isNotEmpty()) {
-                FeedsHome(
-                    currentGroup = settings,
-                    allFeeds,
-                    openGroupPicker = { groupPickerState.value = true }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Text(
+                    "Groups",
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Normal
+                )
+            }
+
+            items(groups, key = { it.name }) {
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {},
+                    shape = MaterialTheme.shapes.small,
                 ) {
-                    navigate(MainNavigation.articlesScreenRoute(it))
+                    Column(
+                        modifier = Modifier.padding(14.dp, 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Text(
+                            text = it.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = "${it.count} sites",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Normal
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
             }
         }
-        GroupsPicker(
-            selected = settings.value.currentGroup,
-            groups = groups,
-            state = groupPickerState,
-            onPick = homeViewModal::updateCurrentGroup
-        )
     }
 
 }

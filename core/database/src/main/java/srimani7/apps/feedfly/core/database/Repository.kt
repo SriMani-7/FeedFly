@@ -23,6 +23,7 @@ class Repository(application: Application) {
 
     fun getFeed(feedId: Long) = feedDao.getFeed(feedId)
     fun getGroups() = feedDao.getGroups()
+    fun getFeedGroups() = feedDao.getFeedGroups()
     fun getAllFeeds() = feedDao.getAllFeeds()
 
     suspend fun updateFeedUrl(copy: Feed) {

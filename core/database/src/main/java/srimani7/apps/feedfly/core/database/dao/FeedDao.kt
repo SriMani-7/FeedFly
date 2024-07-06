@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
+import srimani7.apps.feedfly.core.model.FeedGroupModel
 import srimani7.apps.feedfly.core.model.LabelData
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import java.util.Date
@@ -30,6 +31,15 @@ interface FeedDao {
     @Transaction
     @Query("select * from feeds order by last_build_date desc")
     fun getAllFeeds(): Flow<List<FeedDto>>
+
+    @Query("""
+        SELECT f.group_name AS name, COUNT(*) AS count
+        FROM 
+            feeds as f
+        GROUP BY 
+            f.group_name
+    """)
+    fun getFeedGroups(): Flow<List<FeedGroupModel>>
 
     @Query("select distinct group_name from feeds")
     fun getGroups(): Flow<List<String>>

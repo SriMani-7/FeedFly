@@ -28,6 +28,8 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
         repository.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
+    val feedGroupsFlow = repository.getFeedGroups()
+
     val settingsStateFlow = userSettingsRepo.settingsFlow.stateIn(
         viewModelScope,
         SharingStarted.Lazily,
