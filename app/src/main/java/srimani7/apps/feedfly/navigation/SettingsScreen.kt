@@ -66,6 +66,7 @@ fun SettingsScreen(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 item {
                     SwitchPreference(
+                        text = "Use wallpaper colors theming",
                         checked = settings.useDynamicTheme,
                         onChange = viewModel::useDynamicTheme
                     )
@@ -74,12 +75,14 @@ fun SettingsScreen(
 
             item {
                 SwitchPreference(
+                    text = "Swipe to delete article",
                     checked = articlePreferences.swipeToDelete,
                     viewModel::setArticleSwipe
                 )
             }
             item {
                 SwitchPreference(
+                    text = "Long click to private",
                     checked = articlePreferences.longClickToPrivate,
                     viewModel::setArticleLongClick
                 )
@@ -89,9 +92,9 @@ fun SettingsScreen(
 }
 
 @Composable
-fun SwitchPreference(checked: Boolean, onChange: (Boolean) -> Unit) {
+fun SwitchPreference(text: String, checked: Boolean, onChange: (Boolean) -> Unit) {
     TextButton(onClick = { onChange(!checked) }) {
-        Text(text = "Swipe Right to delete", style = MaterialTheme.typography.bodyLarge)
+        Text(text = text, style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.weight(1f))
         Switch(
             checked = checked,
