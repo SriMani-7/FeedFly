@@ -39,6 +39,7 @@ import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
 import srimani7.apps.feedfly.navigation.BottomNavigationBar
 import srimani7.apps.feedfly.navigation.ChangeArticleLabelDialog
+import srimani7.apps.feedfly.navigation.GroupOverviewScreen
 import srimani7.apps.feedfly.navigation.HomeScreen
 import srimani7.apps.feedfly.navigation.NavItem
 import srimani7.apps.feedfly.navigation.NewFeedScreen
@@ -151,6 +152,7 @@ fun BackButton(navController: NavController) {
 
 object MainNavigation {
     fun newFeedRoute() = Screen.InsertFeedScreen.destination
+    fun groupOverviewScreen(name: String) = Screen.GroupOverviewScreen.destination+"/${name}"
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
     fun privateSpaceRoute() =  Screen.PrivateSpaceScreen.destination
 }
@@ -167,6 +169,9 @@ fun NavGraphBuilder.homeNavigation(navController: NavHostController, homeViewMod
             )) { entry ->
             val long = entry.arguments?.getLong("id")
             if (long != null && long > 0) ArticlesScreen(long, navController)
+        }
+        composable(Screen.GroupOverviewScreen.destination+"/{group}") {
+            GroupOverviewScreen(navController)
         }
     }
 }

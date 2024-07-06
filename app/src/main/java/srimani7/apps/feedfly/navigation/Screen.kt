@@ -12,6 +12,7 @@ sealed class Screen(val destination: String) {
     object RemoveArticlesScreen: Screen("remove_articles_screen")
     object ChangeLabelDialog: Screen("change_article_label_dialog")
     data object PrivateSpaceScreen: Screen("private_space")
+    data object GroupOverviewScreen: Screen("home_screen_group")
 
     companion object {
         fun showBottomBar(route: String?) = when(route) {

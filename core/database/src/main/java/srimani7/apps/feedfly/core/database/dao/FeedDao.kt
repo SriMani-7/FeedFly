@@ -15,6 +15,7 @@ import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.model.FeedGroupModel
 import srimani7.apps.feedfly.core.model.LabelData
 import srimani7.apps.feedfly.core.model.LabelledArticle
+import srimani7.apps.feedfly.core.model.SimpleFeed
 import java.util.Date
 
 @Dao
@@ -130,6 +131,12 @@ interface FeedDao {
             order by a.pub_date desc
     """)
     fun getFeedArticles(id: Long, labelId: Long, unlabelled: Boolean): Flow<List<LabelledArticle>>
+
+    @Query("""select f.id, f.feed_url as feedUrl, f.link, f.feed_title as title, f.last_build_date as lastBuildDate, fi.image_url as imageUrl from feeds f 
+        left join feed_images fi on fi.feed_id = f.id
+        where f.group_name = :groupName
+    """)
+    fun getFeeds(groupName: String): Flow<List<SimpleFeed>>
 
 }
 
