@@ -16,6 +16,8 @@ class UserSettingsRepo(private val application: Application) {
     private val themePreferenceKey = stringPreferencesKey("app_theme_preference")
     private val currentGroupKey = stringPreferencesKey("current_group_preference")
     private val useDynamicTheme = booleanPreferencesKey("use_dynamic_theme_preference")
+    private val aSwipeDeleteKey = booleanPreferencesKey("article_swipe_delete_preference")
+    private val aLongClickPrivateKey = booleanPreferencesKey("article_long_click_preference")
 
     val settingsFlow = application.dataStore.data.map {
         Settings(
@@ -24,6 +26,22 @@ class UserSettingsRepo(private val application: Application) {
             useDynamicTheme = it[useDynamicTheme] ?: false
         )
     }
+
+    val articlePreferences = application.dataStore.data.map {
+        ArticlePreference(
+            swipeToDelete = it[aSwipeDeleteKey] ?: false,
+            longClickToPrivate = it[aLongClickPrivateKey] ?: false
+        )
+    }
+
+
+    private suspend fun <K> editPreference(key: Preferences.Key<K>, value: K) {
+        application.dataStore.edit { it[key] = value }
+    }
+
+    suspend fun updateArticleSwipe(delete: Boolean) = editPreference(aSwipeDeleteKey, delete)
+    suspend fun updateArticleLongClick(private: Boolean) =
+        editPreference(aLongClickPrivateKey, private)
 
     suspend fun updateSettings(newTheme: AppTheme) {
         application.dataStore.edit { settings ->
@@ -47,5 +65,10 @@ class UserSettingsRepo(private val application: Application) {
         val theme: AppTheme,
         val currentGroup: String,
         val useDynamicTheme: Boolean = false
+    )
+
+    data class ArticlePreference(
+        val swipeToDelete: Boolean = false,
+        val longClickToPrivate: Boolean = false
     )
 }
