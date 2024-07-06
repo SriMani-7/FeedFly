@@ -74,6 +74,7 @@ fun RssItemsColumn(
                             onDeleteArticle(currentItem)
                             true
                         }
+
                         else -> false
                     }
                 }, positionalThreshold = { it * .25f })
@@ -88,7 +89,12 @@ fun RssItemsColumn(
                         modifier = Modifier.animateItemPlacement(),
                         pubTime = DateParser.formatDate(feedArticle.publishedTime, true) ?: "",
                         onLongClick = {
-                            if(articlePreference.longClickToPrivate) onLongClick(it)
+                            if (articlePreference.longClickToPrivate) onLongClick(it)
+                        }, onOptionClick = {
+                            when (it) {
+                                "delete" -> onDeleteArticle(feedArticle.articleId)
+                                "private" -> onLongClick(feedArticle.articleId)
+                            }
                         },
                         onChangeArticleLabel = onChangeArticleLabel
                     )
@@ -143,11 +149,13 @@ fun DismissibleRssItem(
             val alignment = when (direction) {
                 SwipeToDismissBoxValue.StartToEnd,
                 SwipeToDismissBoxValue.Settled -> Alignment.CenterStart
+
                 SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
             }
             val icon = when (direction) {
                 SwipeToDismissBoxValue.StartToEnd,
                 SwipeToDismissBoxValue.Settled -> ImageVector.vectorResource(R.drawable.baseline_label_24)
+
                 SwipeToDismissBoxValue.EndToStart -> Icons.Default.Delete
             }
             val scale by animateFloatAsState(
