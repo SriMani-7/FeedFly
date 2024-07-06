@@ -12,6 +12,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     private val userSettingsRepo by lazy { UserSettingsRepo(application) }
     val settingsFlow = userSettingsRepo.settingsFlow
+    val articlePreferencesFlow = userSettingsRepo.articlePreferences
 
     fun useDynamicTheme(value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) { userSettingsRepo.useDynamicTheming(value) }
@@ -21,5 +22,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             userSettingsRepo.updateSettings(appTheme)
         }
+    }
+
+    fun setArticleSwipe(delete: Boolean) {
+        viewModelScope.launch { userSettingsRepo.updateArticleSwipe(delete) }
+    }
+
+    fun setArticleLongClick(private: Boolean) {
+        viewModelScope.launch { userSettingsRepo.updateArticleLongClick(private) }
     }
 }

@@ -6,10 +6,10 @@
 package srimani7.apps.feedfly.navigation
 
 import android.os.Build
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.OutlinedIconToggleButton
 import androidx.compose.material3.Scaffold
@@ -38,11 +39,21 @@ import srimani7.apps.feedfly.data.AppTheme
 import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel
 ) {
-    val settings by viewModel.settingsFlow.collectAsStateWithLifecycle(initialValue = UserSettingsRepo.Settings(AppTheme.SYSTEM_DEFAULT, "", false))
+    val settings by viewModel.settingsFlow.collectAsStateWithLifecycle(
+        initialValue = UserSettingsRepo.Settings(
+            AppTheme.SYSTEM_DEFAULT,
+            "",
+            false
+        )
+    )
+    val articlePreferences by viewModel.articlePreferencesFlow.collectAsStateWithLifecycle(
+        initialValue = UserSettingsRepo.ArticlePreference()
+    )
 
     Scaffold(
         topBar = {
@@ -50,22 +61,42 @@ fun SettingsScreen(
         }
     ) { paddingValues ->
         LazyColumn(
-            contentPadding = PaddingValues(16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(paddingValues)
         ) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 item {
-                    TextButton(onClick = { viewModel.useDynamicTheme(!settings.useDynamicTheme) }) {
-                        Text(text = "Use dynamic color theming")
-                        Spacer(modifier = Modifier.weight(1f))
-                        Switch(
-                            checked = settings.useDynamicTheme,
-                            onCheckedChange = { viewModel.useDynamicTheme(it) })
-                    }
+                    SwitchPreference(
+                        checked = settings.useDynamicTheme,
+                        onChange = viewModel::useDynamicTheme
+                    )
                 }
             }
+
+            item {
+                SwitchPreference(
+                    checked = articlePreferences.swipeToDelete,
+                    viewModel::setArticleSwipe
+                )
+            }
+            item {
+                SwitchPreference(
+                    checked = articlePreferences.longClickToPrivate,
+                    viewModel::setArticleLongClick
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun SwitchPreference(checked: Boolean, onChange: (Boolean) -> Unit) {
+    TextButton(onClick = { onChange(!checked) }) {
+        Text(text = "Swipe Right to delete", style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.weight(1f))
+        Switch(
+            checked = checked,
+            onCheckedChange = onChange
+        )
     }
 }
 
