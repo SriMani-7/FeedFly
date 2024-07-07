@@ -26,6 +26,7 @@ class Repository(application: Application) {
     fun getFeedGroups() = feedDao.getFeedGroups()
     fun getAllFeeds() = feedDao.getAllFeeds()
     fun getFeeds(groupName: String) = feedDao.getFeeds(groupName)
+    fun getPinnedLabels() = feedDao.getPinnedLabels()
 
     suspend fun updateFeedUrl(copy: Feed) {
         feedDao.updateFeedUrl(copy)
