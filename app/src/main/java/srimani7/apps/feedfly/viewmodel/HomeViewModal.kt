@@ -29,6 +29,7 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     }
 
     val feedGroupsFlow = repository.getFeedGroups()
+    val pinnedLabelsFlow = repository.getPinnedLabels()
 
     val settingsStateFlow = userSettingsRepo.settingsFlow.stateIn(
         viewModelScope,

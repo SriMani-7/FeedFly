@@ -21,11 +21,9 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,26 +37,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.MainNavigation
+import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
+import srimani7.apps.feedfly.core.model.LabelData
+import srimani7.apps.feedfly.feature.labels.ui.PinnedLabels
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     homeViewModal: HomeViewModal,
     navigate: (String) -> Unit
 ) {
     val groups by homeViewModal.feedGroupsFlow.collectAsStateWithLifecycle(emptyList())
+    val pinnedLabels by homeViewModal.pinnedLabelsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
     Scaffold(
         topBar = { HomeAppbar(null, navigate) },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { navigate(MainNavigation.newFeedRoute()) }) {
-                Icon(Icons.Default.Add, null)
-            }
-        }
     ) { paddingValues ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -67,13 +66,18 @@ fun HomeScreen(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(12.dp, 10.dp, 12.dp, 100.dp)
+            contentPadding = PaddingValues(12.dp, 6.dp, 12.dp, 100.dp)
         ) {
+            item(span = { GridItemSpan(maxLineSpan) }, key = "pinned-labels") {
+                PinnedLabels(labels = pinnedLabels,
+                    onLongClick = {},
+                    onViewAll = {})
+            }
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
                     "Groups",
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Normal
                 )
             }
@@ -133,4 +137,41 @@ fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> U
         },
         scrollBehavior = scrollBehavior,
     )
+}
+
+
+@PreviewLightDark
+@Composable
+private fun HomeScreenPreview() {
+    val labels = remember {
+        "Reading list,Favorites,Gaming,Resume needed,Applied".split(",")
+            .mapIndexed { index, s -> LabelData(index.toLong(), s, index + 3, true) }
+    }
+    TheSecretDairyTheme {
+        Scaffold(
+            topBar = {
+                HomeAppbar(scrollBehavior = null, {})
+            }
+        ) { paddingValues ->
+            LazyVerticalGrid(
+                modifier = Modifier.padding(paddingValues),
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(12.dp, 6.dp, 12.dp, 100.dp)
+            ) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    PinnedLabels(labels = labels, {},{})
+                }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Text(
+                        "Groups",
+                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+            }
+        }
+    }
 }
