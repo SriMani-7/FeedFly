@@ -22,7 +22,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,7 +60,7 @@ fun HomeScreen(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(14.dp, 12.dp, 14.dp, 100.dp)
+            contentPadding = PaddingValues(12.dp, 10.dp, 12.dp, 100.dp)
         ) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
@@ -72,7 +72,7 @@ fun HomeScreen(
             }
 
             items(groups, key = { it.name }) {
-                ElevatedCard(
+                Card(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         navigate(MainNavigation.groupOverviewScreen(it.name))
