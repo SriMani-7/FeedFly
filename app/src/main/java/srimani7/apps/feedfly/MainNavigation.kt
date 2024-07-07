@@ -37,7 +37,6 @@ import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.LabelRepository
 import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
-import srimani7.apps.feedfly.navigation.BottomNavigationBar
 import srimani7.apps.feedfly.navigation.ChangeArticleLabelDialog
 import srimani7.apps.feedfly.navigation.GroupOverviewScreen
 import srimani7.apps.feedfly.navigation.HomeScreen
@@ -134,7 +133,6 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                         .background(MaterialTheme.colorScheme.surface)
                 )
             }
-            BottomNavigationBar(navController)
         }
     }
     LaunchedEffect(addLink) {
