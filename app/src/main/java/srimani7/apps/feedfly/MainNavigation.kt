@@ -47,6 +47,7 @@ import srimani7.apps.feedfly.navigation.RemoveArticlesScreen
 import srimani7.apps.feedfly.navigation.Screen
 import srimani7.apps.feedfly.navigation.SettingsScreen
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
+import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
 @Composable
 fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
@@ -75,7 +76,8 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             }
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {
                 composable(Screen.SettingsScreen.destination) {
-                    SettingsScreen(settings.theme, homeViewModal::updateSettings)
+                    val viewmodel = viewModel<SettingsViewModel>()
+                    SettingsScreen(viewmodel)
                 }
             }
 

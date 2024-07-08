@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
+import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.articles.RssItemsColumn
 import srimani7.apps.feedfly.viewmodel.ArticlesUIState
@@ -58,6 +59,10 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
     val viewModal = viewModel(initializer = {
         RssViewModal(feedId, (context as Activity).application)
     })
+    val articlePreference by viewModal.articlePreferencesFlow.collectAsStateWithLifecycle(
+        initialValue = UserSettingsRepo.ArticlePreference()
+    )
+
     val parsingState by viewModal.uiStateStateFlow.collectAsState()
     val feed by viewModal.feedStateFlow.collectAsState(initial = null)
     val articleLabels by viewModal.articlesLabelsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -134,6 +139,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
             when (parsingState) {
                 ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> RssItemsColumn(
                     dateListMap = articles,
+                    articlePreference = articlePreference,
                     onDeleteArticle = viewModal::deleteArticle,
                     onLongClick = viewModal::onMoveToPrivate,
                     onChangeArticleLabel = { aId, lId ->

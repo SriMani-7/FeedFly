@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,6 +40,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
@@ -52,6 +57,7 @@ fun LabelledArticleCard(
     modifier: Modifier = Modifier,
     pubTime: String = DateParser.formatTime(labelledArticle.publishedTime) ?: "",
     onLongClick: (Long) -> Unit,
+    onOptionClick: (String) -> Unit,
     onChangeArticleLabel: (Long, Long?) -> Unit
 ) {
     val articleModalState = rememberModalBottomSheetState()
@@ -59,6 +65,7 @@ fun LabelledArticleCard(
     var descriptionUri by rememberSaveable {
         mutableStateOf<String?>(null)
     }
+    var showOptions by rememberSaveable { mutableStateOf(false) }
 
     Surface(
         shape = MaterialTheme.shapes.medium,
@@ -121,10 +128,37 @@ fun LabelledArticleCard(
                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                     Text(text = labelledArticle.label ?: "Add label")
                 }
-                IconButton(onClick = { /*TODO*/ }) {
+
+                IconButton(onClick = { showOptions = true }) {
                     Icon(Icons.Filled.MoreVert, null)
                 }
             }
+            if(showOptions) Popup(
+                alignment = Alignment.BottomEnd,
+                properties = PopupProperties(
+                    dismissOnClickOutside = true,
+                    dismissOnBackPress = true
+                ), onDismissRequest = { showOptions = false }
+            ) {
+                Surface(
+                    shadowElevation = 6.dp,
+                    tonalElevation = 1.5.dp,
+                    shape = MaterialTheme.shapes.large
+                ) {
+                    Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+                        IconButton(onClick = { onOptionClick("private" )}) {
+                            Icon(Icons.Outlined.Lock, null)
+                        }
+                        IconButton(onClick = { onOptionClick("delete") }) {
+                            Icon(Icons.Outlined.Delete, null)
+                        }
+                        IconButton(onClick = { showOptions = false }) {
+                            Icon(Icons.Filled.Clear, null)
+                        }
+                    }
+                }
+            }
+
         }
         if (articleModalState.isVisible) {
             ArticleViewScreen(
@@ -159,7 +193,7 @@ private fun RssItemCardPreview() {
                 verticalArrangement = Arrangement.spacedBy(14.dp),
                 contentPadding = PaddingValues(8.dp, 16.dp),
             ) {
-                items(3) {
+                items(1) {
                     LabelledArticleCard(labelledArticle = LabelledArticle(
                         articleId = 2,
                         title = "Can Bahubali The Conclusion beat the first part collections in pakistan",
@@ -170,7 +204,7 @@ private fun RssItemCardPreview() {
                         mediaSrc = null,
                         label = "Review",
                         labelId = null
-                    ), onLongClick = {}, onChangeArticleLabel = { _, _ -> })
+                    ), onLongClick = {}, onOptionClick = {}, onChangeArticleLabel = { _, _ -> })
                 }
             }
 
