@@ -35,7 +35,6 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.LabelRepository
-import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
 import srimani7.apps.feedfly.navigation.ChangeArticleLabelDialog
 import srimani7.apps.feedfly.navigation.GroupOverviewScreen
@@ -62,17 +61,6 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
     ) {
         NavHost(navController, NavItem.Home.navRoute, modifier = Modifier) {
             homeNavigation(navController, homeViewModal)
-            navigation(Screen.FavoriteScreen.destination, NavItem.Favorites.navRoute) {
-                composable(Screen.FavoriteScreen.destination) {
-                    val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
-                    LabelsScaffold(
-                        labelData = labels,
-                        onClick = { _, _ -> },
-                        onAddNewLabel = {
-                        labelViewModel.addLabel(it)
-                    })
-                }
-            }
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {
                 composable(Screen.SettingsScreen.destination) {
                     SettingsScreen(settings.theme, homeViewModal::updateSettings)
