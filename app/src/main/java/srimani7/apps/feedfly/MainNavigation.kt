@@ -32,6 +32,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.LabelRepository
+import srimani7.apps.feedfly.feature.labels.ui.LabelOverviewScaffold
+import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
 import srimani7.apps.feedfly.navigation.ChangeArticleLabelDialog
 import srimani7.apps.feedfly.navigation.GroupOverviewScreen
@@ -66,6 +68,25 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                 )) { entry ->
                 val long = entry.arguments?.getLong("id")
                 if (long != null && long > 0) ArticlesScreen(long, navController)
+            }
+            composable(Screen.LabelsScreen.destination) {
+                val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
+                LabelsScaffold(
+                    labelData = labels,
+                    onClick = { id, _ -> navController.navigate(MainNavigation.labelRoute(id)) },
+                    onBackClick = navController::popBackStack,
+                    onAddNewLabel = {
+                        labelViewModel.addLabel(it)
+                    })
+            }
+            composable("labels/{id}", arguments = listOf(
+                navArgument("id") { type = NavType.LongType }
+            )) { entry ->
+                LabelOverviewScaffold(
+                    onBack = navController::popBackStack,
+                    onNavigate = navController::navigate,
+                    onDeleteArticle = homeViewModal::removeArticle
+                )
             }
             composable(Screen.GroupOverviewScreen.destination+"/{group}") {
                 GroupOverviewScreen(navController)
@@ -148,6 +169,7 @@ object MainNavigation {
     fun groupOverviewScreen(name: String) = Screen.GroupOverviewScreen.destination+"/${name}"
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
     fun privateSpaceRoute() =  Screen.PrivateSpaceScreen.destination
+    fun labelRoute(id: Long) = "labels/$id"
 }
 
 class LabelViewModel(application: Application) : AndroidViewModel(application) {

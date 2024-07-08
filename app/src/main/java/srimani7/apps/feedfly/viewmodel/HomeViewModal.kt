@@ -29,6 +29,7 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     }
 
     val feedGroupsFlow = repository.getFeedGroups()
+    val pinnedLabelsFlow = repository.getPinnedLabels()
 
     val settingsStateFlow = userSettingsRepo.settingsFlow.stateIn(
         viewModelScope,
@@ -83,6 +84,12 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
             } finally {
                 _deltingState.value = false
             }
+        }
+    }
+
+    fun removeArticle(it: Long) {
+        viewModelScope.launch {
+            repository.deleteArticle(it)
         }
     }
 }
