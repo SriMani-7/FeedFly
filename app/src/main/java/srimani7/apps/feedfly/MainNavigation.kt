@@ -35,6 +35,8 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.LabelRepository
+import srimani7.apps.feedfly.core.database.entity.Label
+import srimani7.apps.feedfly.feature.labels.ui.LabelOverviewScaffold
 import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
 import srimani7.apps.feedfly.navigation.ChangeArticleLabelDialog
@@ -71,12 +73,25 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                 val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
                 LabelsScaffold(
                     labelData = labels,
-                    onClick = { _, _ -> },
+                    onClick = { id, _ -> navController.navigate(MainNavigation.labelRoute(id)) },
                     onBackClick = navController::popBackStack,
                     onAddNewLabel = {
                         labelViewModel.addLabel(it)
                     })
             }
+
+            composable("labels/{id}", arguments = listOf(
+                navArgument("id") { type = NavType.LongType }
+            )) {
+                LabelOverviewScaffold(
+                    label = Label("Dummy", true, 1),
+                    articles = emptyList(),
+                    onBack = navController::popBackStack,
+                    onNavigate = navController::navigate,
+                    onDeleteArticle = {}
+                )
+            }
+
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {
                 composable(Screen.SettingsScreen.destination) {
                     SettingsScreen(settings.theme, homeViewModal::updateSettings)
@@ -157,6 +172,7 @@ object MainNavigation {
     fun groupOverviewScreen(name: String) = Screen.GroupOverviewScreen.destination+"/${name}"
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
     fun privateSpaceRoute() =  Screen.PrivateSpaceScreen.destination
+    fun labelRoute(id: Long) = "labels/$id"
 }
 
 fun NavGraphBuilder.homeNavigation(navController: NavHostController, homeViewModal: HomeViewModal) {

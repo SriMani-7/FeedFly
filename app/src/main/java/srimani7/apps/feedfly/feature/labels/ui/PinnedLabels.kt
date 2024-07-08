@@ -18,14 +18,14 @@ import srimani7.apps.feedfly.core.model.LabelData
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PinnedLabels(labels: List<LabelData>, onLongClick: (Long) -> Unit, onViewAll: () -> Unit) {
+fun PinnedLabels(labels: List<LabelData>, onClick: (Long) -> Unit, onViewAll: () -> Unit) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         labels.forEach { label ->
             ElevatedButton(
-                onClick = { onLongClick(label.id) },
+                onClick = { onClick(label.id) },
                 contentPadding = PaddingValues(16.dp, 10.dp)
             ) {
                 Text(label.name, fontWeight = FontWeight.Medium)

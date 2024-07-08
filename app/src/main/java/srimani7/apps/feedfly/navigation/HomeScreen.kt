@@ -70,7 +70,7 @@ fun HomeScreen(
         ) {
             item(span = { GridItemSpan(maxLineSpan) }, key = "pinned-labels") {
                 PinnedLabels(labels = pinnedLabels,
-                    onLongClick = {},
+                    onClick = { navigate(MainNavigation.labelRoute(it)) },
                     onViewAll = { navigate(Screen.LabelsScreen.destination) })
             }
             item(span = { GridItemSpan(maxLineSpan) }) {
