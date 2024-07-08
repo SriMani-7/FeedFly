@@ -71,7 +71,7 @@ fun HomeScreen(
             item(span = { GridItemSpan(maxLineSpan) }, key = "pinned-labels") {
                 PinnedLabels(labels = pinnedLabels,
                     onLongClick = {},
-                    onViewAll = {})
+                    onViewAll = { navigate(Screen.LabelsScreen.destination) })
             }
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
@@ -161,7 +161,7 @@ private fun HomeScreenPreview() {
                 contentPadding = PaddingValues(12.dp, 6.dp, 12.dp, 100.dp)
             ) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    PinnedLabels(labels = labels, {},{})
+                    PinnedLabels(labels = labels, {}, {})
                 }
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     Text(

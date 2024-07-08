@@ -64,14 +64,18 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             homeNavigation(navController, homeViewModal)
             navigation(Screen.FavoriteScreen.destination, NavItem.Favorites.navRoute) {
                 composable(Screen.FavoriteScreen.destination) {
-                    val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
-                    LabelsScaffold(
-                        labelData = labels,
-                        onClick = { _, _ -> },
-                        onAddNewLabel = {
+
+                }
+            }
+            composable(Screen.LabelsScreen.destination) {
+                val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
+                LabelsScaffold(
+                    labelData = labels,
+                    onClick = { _, _ -> },
+                    onBackClick = navController::popBackStack,
+                    onAddNewLabel = {
                         labelViewModel.addLabel(it)
                     })
-                }
             }
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {
                 composable(Screen.SettingsScreen.destination) {

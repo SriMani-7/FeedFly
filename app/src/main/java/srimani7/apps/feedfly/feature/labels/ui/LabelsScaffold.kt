@@ -7,10 +7,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,6 +37,7 @@ import srimani7.apps.feedfly.core.model.LabelData
 @Composable
 fun LabelsScaffold(
     labelData: List<LabelData>,
+    onBackClick: () -> Unit,
     onAddNewLabel: (String) -> Unit,
     onClick: (Long, String) -> Unit
 ) {
@@ -46,6 +51,10 @@ fun LabelsScaffold(
                 actions = {
                     TextButton(onClick = { showAddLabelDialog = true }) {
                         Text(text = "Add Label")
+                    }
+                }, navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Default.ArrowBack, null)
                     }
                 }
             )
@@ -118,7 +127,7 @@ private fun LabelScaffoldPreview() {
                 LabelData(1, "Favorites", 23, false),
             )
         }
-        LabelsScaffold(labelData = list, {}) { _, _ -> }
+        LabelsScaffold(labelData = list, {}, {}) { _, _ -> }
     }
 }
 
