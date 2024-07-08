@@ -35,7 +35,6 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.LabelRepository
-import srimani7.apps.feedfly.core.database.entity.Label
 import srimani7.apps.feedfly.feature.labels.ui.LabelOverviewScaffold
 import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
@@ -82,14 +81,19 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
 
             composable("labels/{id}", arguments = listOf(
                 navArgument("id") { type = NavType.LongType }
-            )) {
-                LabelOverviewScaffold(
-                    label = Label("Dummy", true, 1),
-                    articles = emptyList(),
-                    onBack = navController::popBackStack,
-                    onNavigate = navController::navigate,
-                    onDeleteArticle = {}
-                )
+            )) { entry ->
+                val lvm = viewModel<srimani7.apps.feedfly.viewmodel.LabelViewModel>()
+                val label by lvm.labelFlow.collectAsStateWithLifecycle(initialValue = null)
+
+                label?.let {
+                    LabelOverviewScaffold(
+                        label = it,
+                        articles = emptyList(),
+                        onBack = navController::popBackStack,
+                        onNavigate = navController::navigate,
+                        onDeleteArticle = {}
+                    )
+                }
             }
 
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {

@@ -183,4 +183,6 @@ class LabelRepository(application: Application) {
     suspend fun addLabel(it: String) {
         articleDao.addLabel(Label(it, false))
     }
+
+    fun getLabel(id: Long) = articleDao.getLabel(id)
 }

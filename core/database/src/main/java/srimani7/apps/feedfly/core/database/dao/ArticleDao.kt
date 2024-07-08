@@ -45,4 +45,7 @@ ORDER BY l.id
 
     @Insert
     suspend fun addLabel(label: Label)
+
+    @Query("select * from labels where id = :id")
+    fun getLabel(id: Long): Flow<Label?>
 }
