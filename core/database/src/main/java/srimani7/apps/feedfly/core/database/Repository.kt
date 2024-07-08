@@ -23,7 +23,10 @@ class Repository(application: Application) {
 
     fun getFeed(feedId: Long) = feedDao.getFeed(feedId)
     fun getGroups() = feedDao.getGroups()
+    fun getFeedGroups() = feedDao.getFeedGroups()
     fun getAllFeeds() = feedDao.getAllFeeds()
+    fun getFeeds(groupName: String) = feedDao.getFeeds(groupName)
+    fun getPinnedLabels() = feedDao.getPinnedLabels()
 
     suspend fun updateFeedUrl(copy: Feed) {
         feedDao.updateFeedUrl(copy)
@@ -180,4 +183,7 @@ class LabelRepository(application: Application) {
     suspend fun addLabel(it: String) {
         articleDao.addLabel(Label(it, false))
     }
+
+    fun getLabel(id: Long) = articleDao.getLabel(id)
+    fun getArticles(labelId: Long) = articleDao.getArticles(labelId)
 }

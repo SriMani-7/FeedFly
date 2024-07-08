@@ -12,8 +12,10 @@ import kotlinx.coroutines.flow.Flow
 import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
+import srimani7.apps.feedfly.core.model.FeedGroupModel
 import srimani7.apps.feedfly.core.model.LabelData
 import srimani7.apps.feedfly.core.model.LabelledArticle
+import srimani7.apps.feedfly.core.model.SimpleFeed
 import java.util.Date
 
 @Dao
@@ -30,6 +32,17 @@ interface FeedDao {
     @Transaction
     @Query("select * from feeds order by last_build_date desc")
     fun getAllFeeds(): Flow<List<FeedDto>>
+
+    @Query(
+        """
+        SELECT f.group_name AS name, COUNT(*) AS count
+        FROM 
+            feeds as f
+        GROUP BY 
+            f.group_name
+    """
+    )
+    fun getFeedGroups(): Flow<List<FeedGroupModel>>
 
     @Query("select distinct group_name from feeds")
     fun getGroups(): Flow<List<String>>
@@ -85,32 +98,39 @@ interface FeedDao {
         deleteArticles(feedId, threshold)
     }
 
-    @Query("""
+    @Query(
+        """
         DELETE from articles
         where pub_date <= :threshold 
         and feed_id = :feedId 
         and article_id not in (select article_id from article_labels)
         and is_private = 0
-    """)
+    """
+    )
     fun deleteArticles(feedId: Long, threshold: Long)
 
-    @Query("""insert into articles_trash (title, link, feed_id, last_delete) 
+    @Query(
+        """insert into articles_trash (title, link, feed_id, last_delete) 
         select a.title, a.link, a.feed_id, :date 
        from articles as a
         left join article_labels as al on a.article_id = al.article_id
-        where (a.pub_date <= :threshold and a.feed_id = :feedId and is_private = 0) and al.article_id is null""")
+        where (a.pub_date <= :threshold and a.feed_id = :feedId and is_private = 0) and al.article_id is null"""
+    )
     fun moveToTrash(feedId: Long, threshold: Long, date: Long)
 
-    @Query("""
+    @Query(
+        """
         select l.label_name as name, l.id as id, l.pinned as pinned, count(*) as count from labels as l 
             inner join article_labels as al on al.label_id = l.id
             inner join articles as a on a.article_id == al.article_id
             where a.feed_id = :feedId
             group by l.id
-    """)
+    """
+    )
     fun getArticleLabels(feedId: Long): Flow<List<LabelData>>
 
-    @Query("""
+    @Query(
+        """
         select a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
        am.mime_type as mediaType, am.url as mediaSrc,
        al.label_id as labelId from articles as a 
@@ -118,9 +138,20 @@ interface FeedDao {
             left join article_labels as al on a.article_id = al.article_id 
             where (a.is_private = 0 and a.feed_id = :id) and ((:unlabelled = 1 and al.label_id is null) or al.label_id = :labelId)
             order by a.pub_date desc
-    """)
+    """
+    )
     fun getFeedArticles(id: Long, labelId: Long, unlabelled: Boolean): Flow<List<LabelledArticle>>
 
+    @Query(
+        """select f.id, f.feed_url as feedUrl, f.link, f.feed_title as title, f.last_build_date as lastBuildDate, fi.image_url as imageUrl from feeds f 
+        left join feed_images fi on fi.feed_id = f.id
+        where f.group_name = :groupName
+    """
+    )
+    fun getFeeds(groupName: String): Flow<List<SimpleFeed>>
+
+    @Query("select l.label_name as name, l.pinned as pinned, l.id as id, count(*) as count from labels l left join article_labels al on l.id = al.label_id where l.pinned = 1 group by l.id order by count desc")
+    fun getPinnedLabels(): Flow<List<LabelData>>
 }
 
 fun dbErrorLog(message: String, throwable: Throwable? = null) {
