@@ -1,8 +1,5 @@
 package srimani7.apps.feedfly.navigation
 
-import androidx.annotation.DrawableRes
-import srimani7.apps.feedfly.R
-
 sealed class Screen(val destination: String) {
     object HomeScreen : Screen("home_screen_destination")
     object ArticlesScreen : Screen("articles_screen_destination")
@@ -12,12 +9,4 @@ sealed class Screen(val destination: String) {
     object ChangeLabelDialog: Screen("change_article_label_dialog")
     data object PrivateSpaceScreen: Screen("private_space")
     data object GroupOverviewScreen: Screen("home_screen_group")
-}
-
-sealed class NavItem(
-    val label: String,
-    @DrawableRes val iconRes: Int,
-    val navRoute: String
-) {
-    object Home : NavItem("Home", R.drawable.home_fill_24px, "home_route")
 }

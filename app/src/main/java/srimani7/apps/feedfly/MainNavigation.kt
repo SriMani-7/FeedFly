@@ -24,22 +24,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.navigation
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.LabelRepository
 import srimani7.apps.feedfly.navigation.ArticlesScreen
 import srimani7.apps.feedfly.navigation.ChangeArticleLabelDialog
 import srimani7.apps.feedfly.navigation.GroupOverviewScreen
 import srimani7.apps.feedfly.navigation.HomeScreen
-import srimani7.apps.feedfly.navigation.NavItem
 import srimani7.apps.feedfly.navigation.NewFeedScreen
 import srimani7.apps.feedfly.navigation.PrivateSpaceScreen
 import srimani7.apps.feedfly.navigation.RemoveArticlesScreen
@@ -59,8 +55,21 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        NavHost(navController, NavItem.Home.navRoute, modifier = Modifier) {
-            homeNavigation(navController, homeViewModal)
+        NavHost(navController, Screen.HomeScreen.destination, modifier = Modifier) {
+            composable(Screen.HomeScreen.destination) {
+                HomeScreen(homeViewModal, navController::navigate)
+            }
+            composable(
+                Screen.ArticlesScreen.destination + "/{id}",
+                arguments = listOf(
+                    navArgument("id") { type = NavType.LongType }
+                )) { entry ->
+                val long = entry.arguments?.getLong("id")
+                if (long != null && long > 0) ArticlesScreen(long, navController)
+            }
+            composable(Screen.GroupOverviewScreen.destination+"/{group}") {
+                GroupOverviewScreen(navController)
+            }
             composable(Screen.SettingsScreen.destination) {
                 SettingsScreen(settings.theme, homeViewModal::updateSettings)
             }
@@ -139,25 +148,6 @@ object MainNavigation {
     fun groupOverviewScreen(name: String) = Screen.GroupOverviewScreen.destination+"/${name}"
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
     fun privateSpaceRoute() =  Screen.PrivateSpaceScreen.destination
-}
-
-fun NavGraphBuilder.homeNavigation(navController: NavHostController, homeViewModal: HomeViewModal) {
-    navigation(Screen.HomeScreen.destination, NavItem.Home.navRoute) {
-        composable(Screen.HomeScreen.destination) {
-            HomeScreen(homeViewModal, navController::navigate)
-        }
-        composable(
-            Screen.ArticlesScreen.destination + "/{id}",
-            arguments = listOf(
-                navArgument("id") { type = NavType.LongType }
-            )) { entry ->
-            val long = entry.arguments?.getLong("id")
-            if (long != null && long > 0) ArticlesScreen(long, navController)
-        }
-        composable(Screen.GroupOverviewScreen.destination+"/{group}") {
-            GroupOverviewScreen(navController)
-        }
-    }
 }
 
 class LabelViewModel(application: Application) : AndroidViewModel(application) {
