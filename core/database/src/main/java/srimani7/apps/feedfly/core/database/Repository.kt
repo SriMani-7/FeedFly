@@ -185,4 +185,5 @@ class LabelRepository(application: Application) {
     }
 
     fun getLabel(id: Long) = articleDao.getLabel(id)
+    fun getArticles(labelId: Long) = articleDao.getArticles(labelId)
 }
