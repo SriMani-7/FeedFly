@@ -8,7 +8,6 @@ import kotlinx.coroutines.withContext
 import srimani7.apps.feedfly.core.database.dao.dbErrorLog
 import srimani7.apps.feedfly.core.database.dao.dbInfoLog
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
-import srimani7.apps.feedfly.core.database.entity.ArticleLabelPriority
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.database.entity.Label
@@ -22,10 +21,12 @@ class Repository(application: Application) {
     private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
     private val articleDao by lazy { AppDatabase.getInstance(application).articleDao() }
 
-    fun getArticles(feedId: Long) = feedDao.getArticles(feedId)
     fun getFeed(feedId: Long) = feedDao.getFeed(feedId)
     fun getGroups() = feedDao.getGroups()
+    fun getFeedGroups() = feedDao.getFeedGroups()
     fun getAllFeeds() = feedDao.getAllFeeds()
+    fun getFeeds(groupName: String) = feedDao.getFeeds(groupName)
+    fun getPinnedLabels() = feedDao.getPinnedLabels()
 
     suspend fun updateFeedUrl(copy: Feed) {
         feedDao.updateFeedUrl(copy)
@@ -166,7 +167,8 @@ class Repository(application: Application) {
         articleDao.moveArticleToPrivate(l)
     }
 
-    fun getLabelledArticles(feedId: Long) = feedDao.getLabelledArticles(feedId)
+    fun getArticleLabels(feedId: Long) = feedDao.getArticleLabels(feedId)
+    fun getFeedArticles(feedId: Long, id: Long?) = feedDao.getFeedArticles(feedId, id ?: -1, id == null)
 }
 
 class LabelRepository(application: Application) {
@@ -179,6 +181,9 @@ class LabelRepository(application: Application) {
     suspend fun removeArticleLabel(articleId: Long) = articleDao.removeArticleLabel(articleId)
 
     suspend fun addLabel(it: String) {
-        articleDao.addLabel(Label(it, ArticleLabelPriority.NORMAL.toShort()))
+        articleDao.addLabel(Label(it, false))
     }
+
+    fun getLabel(id: Long) = articleDao.getLabel(id)
+    fun getArticles(labelId: Long) = articleDao.getArticles(labelId)
 }

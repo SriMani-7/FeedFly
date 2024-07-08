@@ -11,6 +11,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import srimani7.apps.feedfly.core.database.dao.ArticleDao
 import srimani7.apps.feedfly.core.database.dao.FeedDao
+import srimani7.apps.feedfly.core.database.dao.PrivateSpaceDao
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.ArticleLabel
 import srimani7.apps.feedfly.core.database.entity.ArticleMedia
@@ -18,6 +19,7 @@ import srimani7.apps.feedfly.core.database.entity.ArticleTrash
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.database.entity.Label
+import srimani7.apps.feedfly.core.database.migrations.Migration9to10
 
 @Database(
     entities = [Feed::class,
@@ -28,7 +30,7 @@ import srimani7.apps.feedfly.core.database.entity.Label
         Label::class,
         ArticleLabel::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -38,12 +40,14 @@ import srimani7.apps.feedfly.core.database.entity.Label
         AutoMigration(5, 6), // articles trash entity
         AutoMigration(6, 7), // Label & ArticleLabel entities
         // Manual migration from 7 to 8
+        AutoMigration(9, 10, Migration9to10::class), // isPrivate in article and removed priority in label
     ]
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun feedDao(): FeedDao
     abstract fun articleDao(): ArticleDao
+    abstract fun privateSpaceDao(): PrivateSpaceDao
 
     companion object {
         @Volatile

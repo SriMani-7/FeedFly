@@ -35,17 +35,19 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.database.LabelRepository
+import srimani7.apps.feedfly.feature.labels.ui.LabelOverviewScaffold
 import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
-import srimani7.apps.feedfly.navigation.BottomNavigationBar
 import srimani7.apps.feedfly.navigation.ChangeArticleLabelDialog
+import srimani7.apps.feedfly.navigation.GroupOverviewScreen
 import srimani7.apps.feedfly.navigation.HomeScreen
-import srimani7.apps.feedfly.navigation.NavItem
 import srimani7.apps.feedfly.navigation.NewFeedScreen
+import srimani7.apps.feedfly.navigation.PrivateSpaceScreen
 import srimani7.apps.feedfly.navigation.RemoveArticlesScreen
 import srimani7.apps.feedfly.navigation.Screen
 import srimani7.apps.feedfly.navigation.SettingsScreen
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
+import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
 @Composable
 fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
@@ -59,29 +61,52 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        NavHost(navController, NavItem.Home.navRoute, modifier = Modifier) {
-            homeNavigation(navController, homeViewModal)
-            navigation(Screen.FavoriteScreen.destination, NavItem.Favorites.navRoute) {
-                composable(Screen.FavoriteScreen.destination) {
-                    val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
-                    LabelsScaffold(
-                        labelData = labels,
-                        onClick = { _, _ -> },
-                        onAddNewLabel = {
+        NavHost(navController, Screen.HomeScreen.destination, modifier = Modifier) {
+            composable(Screen.HomeScreen.destination) {
+                HomeScreen(homeViewModal, navController::navigate)
+            }
+            composable(
+                Screen.ArticlesScreen.destination + "/{id}",
+                arguments = listOf(
+                    navArgument("id") { type = NavType.LongType }
+                )) { entry ->
+                val long = entry.arguments?.getLong("id")
+                if (long != null && long > 0) ArticlesScreen(long, navController)
+            }
+            composable(Screen.LabelsScreen.destination) {
+                val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
+                LabelsScaffold(
+                    labelData = labels,
+                    onClick = { id, _ -> navController.navigate(MainNavigation.labelRoute(id)) },
+                    onBackClick = navController::popBackStack,
+                    onAddNewLabel = {
                         labelViewModel.addLabel(it)
                     })
-                }
             }
-            navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {
-                composable(Screen.SettingsScreen.destination) {
-                    SettingsScreen(settings.theme, homeViewModal::updateSettings)
-                }
+            composable("labels/{id}", arguments = listOf(
+                navArgument("id") { type = NavType.LongType }
+            )) { entry ->
+                LabelOverviewScaffold(
+                    onBack = navController::popBackStack,
+                    onNavigate = navController::navigate,
+                    onDeleteArticle = homeViewModal::removeArticle
+                )
+            }
+            composable(Screen.GroupOverviewScreen.destination+"/{group}") {
+                GroupOverviewScreen(navController)
+            }
+            composable(Screen.SettingsScreen.destination) {
+                val viewmodel = viewModel<SettingsViewModel>()
+                SettingsScreen(viewmodel)
             }
 
             composable(Screen.InsertFeedScreen.destination) {
                 NewFeedScreen(homeViewModal, addLink) { navController.popBackStack() }
             }
 
+            composable(Screen.PrivateSpaceScreen.destination) {
+                PrivateSpaceScreen(navController = navController)
+            }
             dialog(
                 route = Screen.RemoveArticlesScreen.destination + "/{feedId}",
                 arguments = listOf(
@@ -129,7 +154,6 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                         .background(MaterialTheme.colorScheme.surface)
                 )
             }
-            BottomNavigationBar(navController)
         }
     }
     LaunchedEffect(addLink) {
@@ -147,23 +171,10 @@ fun BackButton(navController: NavController) {
 
 object MainNavigation {
     fun newFeedRoute() = Screen.InsertFeedScreen.destination
+    fun groupOverviewScreen(name: String) = Screen.GroupOverviewScreen.destination+"/${name}"
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
-}
-
-fun NavGraphBuilder.homeNavigation(navController: NavHostController, homeViewModal: HomeViewModal) {
-    navigation(Screen.HomeScreen.destination, NavItem.Home.navRoute) {
-        composable(Screen.HomeScreen.destination) {
-            HomeScreen(homeViewModal, navController::navigate)
-        }
-        composable(
-            Screen.ArticlesScreen.destination + "/{id}",
-            arguments = listOf(
-                navArgument("id") { type = NavType.LongType }
-            )) { entry ->
-            val long = entry.arguments?.getLong("id")
-            if (long != null && long > 0) ArticlesScreen(long, navController)
-        }
-    }
+    fun privateSpaceRoute() =  Screen.PrivateSpaceScreen.destination
+    fun labelRoute(id: Long) = "labels/$id"
 }
 
 class LabelViewModel(application: Application) : AndroidViewModel(application) {
