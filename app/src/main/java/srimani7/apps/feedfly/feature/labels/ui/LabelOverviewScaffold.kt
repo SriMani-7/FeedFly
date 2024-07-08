@@ -12,24 +12,28 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import srimani7.apps.feedfly.core.database.entity.Label
-import srimani7.apps.feedfly.core.model.LabelledArticle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import srimani7.apps.feedfly.navigation.Screen
 import srimani7.apps.feedfly.ui.articles.RssItemsColumn
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabelOverviewScaffold(
-    label: Label,
-    articles: List<LabelledArticle>,
     onBack: () -> Unit,
     onNavigate: (String) -> Unit,
     onDeleteArticle: (Long) -> Unit
 ) {
+    val lvm = viewModel<srimani7.apps.feedfly.viewmodel.LabelViewModel>()
+    val label by lvm.labelFlow.collectAsStateWithLifecycle(initialValue = null)
+    val articles by lvm.articlesFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+
     Scaffold(
+        modifier = Modifier,
         topBar = {
-            TopAppBar(title = { Text(label.labelName) }, navigationIcon = {
+            TopAppBar(title = { Text(label?.labelName ?: "Unknown") }, navigationIcon = {
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Default.ArrowBack, null)
                 }

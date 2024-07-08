@@ -86,5 +86,11 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    fun removeArticle(it: Long) {
+        viewModelScope.launch {
+            repository.deleteArticle(it)
+        }
+    }
 }
 

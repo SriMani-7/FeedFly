@@ -82,18 +82,11 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             composable("labels/{id}", arguments = listOf(
                 navArgument("id") { type = NavType.LongType }
             )) { entry ->
-                val lvm = viewModel<srimani7.apps.feedfly.viewmodel.LabelViewModel>()
-                val label by lvm.labelFlow.collectAsStateWithLifecycle(initialValue = null)
-
-                label?.let {
-                    LabelOverviewScaffold(
-                        label = it,
-                        articles = emptyList(),
-                        onBack = navController::popBackStack,
-                        onNavigate = navController::navigate,
-                        onDeleteArticle = {}
-                    )
-                }
+                LabelOverviewScaffold(
+                    onBack = navController::popBackStack,
+                    onNavigate = navController::navigate,
+                    onDeleteArticle = homeViewModal::removeArticle
+                )
             }
 
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {

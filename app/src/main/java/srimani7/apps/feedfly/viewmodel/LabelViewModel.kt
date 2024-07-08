@@ -10,4 +10,5 @@ class LabelViewModel(application: Application, savedStateHandle: SavedStateHandl
     private val labelId: Long = savedStateHandle["id"] ?: -1
 
     val labelFlow = labelRepository.getLabel(labelId)
+    val articlesFlow = labelRepository.getArticles(labelId)
 }
