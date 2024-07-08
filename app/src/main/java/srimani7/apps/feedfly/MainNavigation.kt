@@ -61,10 +61,8 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
     ) {
         NavHost(navController, NavItem.Home.navRoute, modifier = Modifier) {
             homeNavigation(navController, homeViewModal)
-            navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {
-                composable(Screen.SettingsScreen.destination) {
-                    SettingsScreen(settings.theme, homeViewModal::updateSettings)
-                }
+            composable(Screen.SettingsScreen.destination) {
+                SettingsScreen(settings.theme, homeViewModal::updateSettings)
             }
 
             composable(Screen.InsertFeedScreen.destination) {

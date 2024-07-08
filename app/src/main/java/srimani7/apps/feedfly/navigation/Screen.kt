@@ -20,5 +20,4 @@ sealed class NavItem(
     val navRoute: String
 ) {
     object Home : NavItem("Home", R.drawable.home_fill_24px, "home_route")
-    object Settings : NavItem("Settings", R.drawable.settings_fill_24px, "settings_route")
 }
