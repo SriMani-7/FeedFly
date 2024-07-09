@@ -70,8 +70,8 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                         labelData = labels,
                         onClick = { _, _ -> },
                         onAddNewLabel = {
-                        labelViewModel.addLabel(it)
-                    })
+                            labelViewModel.addLabel(it)
+                        })
                 }
             }
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {
@@ -154,7 +154,7 @@ fun BackButton(navController: NavController) {
 object MainNavigation {
     fun newFeedRoute() = Screen.InsertFeedScreen.destination
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
-    fun privateSpaceRoute() =  Screen.PrivateSpaceScreen.destination
+    fun privateSpaceRoute() = Screen.PrivateSpaceScreen.destination
 }
 
 fun NavGraphBuilder.homeNavigation(navController: NavHostController, homeViewModal: HomeViewModal) {
@@ -167,8 +167,7 @@ fun NavGraphBuilder.homeNavigation(navController: NavHostController, homeViewMod
             arguments = listOf(
                 navArgument("id") { type = NavType.LongType }
             )) { entry ->
-            val long = entry.arguments?.getLong("id")
-            if (long != null && long > 0) ArticlesScreen(long, navController)
+            ArticlesScreen(navController)
         }
     }
 }

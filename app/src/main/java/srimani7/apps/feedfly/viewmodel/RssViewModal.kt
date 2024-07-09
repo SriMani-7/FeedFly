@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,10 +26,11 @@ import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.debugLog
 import java.util.Date
 
-class RssViewModal(private val feedId: Long, application: Application) :
+class RssViewModal(application: Application, savedStateHandle: SavedStateHandle) :
     AndroidViewModel(application) {
 
     private val databaseRepo = Repository(application)
+    private val feedId: Long = savedStateHandle["id"] ?: -1
 
     val feedStateFlow =
         databaseRepo.getFeed(feedId).stateIn(viewModelScope, SharingStarted.Lazily, null)
