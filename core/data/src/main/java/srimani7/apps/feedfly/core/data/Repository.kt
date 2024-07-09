@@ -1,16 +1,16 @@
-package srimani7.apps.feedfly.core.database
+package srimani7.apps.feedfly.core.data
 
 import android.app.Application
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import srimani7.apps.feedfly.core.database.AppDatabase
 import srimani7.apps.feedfly.core.database.dao.dbErrorLog
 import srimani7.apps.feedfly.core.database.dao.dbInfoLog
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
-import srimani7.apps.feedfly.core.database.entity.Label
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.Channel
 import srimani7.apps.rssparser.elements.ChannelImage
@@ -166,18 +166,4 @@ class Repository(application: Application) {
 
     fun getArticleLabels(feedId: Long) = feedDao.getArticleLabels(feedId)
     fun getFeedArticles(feedId: Long, id: Long?) = feedDao.getFeedArticles(feedId, id ?: -1, id == null)
-}
-
-class LabelRepository(application: Application) {
-    private val articleDao by lazy { AppDatabase.getInstance(application).articleDao() }
-
-    fun getAllLabels() = articleDao.getLabels()
-
-    suspend fun updateArticleLabel(articleId: Long, labelId: Long) = articleDao.updateLabel(articleId, labelId)
-
-    suspend fun removeArticleLabel(articleId: Long) = articleDao.removeArticleLabel(articleId)
-
-    suspend fun addLabel(it: String) {
-        articleDao.addLabel(Label(it, false))
-    }
 }

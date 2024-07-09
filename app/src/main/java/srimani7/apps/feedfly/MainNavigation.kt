@@ -34,7 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.database.LabelRepository
+import srimani7.apps.feedfly.core.data.LabelRepository
 import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
 import srimani7.apps.feedfly.navigation.BottomNavigationBar

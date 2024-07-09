@@ -8,7 +8,7 @@ android {
     compileSdk 34
 
     defaultConfig {
-        minSdk 24
+        minSdk 23
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -32,9 +32,13 @@ android {
 dependencies {
 
     implementation libs.androidx.core.ktx
-    implementation libs.androidx.appcompat
+    implementation project(':core:model')
+    implementation project(':rss-parser')
+    implementation project(':core:database')
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
+
+    implementation libs.androidx.room.ktx
 }
