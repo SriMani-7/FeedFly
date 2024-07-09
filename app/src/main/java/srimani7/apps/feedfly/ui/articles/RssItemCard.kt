@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.database.entity.ArticleMedia
 import srimani7.apps.feedfly.ui.fromHtml
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
@@ -87,14 +86,14 @@ fun RssItemCard(
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp),
             ) {
-                if (descriptionUri != null && ArticleMedia.isImage(item.enclosure?.type)) {
+                if (descriptionUri != null && item.enclosure?.type?.contains("image") == true) {
                     Spacer(modifier = Modifier.height(8.dp))
                     ArticleImage(descriptionUri!!)
                     Spacer(modifier = Modifier.height(8.dp))
-                }
-                else item.enclosure?.let {
+                } else item.enclosure?.let {
                     Spacer(modifier = Modifier.height(8.dp))
-                    ArticleMediaHeader(ArticleMedia(it, 1), onPlayAudio)
+                    if (it.type != null && it.url != null)
+                        ArticleMediaHeader(mediaType = it.type!!, mediaSrc = it.url!!, onPlayAudio)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 ArticleDescription(description = description)
