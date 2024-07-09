@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.database.Repository
+import srimani7.apps.feedfly.core.data.Repository
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.feedfly.data.UserSettingsRepo
