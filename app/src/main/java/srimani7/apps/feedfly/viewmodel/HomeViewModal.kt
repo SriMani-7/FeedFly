@@ -21,9 +21,6 @@ import java.time.temporal.ChronoUnit
 class HomeViewModal(application: Application) : AndroidViewModel(application) {
     private val repository = Repository(application)
     private val userSettingsRepo by lazy { UserSettingsRepo(application) }
-    val allFeedsFlow by lazy {
-        repository.getAllFeeds().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    }
     val groupNameFlow by lazy {
         repository.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }

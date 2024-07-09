@@ -9,7 +9,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
-import srimani7.apps.feedfly.core.database.dto.FeedDto
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.model.FeedGroupModel
@@ -28,10 +27,6 @@ interface FeedDao {
 
     @Query("select * from feeds where id = :id")
     fun getFeed(id: Long): Flow<Feed>
-
-    @Transaction
-    @Query("select * from feeds order by last_build_date desc")
-    fun getAllFeeds(): Flow<List<FeedDto>>
 
     @Query(
         """
