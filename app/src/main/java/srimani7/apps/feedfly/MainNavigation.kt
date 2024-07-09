@@ -67,8 +67,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                 arguments = listOf(
                     navArgument("id") { type = NavType.LongType }
                 )) { entry ->
-                val long = entry.arguments?.getLong("id")
-                if (long != null && long > 0) ArticlesScreen(long, navController)
+                ArticlesScreen(navController)
             }
             composable(Screen.LabelsScreen.destination) {
                 val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -89,7 +88,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                     onDeleteArticle = homeViewModal::removeArticle
                 )
             }
-            composable(Screen.GroupOverviewScreen.destination+"/{group}") {
+            composable(Screen.GroupOverviewScreen.destination + "/{group}") {
                 GroupOverviewScreen(navController)
             }
             composable(Screen.SettingsScreen.destination) {
@@ -168,9 +167,9 @@ fun BackButton(navController: NavController) {
 
 object MainNavigation {
     fun newFeedRoute() = Screen.InsertFeedScreen.destination
-    fun groupOverviewScreen(name: String) = Screen.GroupOverviewScreen.destination+"/${name}"
+    fun groupOverviewScreen(name: String) = Screen.GroupOverviewScreen.destination + "/${name}"
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
-    fun privateSpaceRoute() =  Screen.PrivateSpaceScreen.destination
+    fun privateSpaceRoute() = Screen.PrivateSpaceScreen.destination
     fun labelRoute(id: Long) = "labels/$id"
 }
 

@@ -2,7 +2,6 @@
 
 package srimani7.apps.feedfly.navigation
 
-import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,11 +52,8 @@ import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
 
 @Composable
-fun ArticlesScreen(feedId: Long, navController: NavHostController) {
-    val context = LocalContext.current
-    val viewModal = viewModel(initializer = {
-        RssViewModal(feedId, (context as Activity).application)
-    })
+fun ArticlesScreen(navController: NavHostController) {
+    val viewModal = viewModel<RssViewModal>()
     val articlePreference by viewModal.articlePreferencesFlow.collectAsStateWithLifecycle(
         initialValue = UserSettingsRepo.ArticlePreference()
     )
@@ -112,7 +107,7 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                                 "Delete" -> viewModal.delete(feed)
                                 "Refresh" -> viewModal.refresh(feed)
                                 "Change Group" -> openGroupsPicker.value = true
-                                "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feedId)
+                                "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feed?.id)
                             }
                         }
                     }, scrollBehavior = scrollBehavior
