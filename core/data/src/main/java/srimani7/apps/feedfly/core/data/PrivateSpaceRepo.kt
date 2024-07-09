@@ -1,6 +1,7 @@
-package srimani7.apps.feedfly.core.database
+package srimani7.apps.feedfly.core.data
 
 import android.app.Application
+import srimani7.apps.feedfly.core.database.AppDatabase
 
 class PrivateSpaceRepo(application: Application) {
     private val dao by lazy { AppDatabase.getInstance(application).privateSpaceDao() }
