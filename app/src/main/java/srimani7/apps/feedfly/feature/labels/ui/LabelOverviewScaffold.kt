@@ -16,7 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.navigation.Screen
 import srimani7.apps.feedfly.ui.articles.RssItemsColumn
 
@@ -31,7 +31,7 @@ fun LabelOverviewScaffold(
     val label by lvm.labelFlow.collectAsStateWithLifecycle(initialValue = null)
     val articles by lvm.articlesFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val articlePreference by lvm.articlePreferencesFlow.collectAsStateWithLifecycle(
-        initialValue = UserSettingsRepo.ArticlePreference(
+        initialValue = ArticlePreference(
             swipeToDelete = false,
             longClickToPrivate = false
         )
