@@ -40,7 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import srimani7.apps.feedfly.MainNavigation
+import srimani7.apps.feedfly.NavigationRouter
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.model.SimpleFeed
 import srimani7.apps.feedfly.viewmodel.FeedGroupViewModel
@@ -73,7 +73,7 @@ fun GroupOverviewScreen(navController: NavController) {
         ) {
             items(feeds, key = { it.id }) { feed ->
                 FeedCard(feed, onClick = {
-                    navController.navigate(MainNavigation.articlesScreenRoute(feed.id))
+                    navController.navigate(NavigationRouter.articlesScreenRoute(feed.id))
                 })
             }
         }

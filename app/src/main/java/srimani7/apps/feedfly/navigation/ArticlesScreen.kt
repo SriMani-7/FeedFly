@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -45,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import srimani7.apps.feedfly.BackButton
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.ui.GroupsPicker
@@ -77,7 +77,11 @@ fun ArticlesScreen(navController: NavHostController) {
         topBar = {
             Column {
                 TopAppBar(
-                    navigationIcon = { BackButton(navController) },
+                    navigationIcon = {
+                        IconButton(onClick = navController::popBackStack) {
+                            Icon(Icons.AutoMirrored.Default.ArrowBack, null)
+                        }
+                    },
                     title = {
                         Column {
                             feed.also { feed ->
