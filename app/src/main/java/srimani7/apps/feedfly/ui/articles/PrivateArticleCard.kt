@@ -149,8 +149,8 @@ private fun PrivateArticleCardPreview() {
                 items(3) {
                     PrivateArticleCard(article = PrivateArticle(
                         articleId = 2,
-                        title = "Can Bahubali The Conclusion beat the first part collections in pakistan",
-                        description = "Baahubali, the conclusion most Most anticipated movie in the universe releases today Let's see if it breaks the records of Bahubali, the beginning movie in the Pakistan",
+                        title = "Can Movie The Conclusion beat the first part collections in pakistan",
+                        description = "Movie, the conclusion most Most anticipated movie in the universe releases today Let's see if it breaks the records of Movie, the beginning movie in the Pakistan",
                         articleLink = "",
                         publishedTime = Date(),
                         mediaType = "image",

@@ -6,7 +6,6 @@
 package srimani7.apps.feedfly.navigation
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -29,7 +28,6 @@ import srimani7.apps.feedfly.ui.settings.AppThemeChooser
 import srimani7.apps.feedfly.ui.settings.SwitchPreference
 import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,

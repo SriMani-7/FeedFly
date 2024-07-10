@@ -156,6 +156,6 @@ fun dbErrorLog(message: String, throwable: Throwable? = null) {
     Log.e("room_ops", message, throwable)
 }
 
-fun dbInfoLog(vararg messge: Any) {
-    Log.i("room_ops", messge.joinToString(" "))
+fun dbInfoLog(vararg message: Any) {
+    Log.i("room_ops", message.joinToString(" "))
 }

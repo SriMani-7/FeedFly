@@ -28,7 +28,7 @@ class Repository(application: Application) {
     fun getFeeds(groupName: String) = feedDao.getFeeds(groupName)
     fun getPinnedLabels() = feedDao.getPinnedLabels()
 
-    suspend fun updateFeedUrl(copy: Feed) {
+    private suspend fun updateFeedUrl(copy: Feed) {
         feedDao.updateFeedUrl(copy)
     }
 
@@ -36,7 +36,7 @@ class Repository(application: Application) {
         feedDao.delete(feed)
     }
 
-    suspend fun insertArticleMedia(
+    private suspend fun insertArticleMedia(
         mediaSize: Long?,
         mediaType: String?,
         url: String?,
@@ -46,7 +46,7 @@ class Repository(application: Application) {
         feedDao.insertArticleMedia(mediaSize, mediaType, url, articleLink, articleTitle)
     }
 
-    suspend fun insertArticle(
+    private suspend fun insertArticle(
         title: String,
         link: String,
         category: String,
@@ -66,7 +66,7 @@ class Repository(application: Application) {
         author
     )
 
-    suspend fun insert(feedImage: FeedImage) {
+    private suspend fun insert(feedImage: FeedImage) {
         feedDao.insert(feedImage)
     }
 

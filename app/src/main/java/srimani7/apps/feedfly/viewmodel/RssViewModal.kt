@@ -150,6 +150,6 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
 sealed class ArticlesUIState(val message: String?) {
     data object Loading : ArticlesUIState(null)
     data object COMPLETED : ArticlesUIState(null)
-    data object LastBuild: ArticlesUIState("You are upto date")
+    data object LastBuild: ArticlesUIState("You are up to date")
     class Failure(message: String?) : ArticlesUIState(message)
 }

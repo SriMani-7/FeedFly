@@ -50,15 +50,15 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _deltingState = MutableStateFlow(false)
-    val deletingStateFlow = _deltingState.asStateFlow()
+    private val _deletingState = MutableStateFlow(false)
+    val deletingStateFlow = _deletingState.asStateFlow()
 
     fun deleteOldArticles(feedId: Long?, days: Int) {
         if (feedId == null || feedId <= 0 || days < 1) {
             Toast.makeText(getApplication(), "Invalid parameters $feedId and $days", Toast.LENGTH_SHORT).show()
             return
         }
-        _deltingState.value = true
+        _deletingState.value = true
         val now = Instant.now()
         val threshold = now.minus(days.toLong(), ChronoUnit.DAYS).toEpochMilli()
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,7 +67,7 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
-                _deltingState.value = false
+                _deletingState.value = false
             }
         }
     }

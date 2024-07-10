@@ -91,8 +91,8 @@ fun MainNavHost(addLink: String?) {
                 )
             ) {
                 val feedId = it.arguments?.getLong("feedId")
-                RemoveArticlesScreen(navController::popBackStack) {
-                    homeViewModal.deleteOldArticles(feedId, it)
+                RemoveArticlesScreen(navController::popBackStack) { days ->
+                    homeViewModal.deleteOldArticles(feedId, days)
                     navController.popBackStack()
                 }
             }

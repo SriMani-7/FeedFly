@@ -158,7 +158,7 @@ private fun HomeScreenPreview() {
     TheSecretDairyTheme {
         Scaffold(
             topBar = {
-                HomeAppbar(scrollBehavior = null, {})
+                HomeAppbar(scrollBehavior = null) {}
             }
         ) { paddingValues ->
             LazyVerticalGrid(

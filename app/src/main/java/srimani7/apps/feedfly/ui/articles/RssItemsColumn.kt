@@ -120,7 +120,7 @@ fun DismissibleRssItem(
                     SwipeToDismissBoxValue.Settled -> MaterialTheme.colorScheme.background
                     SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.tertiaryContainer
                     SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
-                }
+                }, label = "Dismiss background color"
             )
             val alignment = when (direction) {
                 SwipeToDismissBoxValue.StartToEnd,
@@ -136,7 +136,7 @@ fun DismissibleRssItem(
             }
             val scale by animateFloatAsState(
                 if (state.targetValue == SwipeToDismissBoxValue.Settled)
-                    0.75f else 1.5f
+                    0.75f else 1.5f, label = "Icon size"
             )
 
             Box(

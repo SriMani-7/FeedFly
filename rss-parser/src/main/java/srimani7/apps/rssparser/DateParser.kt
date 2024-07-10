@@ -10,11 +10,11 @@ import java.util.TimeZone
 
 /**
  * A helper class that parses Dates out of Strings with date time in RFC822 and W3CDateTime formats
- * plus the variants Atom (0.3) and RSS (0.9, 0.91, 0.92, 0.93, 0.94, 1.0 and 2.0) specificators
+ * plus the variants Atom (0.3) and RSS (0.9, 0.91, 0.92, 0.93, 0.94, 1.0 and 2.0) specification
  * added to those formats.
  *
  *
- * It uses the JDK java.text.SimpleDateFormat class attemtping the parse using a mask for each one
+ * It uses the JDK java.text.SimpleDateFormat class attempting the parse using a mask for each one
  * of the possible formats.
  *
  *
@@ -151,7 +151,6 @@ object DateParser {
                 return replaceLastOccurrence(
                     sDate,
                     timeZone,
-                    "UTC"
                 )
             }
         }
@@ -161,7 +160,7 @@ object DateParser {
     private fun replaceLastOccurrence(
         original: String,
         target: String,
-        replacement: String
+        replacement: String = "UTC"
     ): String {
         val lastIndexOfTarget = original.lastIndexOf(target)
         return if (lastIndexOfTarget == -1) {
