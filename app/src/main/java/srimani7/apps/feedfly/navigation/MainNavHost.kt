@@ -47,7 +47,7 @@ fun MainNavHost(addLink: String?) {
                 Screen.ArticlesScreen.destination + "/{id}",
                 arguments = listOf(
                     navArgument("id") { type = NavType.LongType }
-                )) { entry ->
+                )) {
                 ArticlesScreen(navController)
             }
             composable(Screen.LabelsScreen.destination) {
@@ -62,7 +62,7 @@ fun MainNavHost(addLink: String?) {
             }
             composable("labels/{id}", arguments = listOf(
                 navArgument("id") { type = NavType.LongType }
-            )) { entry ->
+            )) {
                 LabelOverviewScaffold(
                     onBack = navController::popBackStack,
                     onNavigate = navController::navigate,

@@ -197,31 +197,31 @@ object DateParser {
     private fun parseW3CDateTime(sDate: String, locale: Locale): Date? {
         // if sDate has time on it, it injects 'GTM' before de TZ displacement to allow the
         // SimpleDateFormat parser to parse it properly
-        var sDate = sDate
-        val tIndex = sDate.indexOf("T")
+        var sDate2 = sDate
+        val tIndex = sDate2.indexOf("T")
         if (tIndex > -1) {
-            if (sDate.endsWith("Z")) {
-                sDate = sDate.substring(0, sDate.length - 1) + "+00:00"
+            if (sDate2.endsWith("Z")) {
+                sDate2 = sDate2.substring(0, sDate2.length - 1) + "+00:00"
             }
-            var tzdIndex = sDate.indexOf("+", tIndex)
+            var tzdIndex = sDate2.indexOf("+", tIndex)
             if (tzdIndex == -1) {
-                tzdIndex = sDate.indexOf("-", tIndex)
+                tzdIndex = sDate2.indexOf("-", tIndex)
             }
             if (tzdIndex > -1) {
-                var pre = sDate.substring(0, tzdIndex)
+                var pre = sDate2.substring(0, tzdIndex)
                 val secFraction = pre.indexOf(",")
                 if (secFraction > -1) {
                     pre = pre.substring(0, secFraction)
                 }
-                val post = sDate.substring(tzdIndex)
-                sDate = pre + "GMT" + post
+                val post = sDate2.substring(tzdIndex)
+                sDate2 = pre + "GMT" + post
             }
         } else {
-            sDate += "T00:00GMT"
+            sDate2 += "T00:00GMT"
         }
         return parseUsingMask(
             W3CDATETIME_MASKS,
-            sDate,
+            sDate2,
             locale
         )
     }
