@@ -12,9 +12,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.LabelRepository
 import srimani7.apps.feedfly.core.data.Repository
-import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
-import srimani7.apps.feedfly.core.preferences.model.AppTheme
-import srimani7.apps.feedfly.core.preferences.model.ThemePreference
 import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.elements.Channel
 import java.time.Instant
@@ -22,19 +19,12 @@ import java.time.temporal.ChronoUnit
 
 class HomeViewModal(application: Application) : AndroidViewModel(application) {
     private val repository = Repository(application)
-    private val userSettingsRepo by lazy { UserSettingsRepo(application) }
     val groupNameFlow by lazy {
         repository.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
     val feedGroupsFlow = repository.getFeedGroups()
     val pinnedLabelsFlow = repository.getPinnedLabels()
-
-    val themePreferenceStateFlow = userSettingsRepo.themePreferenceFlow.stateIn(
-        viewModelScope,
-        SharingStarted.Lazily,
-        ThemePreference(AppTheme.DARK)
-    )
 
     private val rssParserRepository = RssParserRepository()
     val parsingState = rssParserRepository.parsingState
