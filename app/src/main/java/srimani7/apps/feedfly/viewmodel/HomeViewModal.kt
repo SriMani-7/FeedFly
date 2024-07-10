@@ -11,8 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.Repository
-import srimani7.apps.feedfly.core.preferences.AppTheme
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.model.AppTheme
+import srimani7.apps.feedfly.core.preferences.model.ThemePreference
 import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.elements.Channel
 import java.time.Instant
@@ -28,10 +29,10 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
     val feedGroupsFlow = repository.getFeedGroups()
     val pinnedLabelsFlow = repository.getPinnedLabels()
 
-    val settingsStateFlow = userSettingsRepo.settingsFlow.stateIn(
+    val themePreferenceStateFlow = userSettingsRepo.themePreferenceFlow.stateIn(
         viewModelScope,
         SharingStarted.Lazily,
-        UserSettingsRepo.Settings(AppTheme.DARK, "")
+        ThemePreference(AppTheme.DARK)
     )
 
     private val rssParserRepository = RssParserRepository()
@@ -52,10 +53,6 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
                 e.printStackTrace()
             }
         }
-    }
-
-    fun updateCurrentGroup(s: String) {
-        viewModelScope.launch(Dispatchers.IO) { userSettingsRepo.setCurrentGroup(s) }
     }
 
     private val _deltingState = MutableStateFlow(false)

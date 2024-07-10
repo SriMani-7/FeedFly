@@ -13,7 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
-import srimani7.apps.feedfly.core.preferences.AppTheme
+import srimani7.apps.feedfly.core.preferences.model.AppTheme
 import srimani7.apps.feedfly.navigation.URL_REGEX
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
@@ -28,18 +28,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val appTheme by viewModel.settingsStateFlow.collectAsState()
+            val themePreference by viewModel.themePreferenceStateFlow.collectAsState()
             val isDarkTheme = isSystemInDarkTheme()
-            val darkTheme by remember(appTheme) {
+            val darkTheme by remember(themePreference) {
                 mutableStateOf(
-                    when (appTheme.theme) {
+                    when (themePreference.theme) {
                         AppTheme.SYSTEM_DEFAULT -> isDarkTheme
                         AppTheme.LIGHT -> false
                         AppTheme.DARK -> true
                     }
                 )
             }
-            TheSecretDairyTheme(darkTheme, dynamicColor = appTheme.useDynamicTheme) {
+            TheSecretDairyTheme(darkTheme, dynamicColor = themePreference.useDynamicTheme) {
                 MainNavigation(viewModel, feedUrl)
             }
         }
