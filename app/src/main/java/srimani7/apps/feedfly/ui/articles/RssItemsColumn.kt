@@ -173,8 +173,7 @@ fun RssItemsColumn(
             items(channelList, key = { it.link ?: "null" }) {
                 RssItemCard(
                     it,
-                    modifier = Modifier.animateItemPlacement(),
-                    onPlayAudio = {}
+                    modifier = Modifier.animateItemPlacement()
                 )
             }
         }
