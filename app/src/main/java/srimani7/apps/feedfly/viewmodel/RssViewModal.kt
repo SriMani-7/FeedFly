@@ -107,7 +107,7 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
     fun delete() {
         _feed?.let {
             viewModelScope.launch {
-                databaseRepo.delete(it)
+                databaseRepo.delete(it.id)
             }
         }
     }

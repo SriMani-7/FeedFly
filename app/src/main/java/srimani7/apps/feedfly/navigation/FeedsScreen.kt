@@ -32,12 +32,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.core.database.dto.FeedDto
+import srimani7.apps.feedfly.core.model.SimpleFeed
 import srimani7.apps.rssparser.DateParser
 
 @Composable
 fun FeedGroupList(
-    groups: List<FeedDto>,
+    groups: List<SimpleFeed>,
     state: LazyListState = rememberLazyListState(),
     onClick: (Long) -> Unit
 ) {
@@ -54,7 +54,7 @@ fun FeedGroupList(
 }
 
 @Composable
-fun FeedCard(feedDto: FeedDto, onClick: () -> Unit) {
+fun FeedCard(feedDto: SimpleFeed, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = RectangleShape,
@@ -68,7 +68,7 @@ fun FeedCard(feedDto: FeedDto, onClick: () -> Unit) {
                 modifier = Modifier.padding(14.dp, 14.dp),
             ) {
                 AsyncImage(
-                    model = feedDto.feedImageDto?.imageUrl,
+                    model = feedDto.imageUrl,
                     contentDescription = "image",
                     contentScale = ContentScale.FillHeight,
                     filterQuality = FilterQuality.Medium,

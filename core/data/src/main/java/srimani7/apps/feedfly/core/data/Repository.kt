@@ -11,6 +11,7 @@ import srimani7.apps.feedfly.core.database.dao.dbInfoLog
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
+import srimani7.apps.feedfly.core.model.FeedModel
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.Channel
 import srimani7.apps.rssparser.elements.ChannelImage
@@ -29,7 +30,7 @@ class Repository(application: Application) {
         feedDao.updateFeedUrl(copy)
     }
 
-    suspend fun delete(feed: Feed) {
+    suspend fun delete(feed: Long) {
         feedDao.delete(feed)
     }
 
@@ -75,8 +76,8 @@ class Repository(application: Application) {
         feedDao.removeOldArticles(feedId, threshold)
     }
 
-    suspend fun updateAndInsertArticles(feed: Feed, channel: Channel) = withContext(Dispatchers.IO) {
-        updateFeedUrl(feed.copy(channel))
+    suspend fun updateAndInsertArticles(feed: FeedModel, channel: Channel) = withContext(Dispatchers.IO) {
+        updateFeedUrl(feed.asFeed(channel))
         channel.image?.let {
             launch {
                 insert(it.asFeedImage(feed.id))
@@ -134,14 +135,17 @@ class Repository(application: Application) {
         width = width ?: FeedImage.DEFAULT_WIDTH
     )
 
-    private fun Feed.copy(channel: Channel) = copy(
+    private fun FeedModel.asFeed(channel: Channel) = Feed(
         description = channel.description,
         link = channel.link ?: "",
         title = channel.title ?: "",
         lastBuildDate = channel.lastBuildDate ?: Date(),
         language = channel.language,
         managingEditor = channel.managingEditor,
-        copyright = channel.copyright
+        copyright = channel.copyright,
+        id = id,
+        group = groupName,
+        feedUrl = feedUrl
     )
 
     private fun Channel.asFeed(group: String) = Feed(

@@ -46,7 +46,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.MainNavigation
-import srimani7.apps.feedfly.core.database.dto.FeedDto
+import srimani7.apps.feedfly.core.model.SimpleFeed
 import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
@@ -138,7 +138,7 @@ fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> U
 @Composable
 fun FeedsHome(
     currentGroup: State<UserSettingsRepo.Settings>,
-    allFeeds: List<FeedDto>,
+    allFeeds: List<SimpleFeed>,
     openGroupPicker: () -> Unit,
     onClick: (Long) -> Unit
 ) {
@@ -146,7 +146,7 @@ fun FeedsHome(
     val settings by remember { currentGroup }
     var selectedIndex by remember { mutableIntStateOf(if (settings.currentGroup.isBlank()) 0 else 1) }
     val filteredFeeds by remember {
-        derivedStateOf { allFeeds.filter { it.group == settings.currentGroup } }
+        derivedStateOf { allFeeds.filter { it.groupName == settings.currentGroup } }
     }
 
     val allListState = rememberLazyListState()
