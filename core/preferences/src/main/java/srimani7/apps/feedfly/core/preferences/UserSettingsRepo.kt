@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.map
+import srimani7.apps.feedfly.core.preferences.model.AppTheme
+import srimani7.apps.feedfly.core.preferences.model.ThemePreference
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -19,10 +21,11 @@ class UserSettingsRepo(private val application: Application) {
     private val aSwipeDeleteKey = booleanPreferencesKey("article_swipe_delete_preference")
     private val aLongClickPrivateKey = booleanPreferencesKey("article_long_click_preference")
 
-    val settingsFlow = application.dataStore.data.map {
-        Settings(
+    val currentGroupFlow = application.dataStore.data.map { it[currentGroupKey] }
+
+    val themePreferenceFlow = application.dataStore.data.map {
+        ThemePreference(
             theme = AppTheme.valueOf(it[themePreferenceKey] ?: AppTheme.SYSTEM_DEFAULT.name),
-            currentGroup = it[currentGroupKey] ?: "",
             useDynamicTheme = it[useDynamicTheme] ?: false
         )
     }
@@ -60,12 +63,6 @@ class UserSettingsRepo(private val application: Application) {
             it[currentGroupKey] = group
         }
     }
-
-    data class Settings(
-        val theme: AppTheme,
-        val currentGroup: String,
-        val useDynamicTheme: Boolean = false
-    )
 
     data class ArticlePreference(
         val swipeToDelete: Boolean = false,

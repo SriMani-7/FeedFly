@@ -5,13 +5,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.preferences.AppTheme
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.model.AppTheme
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userSettingsRepo by lazy { UserSettingsRepo(application) }
-    val settingsFlow = userSettingsRepo.settingsFlow
+    val themePreferenceFlow = userSettingsRepo.themePreferenceFlow
     val articlePreferencesFlow = userSettingsRepo.articlePreferences
 
     fun useDynamicTheme(value: Boolean) {
