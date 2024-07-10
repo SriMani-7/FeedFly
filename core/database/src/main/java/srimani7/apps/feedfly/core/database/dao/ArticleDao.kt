@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import srimani7.apps.feedfly.core.database.entity.Label
 import srimani7.apps.feedfly.core.model.LabelData
+import srimani7.apps.feedfly.core.model.LabelModel
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import java.util.Date
 
@@ -49,8 +50,8 @@ ORDER BY l.id
     @Insert
     suspend fun addLabel(label: Label)
 
-    @Query("select * from labels where id = :id")
-    fun getLabel(id: Long): Flow<Label?>
+    @Query("select label_name as labelName, pinned, id from labels where id = :id")
+    fun getLabel(id: Long): Flow<LabelModel?>
 
     @Query(
         """

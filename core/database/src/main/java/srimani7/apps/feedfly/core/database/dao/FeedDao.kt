@@ -2,7 +2,6 @@ package srimani7.apps.feedfly.core.database.dao
 
 import android.util.Log
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.model.FeedGroupModel
+import srimani7.apps.feedfly.core.model.FeedModel
 import srimani7.apps.feedfly.core.model.LabelData
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.feedfly.core.model.SimpleFeed
@@ -25,8 +25,8 @@ interface FeedDao {
     @Update
     suspend fun updateFeedUrl(feed: Feed)
 
-    @Query("select * from feeds where id = :id")
-    fun getFeed(id: Long): Flow<Feed>
+    @Query("select feed_url as feedUrl, description, link, feed_title as title, last_build_date as lastBuildDate, group_name as groupName, id from feeds where id = :id")
+    fun getFeed(id: Long): Flow<FeedModel>
 
     @Query(
         """
@@ -83,8 +83,8 @@ interface FeedDao {
         articleTitle: String
     )
 
-    @Delete
-    suspend fun delete(feed: Feed)
+    @Query("delete from feeds where id = :feed")
+    suspend fun delete(feed: Long)
 
     @Transaction
     suspend fun removeOldArticles(feedId: Long, threshold: Long) {

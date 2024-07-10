@@ -154,7 +154,7 @@ fun ArticlesScreen(navController: NavHostController) {
         }
 
         if (feed != null) GroupsPicker(
-            selected = feed!!.group,
+            selected = feed!!.groupName,
             groups = groups.ifEmpty { listOf("Others") },
             state = openGroupsPicker,
             addNew = true,
