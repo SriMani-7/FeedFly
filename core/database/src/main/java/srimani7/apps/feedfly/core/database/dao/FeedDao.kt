@@ -121,6 +121,9 @@ interface FeedDao {
     """)
     fun getFeedArticles(id: Long, labelId: Long, unlabelled: Boolean): Flow<List<LabelledArticle>>
 
+    @Query("update feeds set group_name = :name where id = :id")
+    suspend fun updateFeedGroup(id: Long, name: String)
+
 }
 
 fun dbErrorLog(message: String, throwable: Throwable? = null) {

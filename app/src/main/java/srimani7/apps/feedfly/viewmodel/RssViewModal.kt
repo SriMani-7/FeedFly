@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.Repository
-import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.rssparser.ParsingState
@@ -34,6 +33,8 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
 
     val feedStateFlow =
         databaseRepo.getFeed(feedId).stateIn(viewModelScope, SharingStarted.Lazily, null)
+    private val _feed get() = feedStateFlow.value
+
     val groupNameFlow by lazy {
         databaseRepo.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
@@ -89,9 +90,11 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
         applyLabelFilter(null)
     }
 
-    private fun load(feed: Feed) {
-        viewModelScope.launch(Dispatchers.IO) {
-            rssParserRepository.parseUrl(feed.feedUrl, feed.lastBuildDate)
+    private fun load() {
+        _feed?.let {
+            viewModelScope.launch(Dispatchers.IO) {
+                rssParserRepository.parseUrl(it.feedUrl, it.lastBuildDate)
+            }
         }
     }
 
@@ -101,22 +104,15 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
         }
     }
 
-    fun delete(feed: Feed?) {
-        if (feed == null) return
-        viewModelScope.launch {
-            databaseRepo.delete(feed)
+    fun delete() {
+        _feed?.let {
+            viewModelScope.launch {
+                databaseRepo.delete(it)
+            }
         }
     }
 
-    fun refresh(feed: Feed?) {
-        if (feed == null) return
-        load(feed)
-    }
-
-    fun updateFeed(copy: Feed?) {
-        if (copy == null) return
-        viewModelScope.launch { databaseRepo.updateFeedUrl(copy) }
-    }
+    fun refresh() = load()
 
     fun deleteArticle(articleId: Long) {
         viewModelScope.launch {
@@ -138,6 +134,14 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
             databaseRepo.getFeedArticles(feedId, selectedLabel.value).collectLatest { articles ->
                 debugLog("collecting filtered articles for $id")
                 _articlesFlow.update { articles }
+            }
+        }
+    }
+
+    fun updateFeedGroup(name: String) {
+        _feed?.let {
+            viewModelScope.launch {
+                databaseRepo.updateFeedGroup(it.id, name)
             }
         }
     }
