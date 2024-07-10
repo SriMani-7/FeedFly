@@ -101,7 +101,5 @@ dependencies {
     // module dependencies
     implementation project(path: ':rss-parser')
 
-    implementation libs.androidx.media3.exoplayer
-
     coreLibraryDesugaring libs.desugar.jdk.libs
 }
