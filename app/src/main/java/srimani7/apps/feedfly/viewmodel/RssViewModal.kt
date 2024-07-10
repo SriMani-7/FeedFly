@@ -38,7 +38,7 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
         databaseRepo.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
-    private val _uiState = MutableStateFlow<ArticlesUIState>(ArticlesUIState.Loading)
+    private val _uiState = MutableStateFlow<ArticlesUIState>(ArticlesUIState.COMPLETED)
     val uiStateStateFlow = _uiState.asStateFlow()
     private var lastBuildDate: Date? = null
 
@@ -78,7 +78,7 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
 
                     LastBuild -> {
                         lastBuildDate = feedStateFlow.value?.lastBuildDate
-                        _uiState.value = ArticlesUIState.COMPLETED
+                        _uiState.value = ArticlesUIState.LastBuild
                     }
 
                     Processing -> _uiState.value = ArticlesUIState.Loading
@@ -87,15 +87,6 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
             }
         }
         applyLabelFilter(null)
-    }
-
-    fun parseXml(feed: Feed) {
-        if (feed.lastBuildDate != null && lastBuildDate == feed.lastBuildDate) {
-            _uiState.value = ArticlesUIState.COMPLETED
-            return
-        }
-        info(feed.lastBuildDate.toString() + " " + lastBuildDate)
-        load(feed)
     }
 
     private fun load(feed: Feed) {
@@ -152,8 +143,9 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
     }
 }
 
-sealed class ArticlesUIState {
-    object Loading : ArticlesUIState()
-    object COMPLETED : ArticlesUIState()
-    data class Failure(val message: String) : ArticlesUIState()
+sealed class ArticlesUIState(val message: String?) {
+    data object Loading : ArticlesUIState(null)
+    data object COMPLETED : ArticlesUIState(null)
+    data object LastBuild: ArticlesUIState("You are upto date")
+    class Failure(message: String?) : ArticlesUIState(message)
 }
