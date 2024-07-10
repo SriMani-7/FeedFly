@@ -147,6 +147,9 @@ interface FeedDao {
 
     @Query("select l.label_name as name, l.pinned as pinned, l.id as id, count(*) as count from labels l left join article_labels al on l.id = al.label_id where l.pinned = 1 group by l.id order by count desc")
     fun getPinnedLabels(): Flow<List<LabelData>>
+
+    @Query("update feeds set group_name = :name where id = :id")
+    suspend fun updateFeedGroup(id: Long, name: String)
 }
 
 fun dbErrorLog(message: String, throwable: Throwable? = null) {

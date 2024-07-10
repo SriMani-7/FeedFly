@@ -106,7 +106,7 @@ fun ArticlesScreen(navController: NavHostController) {
                             )
                         ) {
                             when (it) {
-                                "Delete" -> viewModal.delete(feed)
+                                "Delete" -> viewModal.delete()
                                 "Change Group" -> openGroupsPicker.value = true
                                 "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feed?.id)
                             }
@@ -122,21 +122,23 @@ fun ArticlesScreen(navController: NavHostController) {
                             selected = selectedLabel == it.id,
                             onClick = { viewModal.applyLabelFilter(it.id) },
                             label = { Text(it.name) },
-                            trailingIcon = { if(selectedLabel == it.id) Text(it.count.toString())}
+                            trailingIcon = { if (selectedLabel == it.id) Text(it.count.toString()) }
                         )
                     }
                 }
             }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModal.refresh(feed) }) {
+            FloatingActionButton(onClick = { viewModal.refresh() }) {
                 Icon(painterResource(R.drawable.rounded_refresh_24), null)
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier
-            .padding(paddingValues)
-            .nestedScroll(scrollBehavior.nestedScrollConnection)) {
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+        ) {
             RssItemsColumn(
                 dateListMap = articles,
                 articlePreference = articlePreference,
@@ -155,10 +157,9 @@ fun ArticlesScreen(navController: NavHostController) {
             selected = feed!!.group,
             groups = groups.ifEmpty { listOf("Others") },
             state = openGroupsPicker,
-            addNew = true
-        ) {
-            viewModal.updateFeed(feed?.copy(group = it))
-        }
+            addNew = true,
+            onPick = viewModal::updateFeedGroup
+        )
     }
 
     LaunchedEffect(parsingState) {
