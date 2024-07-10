@@ -13,7 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
-import srimani7.apps.feedfly.data.AppTheme
+import srimani7.apps.feedfly.core.preferences.AppTheme
 import srimani7.apps.feedfly.navigation.URL_REGEX
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 

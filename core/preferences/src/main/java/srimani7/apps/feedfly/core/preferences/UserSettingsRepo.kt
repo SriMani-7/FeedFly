@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.data
+package srimani7.apps.feedfly.core.preferences
 
 import android.app.Application
 import android.content.Context

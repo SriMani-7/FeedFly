@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.Repository
-import srimani7.apps.feedfly.data.AppTheme
-import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.AppTheme
+import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.elements.Channel
 import java.time.Instant
@@ -41,10 +41,6 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             rssParserRepository.parseUrl(url, null)
         }
-    }
-
-    fun updateSettings(newTheme: AppTheme) {
-        viewModelScope.launch(Dispatchers.IO) { userSettingsRepo.updateSettings(newTheme) }
     }
 
     fun save(channel: Channel, groupName: String) {

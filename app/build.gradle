@@ -64,7 +64,6 @@ dependencies {
     implementation libs.androidx.core.splashscreen
     implementation libs.androidx.annotation
     implementation libs.androidx.appcompat
-    implementation libs.androidx.datastore.preferences.android
 
     implementation libs.androidx.activity.compose
     implementation libs.androidx.lifecycle.viewmodel.compose
@@ -74,6 +73,7 @@ dependencies {
     implementation project(':core:design')
     implementation project(':core:model')
     implementation project(':core:data')
+    implementation project(':core:preferences')
 
     // Testing dependencies
     testImplementation libs.junit
