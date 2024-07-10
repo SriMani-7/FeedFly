@@ -35,8 +35,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.data.AppTheme
-import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.AppTheme
+import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
 @OptIn(ExperimentalFoundationApi::class)

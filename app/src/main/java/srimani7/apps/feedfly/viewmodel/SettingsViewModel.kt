@@ -5,8 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.data.AppTheme
-import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.AppTheme
+import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 

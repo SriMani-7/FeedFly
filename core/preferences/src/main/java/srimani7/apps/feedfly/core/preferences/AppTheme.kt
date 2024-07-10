@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.data
+package srimani7.apps.feedfly.core.preferences
 
 enum class AppTheme(val label: String) {
     SYSTEM_DEFAULT("System default"),
