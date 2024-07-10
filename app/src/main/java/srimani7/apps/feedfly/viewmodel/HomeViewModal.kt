@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import srimani7.apps.feedfly.core.data.LabelRepository
 import srimani7.apps.feedfly.core.data.Repository
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.feedfly.core.preferences.model.AppTheme
@@ -37,6 +38,10 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
 
     private val rssParserRepository = RssParserRepository()
     val parsingState = rssParserRepository.parsingState
+
+    private val labelRepository = LabelRepository(application)
+
+    val labels by lazy { labelRepository.getAllLabels() }
 
     fun fetchFeed(url: String) {
         viewModelScope.launch {
@@ -81,6 +86,18 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.deleteArticle(it)
         }
+    }
+
+    fun updateArticleLabel(articleId: Long, labelId: Long) {
+        viewModelScope.launch { labelRepository.updateArticleLabel(articleId, labelId) }
+    }
+
+    fun removeArticleLabel(articleId: Long) {
+        viewModelScope.launch { labelRepository.removeArticleLabel(articleId) }
+    }
+
+    fun addLabel(it: String) {
+        viewModelScope.launch { labelRepository.addLabel(it) }
     }
 }
 

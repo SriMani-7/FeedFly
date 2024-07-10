@@ -1,6 +1,5 @@
 package srimani7.apps.feedfly
 
-import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,9 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -30,8 +27,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.data.LabelRepository
 import srimani7.apps.feedfly.feature.labels.ui.LabelOverviewScaffold
 import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
@@ -50,7 +45,6 @@ import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
     val navController = rememberNavController()
     val deletingState by homeViewModal.deletingStateFlow.collectAsStateWithLifecycle()
-    val labelViewModel = viewModel<LabelViewModel>()
 
     Box(
         modifier = Modifier
@@ -69,13 +63,13 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                 ArticlesScreen(navController)
             }
             composable(Screen.LabelsScreen.destination) {
-                val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
+                val labels by homeViewModal.labels.collectAsStateWithLifecycle(initialValue = emptyList())
                 LabelsScaffold(
                     labelData = labels,
                     onClick = { id, _ -> navController.navigate(MainNavigation.labelRoute(id)) },
                     onBackClick = navController::popBackStack,
                     onAddNewLabel = {
-                        labelViewModel.addLabel(it)
+                        homeViewModal.addLabel(it)
                     })
             }
             composable("labels/{id}", arguments = listOf(
@@ -124,7 +118,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
             ) {
                 val articleId = it.arguments?.getLong("articleId")
 
-                val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
+                val labels by homeViewModal.labels.collectAsStateWithLifecycle(initialValue = emptyList())
 
                 if (articleId != null) {
                     ChangeArticleLabelDialog(
@@ -132,8 +126,8 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                         labels = labels,
                         cancel = navController::popBackStack,
                         update = { labelId ->
-                            if (labelId == -1L) labelViewModel.removeArticleLabel(articleId)
-                            else labelViewModel.updateArticleLabel(articleId, labelId)
+                            if (labelId == -1L) homeViewModal.removeArticleLabel(articleId)
+                            else homeViewModal.updateArticleLabel(articleId, labelId)
                             navController.popBackStack()
                         })
                 }
@@ -170,22 +164,4 @@ object MainNavigation {
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
     fun privateSpaceRoute() = Screen.PrivateSpaceScreen.destination
     fun labelRoute(id: Long) = "labels/$id"
-}
-
-class LabelViewModel(application: Application) : AndroidViewModel(application) {
-    val labelRepository = LabelRepository(application)
-
-    val labels by lazy { labelRepository.getAllLabels() }
-
-    fun updateArticleLabel(articleId: Long, labelId: Long) {
-        viewModelScope.launch { labelRepository.updateArticleLabel(articleId, labelId) }
-    }
-
-    fun removeArticleLabel(articleId: Long) {
-        viewModelScope.launch { labelRepository.removeArticleLabel(articleId) }
-    }
-
-    fun addLabel(it: String) {
-        viewModelScope.launch { labelRepository.addLabel(it) }
-    }
 }
