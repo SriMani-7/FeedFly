@@ -74,7 +74,7 @@ fun MainNavHost(addLink: String?) {
             }
             composable(Screen.SettingsScreen.destination) {
                 val viewmodel = viewModel<SettingsViewModel>()
-                SettingsScreen(viewmodel)
+                SettingsScreen(viewmodel, navController)
             }
 
             composable(Screen.InsertFeedScreen.destination) {
