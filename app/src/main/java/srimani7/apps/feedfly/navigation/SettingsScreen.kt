@@ -35,8 +35,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.data.AppTheme
-import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.model.AppTheme
+import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
+import srimani7.apps.feedfly.core.preferences.model.ThemePreference
 import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -44,20 +45,16 @@ import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 fun SettingsScreen(
     viewModel: SettingsViewModel
 ) {
-    val settings by viewModel.settingsFlow.collectAsStateWithLifecycle(
-        initialValue = UserSettingsRepo.Settings(
-            AppTheme.SYSTEM_DEFAULT,
-            "",
-            false
-        )
+    val themePreference by viewModel.themePreferenceFlow.collectAsStateWithLifecycle(
+        initialValue = ThemePreference(AppTheme.SYSTEM_DEFAULT)
     )
     val articlePreferences by viewModel.articlePreferencesFlow.collectAsStateWithLifecycle(
-        initialValue = UserSettingsRepo.ArticlePreference()
+        initialValue = ArticlePreference()
     )
 
     Scaffold(
         topBar = {
-            ThemeSegmentedButton(settings.theme, viewModel::updateSettings)
+            ThemeSegmentedButton(themePreference.theme, viewModel::updateSettings)
         }
     ) { paddingValues ->
         LazyColumn(
@@ -67,7 +64,7 @@ fun SettingsScreen(
                 item {
                     SwitchPreference(
                         text = "Use wallpaper colors theming",
-                        checked = settings.useDynamicTheme,
+                        checked = themePreference.useDynamicTheme,
                         onChange = viewModel::useDynamicTheme
                     )
                 }

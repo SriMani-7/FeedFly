@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import srimani7.apps.feedfly.core.data.LabelRepository
-import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 
 class LabelViewModel(application: Application, savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
     private val labelRepository = LabelRepository(application)

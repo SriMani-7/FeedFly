@@ -35,7 +35,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.model.LabelledArticle
-import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
 
@@ -43,7 +43,7 @@ import srimani7.apps.rssparser.elements.ChannelItem
 @Composable
 fun RssItemsColumn(
     dateListMap: List<LabelledArticle>,
-    articlePreference: UserSettingsRepo.ArticlePreference,
+    articlePreference: ArticlePreference,
     onDeleteArticle: (Long) -> Unit,
     onLongClick: (Long) -> Unit,
     onChangeArticleLabel: (Long, Long?) -> Unit

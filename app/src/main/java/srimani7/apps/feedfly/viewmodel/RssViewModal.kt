@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.Repository
 import srimani7.apps.feedfly.core.model.LabelledArticle
-import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.rssparser.ParsingState
 import srimani7.apps.rssparser.ParsingState.LastBuild
 import srimani7.apps.rssparser.ParsingState.Processing
