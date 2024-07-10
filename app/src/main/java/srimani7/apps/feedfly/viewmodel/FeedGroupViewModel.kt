@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import srimani7.apps.feedfly.core.database.Repository
+import srimani7.apps.feedfly.core.data.Repository
 
 class FeedGroupViewModel(application: Application, savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
     private val group: String = savedStateHandle["group"] ?: "Others"

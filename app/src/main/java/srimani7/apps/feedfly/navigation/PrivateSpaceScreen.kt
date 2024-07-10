@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.database.PrivateSpaceRepo
+import srimani7.apps.feedfly.core.data.PrivateSpaceRepo
 import srimani7.apps.feedfly.core.model.PrivateArticle
 import srimani7.apps.feedfly.ui.articles.PrivateArticleCard
 import srimani7.apps.rssparser.DateParser

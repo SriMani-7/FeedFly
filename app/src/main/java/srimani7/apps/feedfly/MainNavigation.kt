@@ -24,17 +24,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.navigation
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.database.LabelRepository
+import srimani7.apps.feedfly.core.data.LabelRepository
 import srimani7.apps.feedfly.feature.labels.ui.LabelOverviewScaffold
 import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.navigation.ArticlesScreen
@@ -70,8 +67,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                 arguments = listOf(
                     navArgument("id") { type = NavType.LongType }
                 )) { entry ->
-                val long = entry.arguments?.getLong("id")
-                if (long != null && long > 0) ArticlesScreen(long, navController)
+                ArticlesScreen(navController)
             }
             composable(Screen.LabelsScreen.destination) {
                 val labels by labelViewModel.labels.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -92,7 +88,7 @@ fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
                     onDeleteArticle = homeViewModal::removeArticle
                 )
             }
-            composable(Screen.GroupOverviewScreen.destination+"/{group}") {
+            composable(Screen.GroupOverviewScreen.destination + "/{group}") {
                 GroupOverviewScreen(navController)
             }
             composable(Screen.SettingsScreen.destination) {
@@ -171,9 +167,9 @@ fun BackButton(navController: NavController) {
 
 object MainNavigation {
     fun newFeedRoute() = Screen.InsertFeedScreen.destination
-    fun groupOverviewScreen(name: String) = Screen.GroupOverviewScreen.destination+"/${name}"
+    fun groupOverviewScreen(name: String) = Screen.GroupOverviewScreen.destination + "/${name}"
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
-    fun privateSpaceRoute() =  Screen.PrivateSpaceScreen.destination
+    fun privateSpaceRoute() = Screen.PrivateSpaceScreen.destination
     fun labelRoute(id: Long) = "labels/$id"
 }
 

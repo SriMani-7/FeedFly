@@ -72,8 +72,8 @@ dependencies {
     implementation libs.androidx.navigation.compose
     implementation libs.androidx.browser
     implementation project(':core:design')
-    implementation project(':core:database')
     implementation project(':core:model')
+    implementation project(':core:data')
 
     // Testing dependencies
     testImplementation libs.junit

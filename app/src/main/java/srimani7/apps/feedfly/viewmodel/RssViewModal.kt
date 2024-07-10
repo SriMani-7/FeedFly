@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,8 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.database.Repository
-import srimani7.apps.feedfly.core.database.entity.Feed
+import srimani7.apps.feedfly.core.data.Repository
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.rssparser.ParsingState
@@ -25,18 +25,21 @@ import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.debugLog
 import java.util.Date
 
-class RssViewModal(private val feedId: Long, application: Application) :
+class RssViewModal(application: Application, savedStateHandle: SavedStateHandle) :
     AndroidViewModel(application) {
 
     private val databaseRepo = Repository(application)
+    private val feedId: Long = savedStateHandle["id"] ?: -1
 
     val feedStateFlow =
         databaseRepo.getFeed(feedId).stateIn(viewModelScope, SharingStarted.Lazily, null)
+    private val _feed get() = feedStateFlow.value
+
     val groupNameFlow by lazy {
         databaseRepo.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
-    private val _uiState = MutableStateFlow<ArticlesUIState>(ArticlesUIState.Loading)
+    private val _uiState = MutableStateFlow<ArticlesUIState>(ArticlesUIState.COMPLETED)
     val uiStateStateFlow = _uiState.asStateFlow()
     private var lastBuildDate: Date? = null
 
@@ -76,7 +79,7 @@ class RssViewModal(private val feedId: Long, application: Application) :
 
                     LastBuild -> {
                         lastBuildDate = feedStateFlow.value?.lastBuildDate
-                        _uiState.value = ArticlesUIState.COMPLETED
+                        _uiState.value = ArticlesUIState.LastBuild
                     }
 
                     Processing -> _uiState.value = ArticlesUIState.Loading
@@ -87,18 +90,11 @@ class RssViewModal(private val feedId: Long, application: Application) :
         applyLabelFilter(null)
     }
 
-    fun parseXml(feed: Feed) {
-        if (feed.lastBuildDate != null && lastBuildDate == feed.lastBuildDate) {
-            _uiState.value = ArticlesUIState.COMPLETED
-            return
-        }
-        info(feed.lastBuildDate.toString() + " " + lastBuildDate)
-        load(feed)
-    }
-
-    private fun load(feed: Feed) {
-        viewModelScope.launch(Dispatchers.IO) {
-            rssParserRepository.parseUrl(feed.feedUrl, feed.lastBuildDate)
+    private fun load() {
+        _feed?.let {
+            viewModelScope.launch(Dispatchers.IO) {
+                rssParserRepository.parseUrl(it.feedUrl, it.lastBuildDate)
+            }
         }
     }
 
@@ -108,22 +104,15 @@ class RssViewModal(private val feedId: Long, application: Application) :
         }
     }
 
-    fun delete(feed: Feed?) {
-        if (feed == null) return
-        viewModelScope.launch {
-            databaseRepo.delete(feed)
+    fun delete() {
+        _feed?.let {
+            viewModelScope.launch {
+                databaseRepo.delete(it.id)
+            }
         }
     }
 
-    fun refresh(feed: Feed?) {
-        if (feed == null) return
-        load(feed)
-    }
-
-    fun updateFeed(copy: Feed?) {
-        if (copy == null) return
-        viewModelScope.launch { databaseRepo.updateFeedUrl(copy) }
-    }
+    fun refresh() = load()
 
     fun deleteArticle(articleId: Long) {
         viewModelScope.launch {
@@ -148,10 +137,19 @@ class RssViewModal(private val feedId: Long, application: Application) :
             }
         }
     }
+
+    fun updateFeedGroup(name: String) {
+        _feed?.let {
+            viewModelScope.launch {
+                databaseRepo.updateFeedGroup(it.id, name)
+            }
+        }
+    }
 }
 
-sealed class ArticlesUIState {
-    object Loading : ArticlesUIState()
-    object COMPLETED : ArticlesUIState()
-    data class Failure(val message: String) : ArticlesUIState()
+sealed class ArticlesUIState(val message: String?) {
+    data object Loading : ArticlesUIState(null)
+    data object COMPLETED : ArticlesUIState(null)
+    data object LastBuild: ArticlesUIState("You are upto date")
+    class Failure(message: String?) : ArticlesUIState(message)
 }

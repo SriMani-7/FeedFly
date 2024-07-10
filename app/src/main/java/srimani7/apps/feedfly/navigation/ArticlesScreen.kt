@@ -2,7 +2,6 @@
 
 package srimani7.apps.feedfly.navigation
 
-import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +18,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -39,13 +39,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.BackButton
+import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.articles.RssItemsColumn
@@ -54,11 +55,8 @@ import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
 
 @Composable
-fun ArticlesScreen(feedId: Long, navController: NavHostController) {
-    val context = LocalContext.current
-    val viewModal = viewModel(initializer = {
-        RssViewModal(feedId, (context as Activity).application)
-    })
+fun ArticlesScreen(navController: NavHostController) {
+    val viewModal = viewModel<RssViewModal>()
     val articlePreference by viewModal.articlePreferencesFlow.collectAsStateWithLifecycle(
         initialValue = UserSettingsRepo.ArticlePreference()
     )
@@ -103,16 +101,14 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                         FeedActions(
                             options = listOf(
                                 "Delete",
-                                "Refresh",
                                 "Change Group",
                                 "Remove old articles"
                             )
                         ) {
                             when (it) {
-                                "Delete" -> viewModal.delete(feed)
-                                "Refresh" -> viewModal.refresh(feed)
+                                "Delete" -> viewModal.delete()
                                 "Change Group" -> openGroupsPicker.value = true
-                                "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feedId)
+                                "Remove old articles" -> navController.navigate(Screen.RemoveArticlesScreen.destination + "/" + feed?.id)
                             }
                         }
                     }, scrollBehavior = scrollBehavior
@@ -126,51 +122,50 @@ fun ArticlesScreen(feedId: Long, navController: NavHostController) {
                             selected = selectedLabel == it.id,
                             onClick = { viewModal.applyLabelFilter(it.id) },
                             label = { Text(it.name) },
-                            trailingIcon = { if(selectedLabel == it.id) Text(it.count.toString())}
+                            trailingIcon = { if (selectedLabel == it.id) Text(it.count.toString()) }
                         )
                     }
                 }
             }
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { viewModal.refresh() }) {
+                Icon(painterResource(R.drawable.rounded_refresh_24), null)
+            }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier
-            .padding(paddingValues)
-            .nestedScroll(scrollBehavior.nestedScrollConnection)) {
-            when (parsingState) {
-                ArticlesUIState.COMPLETED, is ArticlesUIState.Failure -> RssItemsColumn(
-                    dateListMap = articles,
-                    articlePreference = articlePreference,
-                    onDeleteArticle = viewModal::deleteArticle,
-                    onLongClick = viewModal::onMoveToPrivate,
-                    onChangeArticleLabel = { aId, lId ->
-                        navController.navigate(Screen.ChangeLabelDialog.destination + "/$aId?label=${lId ?: -1L}")
-                    }
-                )
-
-                ArticlesUIState.Loading -> AnimatedVisibility(parsingState == ArticlesUIState.Loading) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+        ) {
+            RssItemsColumn(
+                dateListMap = articles,
+                articlePreference = articlePreference,
+                onDeleteArticle = viewModal::deleteArticle,
+                onLongClick = viewModal::onMoveToPrivate,
+                onChangeArticleLabel = { aId, lId ->
+                    navController.navigate(Screen.ChangeLabelDialog.destination + "/$aId?label=${lId ?: -1L}")
                 }
+            )
+            AnimatedVisibility(parsingState == ArticlesUIState.Loading) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
 
         if (feed != null) GroupsPicker(
-            selected = feed!!.group,
+            selected = feed!!.groupName,
             groups = groups.ifEmpty { listOf("Others") },
             state = openGroupsPicker,
-            addNew = true
-        ) {
-            viewModal.updateFeed(feed?.copy(group = it))
-        }
+            addNew = true,
+            onPick = viewModal::updateFeedGroup
+        )
     }
 
     LaunchedEffect(parsingState) {
-        val message =
-            (parsingState as? ArticlesUIState.Failure)?.message ?: return@LaunchedEffect
-        hostState.showSnackbar(message, duration = SnackbarDuration.Short)
-    }
-
-    LaunchedEffect(feed) {
-        feed?.let { viewModal.parseXml(it) }
+        parsingState.message?.let {
+            hostState.showSnackbar(it, duration = SnackbarDuration.Short)
+        }
     }
 }
 
