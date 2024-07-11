@@ -23,8 +23,6 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import srimani7.apps.feedfly.NavigationRouter
-import srimani7.apps.feedfly.feature.labels.ui.LabelOverviewScaffold
-import srimani7.apps.feedfly.feature.labels.ui.LabelsScaffold
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 

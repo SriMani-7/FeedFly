@@ -24,7 +24,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.ui.DescriptionWebView
 import srimani7.apps.feedfly.ui.openInBrowser
-import srimani7.apps.feedfly.ui.shareText
+import srimani7.apps.feedfly.util.shareText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

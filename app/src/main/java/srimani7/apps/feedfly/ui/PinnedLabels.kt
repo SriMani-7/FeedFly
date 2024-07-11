@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.feature.labels.ui
+package srimani7.apps.feedfly.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi

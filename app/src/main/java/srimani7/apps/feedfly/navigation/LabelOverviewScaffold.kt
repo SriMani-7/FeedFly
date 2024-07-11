@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.feature.labels.ui
+package srimani7.apps.feedfly.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
-import srimani7.apps.feedfly.navigation.Screen
 import srimani7.apps.feedfly.ui.articles.RssItemsColumn
 
 @OptIn(ExperimentalMaterial3Api::class)

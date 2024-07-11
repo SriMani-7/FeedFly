@@ -45,7 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.NavigationRouter
 import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
 import srimani7.apps.feedfly.core.model.LabelData
-import srimani7.apps.feedfly.feature.labels.ui.PinnedLabels
+import srimani7.apps.feedfly.ui.PinnedLabels
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
 
