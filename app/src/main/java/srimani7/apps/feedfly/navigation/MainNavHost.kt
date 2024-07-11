@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -71,7 +72,7 @@ fun MainNavHost(addLink: String?) {
                 GroupOverviewScreen(navController)
             }
             composable(Screen.SettingsScreen.destination) {
-                val viewmodel = viewModel<SettingsViewModel>()
+                val viewmodel = hiltViewModel<SettingsViewModel>()
                 SettingsScreen(viewmodel, navController)
             }
 

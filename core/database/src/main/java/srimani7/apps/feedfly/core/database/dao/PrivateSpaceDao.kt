@@ -28,4 +28,7 @@ interface PrivateSpaceDao {
 
     @Query("update articles set is_private = 0 where article_id = :it")
     suspend fun unLockArticle(it: Long)
+
+    @Query("update articles set is_private = 1 where article_id = :l")
+    suspend fun moveArticleToPrivate(l: Long)
 }

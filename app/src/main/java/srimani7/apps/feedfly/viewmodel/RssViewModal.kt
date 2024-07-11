@@ -1,11 +1,11 @@
 package srimani7.apps.feedfly.viewmodel
 
-import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.Repository
+import srimani7.apps.feedfly.core.data.repository.LabelRepository
+import srimani7.apps.feedfly.core.data.repository.PrivateSpaceRepository
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.rssparser.ParsingState
@@ -24,11 +26,17 @@ import srimani7.apps.rssparser.ParsingState.Processing
 import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.debugLog
 import java.util.Date
+import javax.inject.Inject
 
-class RssViewModal(application: Application, savedStateHandle: SavedStateHandle) :
-    AndroidViewModel(application) {
+@HiltViewModel
+class RssViewModal @Inject constructor(
+    private val databaseRepo: Repository,
+    labelRepository: LabelRepository,
+    private val userSettingsRepo: UserSettingsRepo,
+    private val privateSpaceRepository: PrivateSpaceRepository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
-    private val databaseRepo = Repository(application)
     private val feedId: Long = savedStateHandle["id"] ?: -1
 
     val feedStateFlow =
@@ -47,10 +55,9 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
     val articles = _articlesFlow.asStateFlow()
 
     private val rssParserRepository by lazy { RssParserRepository() }
-    val articlesLabelsFlow = databaseRepo.getArticleLabels(feedId)
+    val articlesLabelsFlow = labelRepository.getArticleLabels(feedId)
     val selectedLabel = mutableStateOf<Long?>(null)
 
-    private val userSettingsRepo by lazy { UserSettingsRepo(application) }
     val articlePreferencesFlow by lazy { userSettingsRepo.articlePreferences }
 
     init {
@@ -122,7 +129,7 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
 
     fun onMoveToPrivate(l: Long) {
         viewModelScope.launch {
-            databaseRepo.moveArticleToPrivate(l)
+            privateSpaceRepository.moveArticleToPrivate(l)
         }
     }
 
@@ -150,6 +157,6 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
 sealed class ArticlesUIState(val message: String?) {
     data object Loading : ArticlesUIState(null)
     data object COMPLETED : ArticlesUIState(null)
-    data object LastBuild: ArticlesUIState("You are up to date")
+    data object LastBuild : ArticlesUIState("You are up to date")
     class Failure(message: String?) : ArticlesUIState(message)
 }

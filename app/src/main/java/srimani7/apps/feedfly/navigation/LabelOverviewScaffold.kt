@@ -14,10 +14,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.ui.articles.RssItemsColumn
+import srimani7.apps.feedfly.viewmodel.LabelViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +27,7 @@ fun LabelOverviewScaffold(
     onNavigate: (String) -> Unit,
     onDeleteArticle: (Long) -> Unit
 ) {
-    val lvm = viewModel<srimani7.apps.feedfly.viewmodel.LabelViewModel>()
+    val lvm = hiltViewModel<LabelViewModel>()
     val label by lvm.labelFlow.collectAsStateWithLifecycle(initialValue = null)
     val articles by lvm.articlesFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val articlePreference by lvm.articlePreferencesFlow.collectAsStateWithLifecycle(
