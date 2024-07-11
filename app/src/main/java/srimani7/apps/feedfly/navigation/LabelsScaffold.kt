@@ -30,7 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
+import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.model.LabelData
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -115,7 +115,7 @@ fun LabelsScaffold(
 @Preview
 @Composable
 private fun LabelScaffoldPreview() {
-    TheSecretDairyTheme {
+    FeedFlyTheme {
         val list = remember {
             mutableStateListOf(
                 LabelData(1, "Favorites", 23, false),

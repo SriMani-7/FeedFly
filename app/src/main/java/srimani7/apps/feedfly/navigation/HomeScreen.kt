@@ -43,7 +43,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.NavigationRouter
-import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
+import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.model.LabelData
 import srimani7.apps.feedfly.ui.PinnedLabels
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
@@ -155,7 +155,7 @@ private fun HomeScreenPreview() {
         "Reading list,Favorites,Gaming,Resume needed,Applied".split(",")
             .mapIndexed { index, s -> LabelData(index.toLong(), s, index + 3, true) }
     }
-    TheSecretDairyTheme {
+    FeedFlyTheme {
         Scaffold(
             topBar = {
                 HomeAppbar(scrollBehavior = null) {}

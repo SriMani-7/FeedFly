@@ -245,7 +245,7 @@ private val highContrastDarkColorScheme = darkColorScheme(
 )
 
 @Composable
-fun TheSecretDairyTheme(
+fun FeedFlyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,

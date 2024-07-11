@@ -12,7 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
+import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.feedfly.core.preferences.model.AppTheme
 import srimani7.apps.feedfly.core.preferences.model.ThemePreference
@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             }
-            TheSecretDairyTheme(darkTheme, dynamicColor = themePreference.useDynamicTheme) {
+            FeedFlyTheme(darkTheme, dynamicColor = themePreference.useDynamicTheme) {
                 MainNavHost(feedUrl)
             }
         }

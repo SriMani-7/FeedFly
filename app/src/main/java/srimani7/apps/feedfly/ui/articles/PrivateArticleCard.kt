@@ -33,7 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
+import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.model.PrivateArticle
 import srimani7.apps.feedfly.util.fromHtml
 import srimani7.apps.rssparser.DateParser
@@ -137,7 +137,7 @@ fun UnLockButton(modifier: Modifier, onClick: () -> Unit) {
 @Preview
 @Composable
 private fun PrivateArticleCardPreview() {
-    TheSecretDairyTheme(true) {
+    FeedFlyTheme(true) {
         Scaffold {
             LazyColumn(
                 modifier = Modifier
