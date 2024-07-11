@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.Repository
+import srimani7.apps.feedfly.core.data.repository.PrivateSpaceRepository
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.rssparser.ParsingState
 import srimani7.apps.rssparser.ParsingState.LastBuild
@@ -28,6 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RssViewModal @Inject constructor(
     private val databaseRepo: Repository,
+    private val privateSpaceRepository: PrivateSpaceRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -121,7 +123,7 @@ class RssViewModal @Inject constructor(
 
     fun onMoveToPrivate(l: Long) {
         viewModelScope.launch {
-            databaseRepo.moveArticleToPrivate(l)
+            privateSpaceRepository.moveArticleToPrivate(l)
         }
     }
 
@@ -149,6 +151,6 @@ class RssViewModal @Inject constructor(
 sealed class ArticlesUIState(val message: String?) {
     data object Loading : ArticlesUIState(null)
     data object COMPLETED : ArticlesUIState(null)
-    data object LastBuild: ArticlesUIState("You are upto date")
+    data object LastBuild: ArticlesUIState("You are up to date")
     class Failure(message: String?) : ArticlesUIState(message)
 }

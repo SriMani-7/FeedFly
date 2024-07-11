@@ -13,13 +13,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.data.PrivateSpaceRepo
+import srimani7.apps.feedfly.core.data.repository.PrivateSpaceRepository
 import srimani7.apps.feedfly.core.model.PrivateArticle
 import javax.inject.Inject
 
 @HiltViewModel
 class PrivateSpaceViewmodel @Inject constructor(
-    private val repository: PrivateSpaceRepo
+    private val repository: PrivateSpaceRepository
 ) : ViewModel() {
 
     val groupsFlow = repository.groups
