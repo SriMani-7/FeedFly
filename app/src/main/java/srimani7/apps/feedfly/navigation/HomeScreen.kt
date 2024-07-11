@@ -11,6 +11,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,21 +22,26 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -57,63 +63,90 @@ fun HomeScreen(
 ) {
     val groups by homeViewModal.feedGroupsFlow.collectAsStateWithLifecycle(emptyList())
     val pinnedLabels by homeViewModal.pinnedLabelsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var isSearchActive by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     Scaffold(
         topBar = { HomeAppbar(null, navigate) },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text(text = "New feed") },
-                icon = { Icon(Icons.Default.Add, null) },
-                onClick = { navigate(NavigationRouter.newFeedRoute()) })
-        }
     ) { paddingValues ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(12.dp, 6.dp, 12.dp, 100.dp)
-        ) {
-            item(span = { GridItemSpan(maxLineSpan) }, key = "pinned-labels") {
-                PinnedLabels(labels = pinnedLabels,
-                    onClick = { navigate(NavigationRouter.labelRoute(it)) },
-                    onViewAll = { navigate(Screen.LabelsScreen.destination) })
-            }
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Text(
-                    "Groups",
-                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Normal
-                )
-            }
-
-            items(groups, key = { it.name }) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        navigate(NavigationRouter.groupOverviewScreen(it.name))
-                    },
-                    shape = MaterialTheme.shapes.small,
+        Column(modifier = Modifier.padding(paddingValues)) {
+            Surface(
+                onClick = { navigate(NavigationRouter.newFeedRoute()) },
+                shape = SearchBarDefaults.inputFieldShape,
+                color = SearchBarDefaults.colors().containerColor,
+                shadowElevation = SearchBarDefaults.ShadowElevation,
+                tonalElevation = SearchBarDefaults.TonalElevation,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp, 4.dp, 10.dp, 8.dp)
+                    .height(SearchBarDefaults.InputFieldHeight)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(14.dp, 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                    Icon(
+                        Icons.Default.Search,
+                        null,
+                        tint = SearchBarDefaults.inputFieldColors().unfocusedLeadingIconColor
+                    )
+                    Text(
+                        "Search or enter new feed",
+                        color = SearchBarDefaults.inputFieldColors().unfocusedPlaceholderColor,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(12.dp, 6.dp, 12.dp, 100.dp)
+            ) {
+                item(span = { GridItemSpan(maxLineSpan) }, key = "pinned-labels") {
+                    PinnedLabels(labels = pinnedLabels,
+                        onClick = { navigate(NavigationRouter.labelRoute(it)) },
+                        onViewAll = { navigate(Screen.LabelsScreen.destination) })
+                }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Text(
+                        "Groups",
+                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+
+                items(groups, key = { it.name }) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            navigate(NavigationRouter.groupOverviewScreen(it.name))
+                        },
+                        shape = MaterialTheme.shapes.small,
                     ) {
-                        Text(
-                            text = it.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            text = "${it.count} sites",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Normal
-                        )
+                        Column(
+                            modifier = Modifier.padding(14.dp, 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text(
+                                text = it.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "${it.count} sites",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
                 }
             }
         }
@@ -168,6 +201,9 @@ private fun HomeScreenPreview() {
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 contentPadding = PaddingValues(12.dp, 6.dp, 12.dp, 100.dp)
             ) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+
+                }
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     PinnedLabels(labels = labels, {}, {})
                 }
