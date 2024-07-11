@@ -14,8 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -40,10 +40,10 @@ import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
 @Composable
 fun MainNavigation(addLink: String?) {
-    val homeViewModal = viewModel<HomeViewModal>()
+    val homeViewModal = hiltViewModel<HomeViewModal>()
     val navController = rememberNavController()
     val deletingState by homeViewModal.deletingStateFlow.collectAsStateWithLifecycle()
-    val labelViewModel = viewModel<LabelViewModel>()
+    val labelViewModel = hiltViewModel<LabelViewModel>()
 
     Box(
         modifier = Modifier
@@ -76,7 +76,7 @@ fun MainNavigation(addLink: String?) {
             }
             navigation(Screen.SettingsScreen.destination, NavItem.Settings.navRoute) {
                 composable(Screen.SettingsScreen.destination) {
-                    val viewmodel = viewModel<SettingsViewModel>()
+                    val viewmodel = hiltViewModel<SettingsViewModel>()
                     SettingsScreen(viewmodel)
                 }
             }

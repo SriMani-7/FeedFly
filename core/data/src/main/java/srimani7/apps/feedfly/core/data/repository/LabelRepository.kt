@@ -9,4 +9,5 @@ interface LabelRepository {
     suspend fun addLabel(it: String)
     suspend fun removeArticleLabel(articleId: Long)
     suspend fun updateArticleLabel(articleId: Long, labelId: Long)
+    fun getArticleLabels(feedId: Long): Flow<List<LabelData>>
 }
