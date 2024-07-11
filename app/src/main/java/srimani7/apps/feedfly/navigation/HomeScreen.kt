@@ -37,10 +37,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -63,10 +60,6 @@ fun HomeScreen(
 ) {
     val groups by homeViewModal.feedGroupsFlow.collectAsStateWithLifecycle(emptyList())
     val pinnedLabels by homeViewModal.pinnedLabelsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
-    var searchQuery by rememberSaveable { mutableStateOf("") }
-    var isSearchActive by rememberSaveable {
-        mutableStateOf(false)
-    }
 
     Scaffold(
         topBar = { HomeAppbar(null, navigate) },
@@ -80,7 +73,7 @@ fun HomeScreen(
                 tonalElevation = SearchBarDefaults.TonalElevation,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp, 4.dp, 10.dp, 8.dp)
+                    .padding(10.dp, 4.dp, 10.dp, 6.dp)
                     .height(SearchBarDefaults.InputFieldHeight)
             ) {
                 Row(
