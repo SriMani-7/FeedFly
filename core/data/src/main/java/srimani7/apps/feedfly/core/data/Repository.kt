@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import srimani7.apps.feedfly.core.data.repository.FeedGroupRepository
 import srimani7.apps.feedfly.core.database.dao.ArticleDao
 import srimani7.apps.feedfly.core.database.dao.FeedDao
 import srimani7.apps.feedfly.core.database.dao.dbErrorLog
@@ -22,13 +23,12 @@ import javax.inject.Inject
 class Repository @Inject constructor(
     private val feedDao: FeedDao,
     private val articleDao: ArticleDao
-) {
+): FeedGroupRepository {
 
     fun getFeed(feedId: Long) = feedDao.getFeed(feedId)
     fun getGroups() = feedDao.getGroups()
     fun getFeedGroups() = feedDao.getFeedGroups()
-    fun getFeeds(groupName: String) = feedDao.getFeeds(groupName)
-    fun getPinnedLabels() = feedDao.getPinnedLabels()
+    override fun getFeeds(name: String) = feedDao.getFeeds(name)
 
     private suspend fun updateFeedUrl(copy: Feed) {
         feedDao.updateFeedUrl(copy)
@@ -168,7 +168,6 @@ class Repository @Inject constructor(
         articleDao.deleteArticle(articleId)
     }
 
-    fun getArticleLabels(feedId: Long) = feedDao.getArticleLabels(feedId)
     fun getFeedArticles(feedId: Long, id: Long?) = feedDao.getFeedArticles(feedId, id ?: -1, id == null)
     suspend fun updateFeedGroup(id: Long, name: String) = feedDao.updateFeedGroup(id, name)
 }

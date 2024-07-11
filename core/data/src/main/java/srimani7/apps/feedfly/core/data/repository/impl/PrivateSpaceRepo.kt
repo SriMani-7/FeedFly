@@ -8,8 +8,11 @@ import javax.inject.Inject
 
 internal class PrivateSpaceRepo @Inject constructor(
     private val dao: PrivateSpaceDao
-): PrivateSpaceRepository {
+) : PrivateSpaceRepository {
     override val groups: Flow<List<String>> get() = dao.getGroups()
-    override fun getPrivateArticles(group: String): Flow<List<PrivateArticle>> = dao.getPrivateArticles(group)
+    override fun getPrivateArticles(group: String): Flow<List<PrivateArticle>> =
+        dao.getPrivateArticles(group)
+
     override suspend fun unLockArticle(it: Long) = dao.unLockArticle(it)
+    override suspend fun moveArticleToPrivate(l: Long) = dao.moveArticleToPrivate(l)
 }

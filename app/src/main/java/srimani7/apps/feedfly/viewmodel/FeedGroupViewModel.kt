@@ -5,12 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import srimani7.apps.feedfly.core.data.Repository
+import srimani7.apps.feedfly.core.data.repository.FeedGroupRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class FeedGroupViewModel @Inject constructor(
-    repository: Repository, savedStateHandle: SavedStateHandle,
+    repository: FeedGroupRepository, savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val group: String = savedStateHandle["group"] ?: "Others"
 

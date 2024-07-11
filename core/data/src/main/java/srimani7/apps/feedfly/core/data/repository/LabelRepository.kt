@@ -9,6 +9,8 @@ interface LabelRepository {
     fun getAllLabels(): Flow<List<LabelData>>
     fun getLabel(id: Long): Flow<LabelModel?>
     fun getArticles(labelId: Long): Flow<List<LabelledArticle>>
+    fun getPinnedLabels(): Flow<List<LabelData>>
+    fun getArticleLabels(feedId: Long): Flow<List<LabelData>>
 
     suspend fun updateArticleLabel(articleId: Long, labelId: Long)
     suspend fun removeArticleLabel(articleId: Long)

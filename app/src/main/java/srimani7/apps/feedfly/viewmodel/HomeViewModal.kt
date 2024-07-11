@@ -29,7 +29,7 @@ class HomeViewModal @Inject constructor(
     }
 
     val feedGroupsFlow = repository.getFeedGroups()
-    val pinnedLabelsFlow = repository.getPinnedLabels()
+    val pinnedLabelsFlow = labelRepository.getPinnedLabels()
 
     private val rssParserRepository = RssParserRepository()
     val parsingState = rssParserRepository.parsingState

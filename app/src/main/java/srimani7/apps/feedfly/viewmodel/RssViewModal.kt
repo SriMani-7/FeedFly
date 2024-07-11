@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.Repository
+import srimani7.apps.feedfly.core.data.repository.LabelRepository
 import srimani7.apps.feedfly.core.data.repository.PrivateSpaceRepository
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
@@ -30,6 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RssViewModal @Inject constructor(
     private val databaseRepo: Repository,
+    labelRepository: LabelRepository,
     private val userSettingsRepo: UserSettingsRepo,
     private val privateSpaceRepository: PrivateSpaceRepository,
     savedStateHandle: SavedStateHandle
@@ -53,7 +55,7 @@ class RssViewModal @Inject constructor(
     val articles = _articlesFlow.asStateFlow()
 
     private val rssParserRepository by lazy { RssParserRepository() }
-    val articlesLabelsFlow = databaseRepo.getArticleLabels(feedId)
+    val articlesLabelsFlow = labelRepository.getArticleLabels(feedId)
     val selectedLabel = mutableStateOf<Long?>(null)
 
     val articlePreferencesFlow by lazy { userSettingsRepo.articlePreferences }
