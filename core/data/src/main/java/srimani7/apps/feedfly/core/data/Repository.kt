@@ -168,10 +168,6 @@ class Repository @Inject constructor(
         articleDao.deleteArticle(articleId)
     }
 
-    suspend fun moveArticleToPrivate(l: Long) {
-        articleDao.moveArticleToPrivate(l)
-    }
-
     fun getArticleLabels(feedId: Long) = feedDao.getArticleLabels(feedId)
     fun getFeedArticles(feedId: Long, id: Long?) = feedDao.getFeedArticles(feedId, id ?: -1, id == null)
     suspend fun updateFeedGroup(id: Long, name: String) = feedDao.updateFeedGroup(id, name)
