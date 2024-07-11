@@ -1,11 +1,11 @@
 package srimani7.apps.feedfly.viewmodel
 
-import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,11 +23,14 @@ import srimani7.apps.rssparser.ParsingState.Processing
 import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.debugLog
 import java.util.Date
+import javax.inject.Inject
 
-class RssViewModal(application: Application, savedStateHandle: SavedStateHandle) :
-    AndroidViewModel(application) {
+@HiltViewModel
+class RssViewModal @Inject constructor(
+    private val databaseRepo: Repository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
-    private val databaseRepo = Repository(application)
     private val feedId: Long = savedStateHandle["id"] ?: -1
 
     val feedStateFlow =

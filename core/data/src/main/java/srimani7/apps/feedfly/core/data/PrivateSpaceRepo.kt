@@ -1,11 +1,11 @@
 package srimani7.apps.feedfly.core.data
 
-import android.app.Application
-import srimani7.apps.feedfly.core.database.AppDatabase
+import srimani7.apps.feedfly.core.database.dao.PrivateSpaceDao
+import javax.inject.Inject
 
-class PrivateSpaceRepo(application: Application) {
-    private val dao by lazy { AppDatabase.getInstance(application).privateSpaceDao() }
-
+class PrivateSpaceRepo @Inject constructor(
+    private val dao: PrivateSpaceDao
+) {
     val groups get() = dao.getGroups()
     fun getPrivateArticles(group: String) = dao.getPrivateArticles(group)
     suspend fun unLockArticle(it: Long) = dao.unLockArticle(it)

@@ -54,7 +54,7 @@ fun HomeScreen(
     homeViewModal: HomeViewModal,
     navigate: (String) -> Unit
 ) {
-    val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle()
+    val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle(emptyList())
     val groups by homeViewModal.groupNameFlow.collectAsStateWithLifecycle()
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val currentGroup by homeViewModal.currentGroupFLow.collectAsStateWithLifecycle("")

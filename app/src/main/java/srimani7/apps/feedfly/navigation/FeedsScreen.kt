@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -96,7 +95,6 @@ fun FeedCard(feedDto: SimpleFeed, onClick: () -> Unit) {
                     }
                 }
             }
-            Divider()
         }
     }
 }
