@@ -76,6 +76,7 @@ dependencies {
     implementation project(':core:model')
     implementation project(':core:data')
     implementation project(':core:preferences')
+    implementation project(':rss-parser')
 
     // Testing dependencies
     testImplementation libs.junit
@@ -100,7 +101,6 @@ dependencies {
     implementation libs.coil.compose
 
     // module dependencies
-    implementation project(path: ':rss-parser')
 
     coreLibraryDesugaring libs.desugar.jdk.libs
 

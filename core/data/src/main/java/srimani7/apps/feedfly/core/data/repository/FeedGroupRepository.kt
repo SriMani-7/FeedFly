@@ -5,4 +5,5 @@ import srimani7.apps.feedfly.core.model.SimpleFeed
 
 interface FeedGroupRepository {
     fun getFeeds(name: String): Flow<List<SimpleFeed>>
+    fun getGroups(): Flow<List<String>>
 }
