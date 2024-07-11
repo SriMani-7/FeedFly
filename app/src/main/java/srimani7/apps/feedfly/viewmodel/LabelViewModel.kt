@@ -3,7 +3,7 @@ package srimani7.apps.feedfly.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import srimani7.apps.feedfly.core.data.LabelRepository
+import srimani7.apps.feedfly.core.data.repository.LabelRepository
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import javax.inject.Inject
 
