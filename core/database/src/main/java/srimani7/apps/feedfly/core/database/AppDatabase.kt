@@ -6,9 +6,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import srimani7.apps.feedfly.core.database.dao.ArticleDao
 import srimani7.apps.feedfly.core.database.dao.FeedDao
 import srimani7.apps.feedfly.core.database.dao.PrivateSpaceDao
@@ -19,6 +17,7 @@ import srimani7.apps.feedfly.core.database.entity.ArticleTrash
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.database.entity.Label
+import srimani7.apps.feedfly.core.database.migrations.Migration4
 import srimani7.apps.feedfly.core.database.migrations.Migration9to10
 
 @Database(
@@ -35,7 +34,7 @@ import srimani7.apps.feedfly.core.database.migrations.Migration9to10
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3), // Unique index - title+link in articles
-        AutoMigration(3, 4, AppDatabase.Migration4::class), // group names null to others
+        AutoMigration(3, 4, Migration4::class), // group names null to others
         AutoMigration(4, 5),
         AutoMigration(5, 6), // articles trash entity
         AutoMigration(6, 7), // Label & ArticleLabel entities
@@ -69,7 +68,7 @@ abstract class AppDatabase : RoomDatabase() {
         /**
          * moving pinned articles under the favorite label.
          * **/
-        private val MIGRATION_7_8 = Migration(7, 8) { database ->
+        internal val MIGRATION_7_8 = Migration(7, 8) { database ->
             // insert favorite & private labels into labels table.
             database.execSQL("insert or replace into labels (label_name, priority, id) values('favorite', 3, 1)")
             database.execSQL("insert or replace into labels (label_name, priority, id) values('private', 0, 2)")
@@ -85,7 +84,7 @@ abstract class AppDatabase : RoomDatabase() {
             database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_articles_feed_id_title_link` ON `articles` (`feed_id`, `title`, `link`)")
         }
 
-        private val MIGRATION_8_9 = Migration(8, 9) { database ->
+        internal val MIGRATION_8_9 = Migration(8, 9) { database ->
             // delete rows from the article_labels table where the article_id is repeated more than once,
             database.execSQL("DELETE FROM article_labels\n" +
                     "WHERE id NOT IN (\n" +
@@ -102,11 +101,4 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 
-    class Migration4 : AutoMigrationSpec {
-        override fun onPostMigrate(db: SupportSQLiteDatabase) {
-            super.onPostMigrate(db)
-            db.execSQL("drop index if exists index_articles_title_link")
-            db.execSQL("update feeds set group_name = 'Others' where group_name is null")
-        }
-    }
 }
