@@ -4,6 +4,7 @@ import android.app.Application
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,9 +17,13 @@ import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.elements.Channel
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import javax.inject.Inject
 
-class HomeViewModal(application: Application) : AndroidViewModel(application) {
-    private val repository = Repository(application)
+@HiltViewModel
+class HomeViewModal @Inject constructor(
+    private val repository: Repository,
+    private val labelRepository: LabelRepository, application: Application
+) : AndroidViewModel(application) {
     val groupNameFlow by lazy {
         repository.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
@@ -28,8 +33,6 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
 
     private val rssParserRepository = RssParserRepository()
     val parsingState = rssParserRepository.parsingState
-
-    private val labelRepository = LabelRepository(application)
 
     val labels by lazy { labelRepository.getAllLabels() }
 
@@ -55,7 +58,11 @@ class HomeViewModal(application: Application) : AndroidViewModel(application) {
 
     fun deleteOldArticles(feedId: Long?, days: Int) {
         if (feedId == null || feedId <= 0 || days < 1) {
-            Toast.makeText(getApplication(), "Invalid parameters $feedId and $days", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                getApplication(),
+                "Invalid parameters $feedId and $days",
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
         _deletingState.value = true

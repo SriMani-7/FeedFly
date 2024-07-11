@@ -1,6 +1,5 @@
 package srimani7.apps.feedfly.core.preferences
 
-import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -8,14 +7,16 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.map
 import srimani7.apps.feedfly.core.preferences.model.AppTheme
 import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.core.preferences.model.ThemePreference
+import javax.inject.Inject
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-class UserSettingsRepo(private val application: Application) {
+class UserSettingsRepo @Inject constructor(@ApplicationContext private val application: Context) {
     private val themePreferenceKey = stringPreferencesKey("app_theme_preference")
     private val useDynamicTheme = booleanPreferencesKey("use_dynamic_theme_preference")
     private val aSwipeDeleteKey = booleanPreferencesKey("article_swipe_delete_preference")

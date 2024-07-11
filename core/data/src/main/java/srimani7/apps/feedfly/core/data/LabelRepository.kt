@@ -1,11 +1,12 @@
 package srimani7.apps.feedfly.core.data
 
-import android.app.Application
-import srimani7.apps.feedfly.core.database.AppDatabase
+import srimani7.apps.feedfly.core.database.dao.ArticleDao
 import srimani7.apps.feedfly.core.database.entity.Label
+import javax.inject.Inject
 
-class LabelRepository(application: Application) {
-    private val articleDao by lazy { AppDatabase.getInstance(application).articleDao() }
+class LabelRepository @Inject constructor(
+    private val articleDao: ArticleDao
+) {
 
     fun getAllLabels() = articleDao.getLabels()
 

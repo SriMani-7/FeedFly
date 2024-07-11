@@ -1,11 +1,11 @@
 package srimani7.apps.feedfly.viewmodel
 
-import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,11 +24,15 @@ import srimani7.apps.rssparser.ParsingState.Processing
 import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.debugLog
 import java.util.Date
+import javax.inject.Inject
 
-class RssViewModal(application: Application, savedStateHandle: SavedStateHandle) :
-    AndroidViewModel(application) {
+@HiltViewModel
+class RssViewModal @Inject constructor(
+    private val databaseRepo: Repository,
+    private val userSettingsRepo: UserSettingsRepo,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
-    private val databaseRepo = Repository(application)
     private val feedId: Long = savedStateHandle["id"] ?: -1
 
     val feedStateFlow =
@@ -50,7 +54,6 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
     val articlesLabelsFlow = databaseRepo.getArticleLabels(feedId)
     val selectedLabel = mutableStateOf<Long?>(null)
 
-    private val userSettingsRepo by lazy { UserSettingsRepo(application) }
     val articlePreferencesFlow by lazy { userSettingsRepo.articlePreferences }
 
     init {
@@ -150,6 +153,6 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
 sealed class ArticlesUIState(val message: String?) {
     data object Loading : ArticlesUIState(null)
     data object COMPLETED : ArticlesUIState(null)
-    data object LastBuild: ArticlesUIState("You are up to date")
+    data object LastBuild : ArticlesUIState("You are up to date")
     class Failure(message: String?) : ArticlesUIState(message)
 }

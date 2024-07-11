@@ -1,11 +1,11 @@
 package srimani7.apps.feedfly.core.data
 
-import android.app.Application
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import srimani7.apps.feedfly.core.database.AppDatabase
+import srimani7.apps.feedfly.core.database.dao.ArticleDao
+import srimani7.apps.feedfly.core.database.dao.FeedDao
 import srimani7.apps.feedfly.core.database.dao.dbErrorLog
 import srimani7.apps.feedfly.core.database.dao.dbInfoLog
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
@@ -17,10 +17,12 @@ import srimani7.apps.rssparser.elements.Channel
 import srimani7.apps.rssparser.elements.ChannelImage
 import srimani7.apps.rssparser.elements.ChannelItem
 import java.util.Date
+import javax.inject.Inject
 
-class Repository(application: Application) {
-    private val feedDao by lazy { AppDatabase.getInstance(application).feedDao() }
-    private val articleDao by lazy { AppDatabase.getInstance(application).articleDao() }
+class Repository @Inject constructor(
+    private val feedDao: FeedDao,
+    private val articleDao: ArticleDao
+) {
 
     fun getFeed(feedId: Long) = feedDao.getFeed(feedId)
     fun getGroups() = feedDao.getGroups()

@@ -1,15 +1,19 @@
 package srimani7.apps.feedfly.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import srimani7.apps.feedfly.core.data.LabelRepository
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
+import javax.inject.Inject
 
-class LabelViewModel(application: Application, savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
-    private val labelRepository = LabelRepository(application)
+@HiltViewModel
+class LabelViewModel @Inject constructor(
+    labelRepository: LabelRepository,
+    private val userSettingsRepo: UserSettingsRepo,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private val labelId: Long = savedStateHandle["id"] ?: -1
-    private val userSettingsRepo = UserSettingsRepo(application)
 
     val labelFlow = labelRepository.getLabel(labelId)
     val articlesFlow = labelRepository.getArticles(labelId)
