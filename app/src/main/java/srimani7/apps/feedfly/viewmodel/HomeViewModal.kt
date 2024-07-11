@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.data.Repository
+import srimani7.apps.feedfly.core.data.repository.impl.Repository
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.rssparser.RssParserRepository
 import srimani7.apps.rssparser.elements.Channel

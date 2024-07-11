@@ -46,10 +46,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.R
+import srimani7.apps.feedfly.core.data.model.FeedFetchState
 import srimani7.apps.feedfly.ui.BackButton
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.articles.RssItemsColumn
-import srimani7.apps.feedfly.viewmodel.ArticlesUIState
 import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
 
@@ -60,13 +60,13 @@ fun ArticlesScreen(navController: NavHostController) {
     val parsingState by viewModal.uiStateStateFlow.collectAsState()
     val feed by viewModal.feedStateFlow.collectAsState(initial = null)
     val articleLabels by viewModal.articlesLabelsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
-    val selectedLabel by viewModal.selectedLabel
+    val selectedLabel by viewModal.selectedLabel.collectAsStateWithLifecycle()
     val articles by viewModal.articles.collectAsStateWithLifecycle(initialValue = emptyList())
 
     val hostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    val groups by viewModal.groupNameFlow.collectAsState()
+    val groups by viewModal.groupNameFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val openGroupsPicker = remember { mutableStateOf(false) }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState) },
@@ -143,7 +143,7 @@ fun ArticlesScreen(navController: NavHostController) {
                     navController.navigate(Screen.ChangeLabelDialog.destination + "/$aId?label=${lId ?: -1L}")
                 }
             )
-            AnimatedVisibility(parsingState == ArticlesUIState.Loading) {
+            AnimatedVisibility(parsingState == FeedFetchState.Loading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
@@ -158,7 +158,7 @@ fun ArticlesScreen(navController: NavHostController) {
     }
 
     LaunchedEffect(parsingState) {
-        parsingState.message?.let {
+        parsingState?.message?.let {
             hostState.showSnackbar(it, duration = SnackbarDuration.Short)
         }
     }
