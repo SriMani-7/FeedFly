@@ -44,7 +44,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import srimani7.apps.feedfly.MainNavigation
 import srimani7.apps.feedfly.core.model.SimpleFeed
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
@@ -76,7 +75,7 @@ fun HomeScreen(
                     allFeeds,
                     openGroupPicker = { groupPickerState.value = true }
                 ) {
-                    navigate(MainNavigation.articlesScreenRoute(it))
+                    navigate(Screen.ArticlesScreen.destination + "/${it}")
                 }
             }
         }
@@ -119,13 +118,13 @@ fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> U
                 modifier = Modifier.combinedClickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
-                    onDoubleClick = { navigate(MainNavigation.privateSpaceRoute()) },
+                    onDoubleClick = { navigate(Screen.PrivateSpaceScreen.destination) },
                     onClick = {}
                 )
             )
         },
         actions = {
-            IconButton(onClick = { navigate(MainNavigation.newFeedRoute()) }) {
+            IconButton(onClick = { navigate(Screen.InsertFeedScreen.destination) }) {
                 Icon(Icons.Default.Add, "Add")
             }
         },

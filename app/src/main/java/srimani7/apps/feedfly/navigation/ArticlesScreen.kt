@@ -45,8 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import srimani7.apps.feedfly.BackButton
 import srimani7.apps.feedfly.R
+import srimani7.apps.feedfly.ui.BackButton
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.articles.RssItemsColumn
 import srimani7.apps.feedfly.viewmodel.ArticlesUIState
@@ -73,7 +73,7 @@ fun ArticlesScreen(navController: NavHostController) {
         topBar = {
             Column {
                 TopAppBar(
-                    navigationIcon = { BackButton(navController) },
+                    navigationIcon = { BackButton(navController::popBackStack) },
                     title = {
                         Column {
                             feed.also { feed ->
