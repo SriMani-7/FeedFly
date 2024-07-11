@@ -42,10 +42,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import srimani7.apps.feedfly.MainNavigation
-import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
+import srimani7.apps.feedfly.NavigationRouter
+import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.model.LabelData
-import srimani7.apps.feedfly.feature.labels.ui.PinnedLabels
+import srimani7.apps.feedfly.ui.PinnedLabels
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
 
@@ -64,7 +64,7 @@ fun HomeScreen(
             ExtendedFloatingActionButton(
                 text = { Text(text = "New feed") },
                 icon = { Icon(Icons.Default.Add, null) },
-                onClick = { navigate(MainNavigation.newFeedRoute()) })
+                onClick = { navigate(NavigationRouter.newFeedRoute()) })
         }
     ) { paddingValues ->
         LazyVerticalGrid(
@@ -78,7 +78,7 @@ fun HomeScreen(
         ) {
             item(span = { GridItemSpan(maxLineSpan) }, key = "pinned-labels") {
                 PinnedLabels(labels = pinnedLabels,
-                    onClick = { navigate(MainNavigation.labelRoute(it)) },
+                    onClick = { navigate(NavigationRouter.labelRoute(it)) },
                     onViewAll = { navigate(Screen.LabelsScreen.destination) })
             }
             item(span = { GridItemSpan(maxLineSpan) }) {
@@ -94,7 +94,7 @@ fun HomeScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        navigate(MainNavigation.groupOverviewScreen(it.name))
+                        navigate(NavigationRouter.groupOverviewScreen(it.name))
                     },
                     shape = MaterialTheme.shapes.small,
                 ) {
@@ -133,7 +133,7 @@ fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> U
                 modifier = Modifier.combinedClickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
-                    onDoubleClick = { navigate(MainNavigation.privateSpaceRoute()) },
+                    onDoubleClick = { navigate(NavigationRouter.privateSpaceRoute()) },
                     onClick = {}
                 )
             )
@@ -155,10 +155,10 @@ private fun HomeScreenPreview() {
         "Reading list,Favorites,Gaming,Resume needed,Applied".split(",")
             .mapIndexed { index, s -> LabelData(index.toLong(), s, index + 3, true) }
     }
-    TheSecretDairyTheme {
+    FeedFlyTheme {
         Scaffold(
             topBar = {
-                HomeAppbar(scrollBehavior = null, {})
+                HomeAppbar(scrollBehavior = null) {}
             }
         ) { paddingValues ->
             LazyVerticalGrid(

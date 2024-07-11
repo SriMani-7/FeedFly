@@ -53,7 +53,7 @@ fun ShowImageDialog(
             modifier = Modifier
                 .fillMaxSize()
                 .combinedClickable(
-                    interactionSource = MutableInteractionSource(),
+                    interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = onDismiss
                 )

@@ -1,6 +1,5 @@
 package srimani7.apps.feedfly.ui.articles
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -26,7 +25,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -35,12 +33,9 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.audio.MediaViewModel
 import srimani7.apps.feedfly.core.model.LabelledArticle
-import srimani7.apps.feedfly.data.UserSettingsRepo
-import srimani7.apps.feedfly.ui.ExoPlayerCard
+import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
 
@@ -48,8 +43,7 @@ import srimani7.apps.rssparser.elements.ChannelItem
 @Composable
 fun RssItemsColumn(
     dateListMap: List<LabelledArticle>,
-    articlePreference: UserSettingsRepo.ArticlePreference,
-    viewModel: MediaViewModel = viewModel(),
+    articlePreference: ArticlePreference,
     onDeleteArticle: (Long) -> Unit,
     onLongClick: (Long) -> Unit,
     onChangeArticleLabel: (Long, Long?) -> Unit
@@ -101,24 +95,6 @@ fun RssItemsColumn(
                 }
             }
         }
-        AnimatedVisibility(
-            viewModel.songState != null,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            viewModel.songState?.let {
-                ExoPlayerCard(
-                    songState = it,
-                    audioMetaData = viewModel.audioMetaData,
-                    playToggle = viewModel::play
-                )
-            }
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.mExoPlayer.release()
-        }
     }
 }
 
@@ -144,7 +120,7 @@ fun DismissibleRssItem(
                     SwipeToDismissBoxValue.Settled -> MaterialTheme.colorScheme.background
                     SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.tertiaryContainer
                     SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
-                }
+                }, label = "Dismiss background color"
             )
             val alignment = when (direction) {
                 SwipeToDismissBoxValue.StartToEnd,
@@ -160,7 +136,7 @@ fun DismissibleRssItem(
             }
             val scale by animateFloatAsState(
                 if (state.targetValue == SwipeToDismissBoxValue.Settled)
-                    0.75f else 1.5f
+                    0.75f else 1.5f, label = "Icon size"
             )
 
             Box(
@@ -185,7 +161,6 @@ fun DismissibleRssItem(
 @Composable
 fun RssItemsColumn(
     channelList: List<ChannelItem>,
-    viewModel: MediaViewModel = viewModel()
 ) {
     val lazyListState = rememberLazyListState()
     Box(modifier = Modifier.fillMaxSize()) {
@@ -198,28 +173,9 @@ fun RssItemsColumn(
             items(channelList, key = { it.link ?: "null" }) {
                 RssItemCard(
                     it,
-                    modifier = Modifier.animateItemPlacement(),
-                    onPlayAudio = viewModel::play
+                    modifier = Modifier.animateItemPlacement()
                 )
             }
-        }
-        AnimatedVisibility(
-            viewModel.songState != null,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            viewModel.songState?.let {
-                ExoPlayerCard(
-                    songState = it,
-                    audioMetaData = viewModel.audioMetaData,
-                    playToggle = viewModel::play
-                )
-            }
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.mExoPlayer.release()
         }
     }
 }

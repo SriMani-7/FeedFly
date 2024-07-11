@@ -38,9 +38,6 @@ ORDER BY l.id
     )
     fun getLabels(): Flow<List<LabelData>>
 
-    @Query("update articles set is_private = 1 where article_id = :l")
-    suspend fun moveArticleToPrivate(l: Long)
-
     @Query("REPLACE INTO article_labels (article_id, label_id) VALUES(:articleId, :labelId);")
     suspend fun updateLabel(articleId: Long, labelId: Long)
 
@@ -56,13 +53,17 @@ ORDER BY l.id
     @Query(
         """
         select a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
-       am.mime_type as mediaType, am.url as mediaSrc,
+       am.mime_type as mediaType, am.url as mediaSrc, la.label_name as label,
        al.label_id as labelId from articles as a 
         left join articles_media as am ON a.article_id == am.article_id
             left join article_labels as al on a.article_id = al.article_id 
+            left join labels as la on la.id = al.label_id
             where a.is_private = 0 and al.label_id = :label
             order by a.pub_date desc
     """
     )
     fun getArticles(label: Long): Flow<List<LabelledArticle>>
+
+    @Query("select l.label_name as name, l.pinned as pinned, l.id as id, count(*) as count from labels l left join article_labels al on l.id = al.label_id where l.pinned = 1 group by l.id order by count desc")
+    fun getPinnedLabels(): Flow<List<LabelData>>
 }

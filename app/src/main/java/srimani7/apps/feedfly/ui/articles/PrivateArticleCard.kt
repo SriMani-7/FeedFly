@@ -33,9 +33,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
+import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.model.PrivateArticle
-import srimani7.apps.feedfly.ui.fromHtml
+import srimani7.apps.feedfly.util.fromHtml
 import srimani7.apps.rssparser.DateParser
 import java.util.Date
 
@@ -67,7 +67,7 @@ fun PrivateArticleCard(
                     ArticleImage(descriptionUri!!)
 
                 } else if (article.mediaType != null && article.mediaSrc != null) {
-                    ArticleMediaHeader(article.mediaType!!, article.mediaSrc!!, {})
+                    ArticleMediaHeader(article.mediaType!!, article.mediaSrc!!)
                 }
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -137,7 +137,7 @@ fun UnLockButton(modifier: Modifier, onClick: () -> Unit) {
 @Preview
 @Composable
 private fun PrivateArticleCardPreview() {
-    TheSecretDairyTheme(true) {
+    FeedFlyTheme(true) {
         Scaffold {
             LazyColumn(
                 modifier = Modifier
@@ -149,8 +149,8 @@ private fun PrivateArticleCardPreview() {
                 items(3) {
                     PrivateArticleCard(article = PrivateArticle(
                         articleId = 2,
-                        title = "Can Bahubali The Conclusion beat the first part collections in pakistan",
-                        description = "Baahubali, the conclusion most Most anticipated movie in the universe releases today Let's see if it breaks the records of Bahubali, the beginning movie in the Pakistan",
+                        title = "Can Movie The Conclusion beat the first part collections in pakistan",
+                        description = "Movie, the conclusion most Most anticipated movie in the universe releases today Let's see if it breaks the records of Movie, the beginning movie in the Pakistan",
                         articleLink = "",
                         publishedTime = Date(),
                         mediaType = "image",

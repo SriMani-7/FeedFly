@@ -1,3 +1,4 @@
+<!--suppress CheckImageSize -->
 <img src="screenshots/logo.png" width="100" height="100" alt="FeedFly logo"> 
 
 # FeedFly - Read News on the Fly

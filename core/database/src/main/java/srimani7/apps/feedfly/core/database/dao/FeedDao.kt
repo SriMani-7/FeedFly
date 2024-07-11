@@ -127,10 +127,11 @@ interface FeedDao {
     @Query(
         """
         select a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
-       am.mime_type as mediaType, am.url as mediaSrc,
-       al.label_id as labelId from articles as a 
+       am.mime_type as mediaType, am.url as mediaSrc, la.label_name as label,
+       al.label_id as labelId from articles as a
         left join articles_media as am ON a.article_id == am.article_id
             left join article_labels as al on a.article_id = al.article_id 
+            left join labels as la on al.label_id = la.id
             where (a.is_private = 0 and a.feed_id = :id) and ((:unlabelled = 1 and al.label_id is null) or al.label_id = :labelId)
             order by a.pub_date desc
     """
@@ -145,9 +146,6 @@ interface FeedDao {
     )
     fun getFeeds(groupName: String): Flow<List<SimpleFeed>>
 
-    @Query("select l.label_name as name, l.pinned as pinned, l.id as id, count(*) as count from labels l left join article_labels al on l.id = al.label_id where l.pinned = 1 group by l.id order by count desc")
-    fun getPinnedLabels(): Flow<List<LabelData>>
-
     @Query("update feeds set group_name = :name where id = :id")
     suspend fun updateFeedGroup(id: Long, name: String)
 }
@@ -156,6 +154,6 @@ fun dbErrorLog(message: String, throwable: Throwable? = null) {
     Log.e("room_ops", message, throwable)
 }
 
-fun dbInfoLog(vararg messge: Any) {
-    Log.i("room_ops", messge.joinToString(" "))
+fun dbInfoLog(vararg message: Any) {
+    Log.i("room_ops", message.joinToString(" "))
 }

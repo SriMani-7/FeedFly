@@ -14,8 +14,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,11 +36,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import srimani7.apps.feedfly.MainNavigation
+import srimani7.apps.feedfly.NavigationRouter
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.model.SimpleFeed
 import srimani7.apps.feedfly.viewmodel.FeedGroupViewModel
@@ -49,7 +49,7 @@ import srimani7.apps.rssparser.DateParser
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupOverviewScreen(navController: NavController) {
-    val viewmodel = viewModel<FeedGroupViewModel>()
+    val viewmodel = hiltViewModel<FeedGroupViewModel>()
     val feeds by viewmodel.feeds.collectAsStateWithLifecycle(initialValue = emptyList())
 
     Scaffold(
@@ -73,7 +73,7 @@ fun GroupOverviewScreen(navController: NavController) {
         ) {
             items(feeds, key = { it.id }) { feed ->
                 FeedCard(feed, onClick = {
-                    navController.navigate(MainNavigation.articlesScreenRoute(feed.id))
+                    navController.navigate(NavigationRouter.articlesScreenRoute(feed.id))
                 })
             }
         }
@@ -123,7 +123,7 @@ fun FeedCard(simpleFeed: SimpleFeed, onClick: () -> Unit) {
                     }
                 }
             }
-            Divider()
+            HorizontalDivider()
         }
     }
 }

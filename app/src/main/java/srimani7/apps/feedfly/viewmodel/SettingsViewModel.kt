@@ -1,17 +1,20 @@
 package srimani7.apps.feedfly.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.data.AppTheme
-import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.model.AppTheme
+import javax.inject.Inject
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    private val userSettingsRepo: UserSettingsRepo
+) : ViewModel() {
 
-    private val userSettingsRepo by lazy { UserSettingsRepo(application) }
-    val settingsFlow = userSettingsRepo.settingsFlow
+    val themePreferenceFlow = userSettingsRepo.themePreferenceFlow
     val articlePreferencesFlow = userSettingsRepo.articlePreferences
 
     fun useDynamicTheme(value: Boolean) {

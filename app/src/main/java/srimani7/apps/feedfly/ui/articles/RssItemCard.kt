@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.ui.fromHtml
+import srimani7.apps.feedfly.util.fromHtml
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
 import java.text.SimpleDateFormat
@@ -34,8 +34,7 @@ import java.text.SimpleDateFormat
 @Composable
 fun RssItemCard(
     item: ChannelItem,
-    modifier: Modifier,
-    onPlayAudio: (String) -> Unit
+    modifier: Modifier
 ) {
     var descriptionUri by rememberSaveable {
         mutableStateOf<String?>(null)
@@ -93,7 +92,7 @@ fun RssItemCard(
                 } else item.enclosure?.let {
                     Spacer(modifier = Modifier.height(8.dp))
                     if (it.type != null && it.url != null)
-                        ArticleMediaHeader(mediaType = it.type!!, mediaSrc = it.url!!, onPlayAudio)
+                        ArticleMediaHeader(mediaType = it.type!!, mediaSrc = it.url!!)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 ArticleDescription(description = description)

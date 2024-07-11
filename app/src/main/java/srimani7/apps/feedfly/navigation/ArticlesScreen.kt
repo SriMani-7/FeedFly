@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -42,23 +43,22 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import srimani7.apps.feedfly.BackButton
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.core.data.model.FeedFetchState
+import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.articles.RssItemsColumn
-import srimani7.apps.feedfly.viewmodel.ArticlesUIState
 import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
 
 @Composable
 fun ArticlesScreen(navController: NavHostController) {
-    val viewModal = viewModel<RssViewModal>()
+    val viewModal = hiltViewModel<RssViewModal>()
     val articlePreference by viewModal.articlePreferencesFlow.collectAsStateWithLifecycle(
-        initialValue = UserSettingsRepo.ArticlePreference()
+        initialValue = ArticlePreference()
     )
 
     val parsingState by viewModal.uiStateStateFlow.collectAsState()
@@ -70,14 +70,18 @@ fun ArticlesScreen(navController: NavHostController) {
     val hostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    val groups by viewModal.groupNameFlow.collectAsState()
+    val groups by viewModal.groupNameFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val openGroupsPicker = remember { mutableStateOf(false) }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState) },
         topBar = {
             Column {
                 TopAppBar(
-                    navigationIcon = { BackButton(navController) },
+                    navigationIcon = {
+                        IconButton(onClick = navController::popBackStack) {
+                            Icon(Icons.AutoMirrored.Default.ArrowBack, null)
+                        }
+                    },
                     title = {
                         Column {
                             feed.also { feed ->
@@ -148,7 +152,7 @@ fun ArticlesScreen(navController: NavHostController) {
                     navController.navigate(Screen.ChangeLabelDialog.destination + "/$aId?label=${lId ?: -1L}")
                 }
             )
-            AnimatedVisibility(parsingState == ArticlesUIState.Loading) {
+            AnimatedVisibility(parsingState == FeedFetchState.Loading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
@@ -163,7 +167,7 @@ fun ArticlesScreen(navController: NavHostController) {
     }
 
     LaunchedEffect(parsingState) {
-        parsingState.message?.let {
+        parsingState?.message?.let {
             hostState.showSnackbar(it, duration = SnackbarDuration.Short)
         }
     }
