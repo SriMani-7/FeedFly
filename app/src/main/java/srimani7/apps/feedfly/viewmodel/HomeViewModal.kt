@@ -7,14 +7,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.repository.LabelRepository
 import srimani7.apps.feedfly.core.data.repository.impl.Repository
-import srimani7.apps.rssparser.RssParserRepository
-import srimani7.apps.rssparser.elements.Channel
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
@@ -24,34 +20,11 @@ class HomeViewModal @Inject constructor(
     private val repository: Repository,
     private val labelRepository: LabelRepository, application: Application
 ) : AndroidViewModel(application) {
-    val groupNameFlow by lazy {
-        repository.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    }
 
     val feedGroupsFlow = repository.getFeedGroups()
     val pinnedLabelsFlow = labelRepository.getPinnedLabels()
 
-    private val rssParserRepository = RssParserRepository()
-    val parsingState = rssParserRepository.parsingState
-
     val labels by lazy { labelRepository.getAllLabels() }
-
-    fun fetchFeed(url: String) {
-        viewModelScope.launch {
-            rssParserRepository.parseUrl(url, null)
-        }
-    }
-
-    fun save(channel: Channel, groupName: String) {
-        viewModelScope.launch {
-            try {
-                repository.insertFeedUrl(channel, groupName)
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_SHORT).show()
-                e.printStackTrace()
-            }
-        }
-    }
 
     private val _deletingState = MutableStateFlow(false)
     val deletingStateFlow = _deletingState.asStateFlow()
