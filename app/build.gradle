@@ -71,12 +71,10 @@ dependencies {
     implementation libs.androidx.lifecycle.viewmodel.compose
     implementation libs.androidx.lifecycle.runtime.compose
     implementation libs.androidx.navigation.compose
-    implementation libs.androidx.browser
     implementation project(':core:design')
     implementation project(':core:model')
     implementation project(':core:data')
     implementation project(':core:preferences')
-    implementation project(':rss-parser')
     implementation project(':feature:search')
     implementation project(':core:ui')
 
@@ -99,7 +97,6 @@ dependencies {
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
 
-    implementation libs.okhttp
     implementation libs.coil.compose
 
     // module dependencies

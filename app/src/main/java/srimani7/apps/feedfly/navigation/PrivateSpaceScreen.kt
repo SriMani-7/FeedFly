@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import srimani7.apps.feedfly.core.data.DateParser
 import srimani7.apps.feedfly.ui.articles.PrivateArticleCard
 import srimani7.apps.feedfly.viewmodel.PrivateSpaceViewmodel
-import srimani7.apps.rssparser.DateParser
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

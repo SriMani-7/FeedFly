@@ -44,6 +44,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.R
+import srimani7.apps.feedfly.core.data.DateParser
 import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.feedfly.core.ui.ArticleDescription
@@ -52,7 +53,6 @@ import srimani7.apps.feedfly.core.ui.ArticleMediaHeader
 import srimani7.apps.feedfly.core.ui.ArticleTitle
 import srimani7.apps.feedfly.core.ui.ArticleViewScreen
 import srimani7.apps.feedfly.core.ui.util.fromHtml
-import srimani7.apps.rssparser.DateParser
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)

@@ -42,9 +42,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import srimani7.apps.feedfly.NavigationRouter
 import srimani7.apps.feedfly.R
+import srimani7.apps.feedfly.core.data.DateParser
 import srimani7.apps.feedfly.core.model.SimpleFeed
 import srimani7.apps.feedfly.viewmodel.FeedGroupViewModel
-import srimani7.apps.rssparser.DateParser
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,7 +114,7 @@ fun FeedCard(simpleFeed: SimpleFeed, onClick: () -> Unit) {
                         overflow = TextOverflow.Ellipsis,
                         fontWeight = FontWeight.Medium,
                     )
-                    DateParser.formatDate(simpleFeed.lastBuildDate)?.let {
+                    DateParser.formatDate(simpleFeed.lastBuildDate, true)?.let {
                         Text(
                             text = it,
                             style = MaterialTheme.typography.bodySmall,

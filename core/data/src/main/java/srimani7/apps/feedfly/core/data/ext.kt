@@ -55,3 +55,8 @@ internal fun Channel.asFeed(group: String) = Feed(
     managingEditor = managingEditor,
     copyright = copyright
 )
+
+object DateParser {
+    fun formatDate(lastBuildDate: Date?, b: Boolean = true) = DateParser.formatDate(lastBuildDate, b)
+    fun formatTime(publishedTime: Date?) = DateParser.formatTime(publishedTime)
+}

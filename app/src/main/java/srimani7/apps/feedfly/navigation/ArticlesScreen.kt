@@ -47,13 +47,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.R
+import srimani7.apps.feedfly.core.data.DateParser
 import srimani7.apps.feedfly.core.data.model.FeedFetchState
 import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.core.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.articles.ArticlesColumn
 import srimani7.apps.feedfly.viewmodel.RssViewModal
-import srimani7.apps.rssparser.DateParser
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArticlesScreen(navController: NavHostController) {
     val viewModal = hiltViewModel<RssViewModal>()
@@ -93,7 +94,7 @@ fun ArticlesScreen(navController: NavHostController) {
                                         overflow = TextOverflow.Ellipsis
                                     )
                                 }
-                                DateParser.formatDate(feed?.lastBuildDate)?.let {
+                                DateParser.formatDate(feed?.lastBuildDate, true)?.let {
                                     Text(
                                         text = it,
                                         style = MaterialTheme.typography.labelMedium
