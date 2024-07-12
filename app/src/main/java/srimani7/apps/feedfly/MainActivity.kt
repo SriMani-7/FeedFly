@@ -16,8 +16,8 @@ import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.feedfly.core.preferences.model.AppTheme
 import srimani7.apps.feedfly.core.preferences.model.ThemePreference
+import srimani7.apps.feedfly.feature.search.navigation.URL_REGEX
 import srimani7.apps.feedfly.navigation.MainNavHost
-import srimani7.apps.feedfly.navigation.URL_REGEX
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

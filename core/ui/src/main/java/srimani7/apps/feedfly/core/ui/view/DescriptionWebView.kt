@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.ui
+package srimani7.apps.feedfly.core.ui.view
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,8 +7,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.browser.customtabs.CustomTabsIntent
-import srimani7.apps.feedfly.viewmodel.RssViewModal
+import srimani7.apps.feedfly.core.ui.util.openInBrowser
 
 @SuppressLint("ViewConstructor")
 class DescriptionWebView(context: Context, description: String): WebView(context) {
@@ -34,7 +33,6 @@ class DescriptionWebView(context: Context, description: String): WebView(context
         }
         scrollBarStyle = SCROLLBARS_OUTSIDE_OVERLAY
         isScrollbarFadingEnabled = false
-        RssViewModal.info(description)
         load(description)
     }
 
@@ -92,18 +90,3 @@ class DescriptionWebView(context: Context, description: String): WebView(context
     }
 }
 
-fun openInBrowser(uri: Uri, context: Context) {
-    val intent = CustomTabsIntent.Builder()
-        .setShareState(CustomTabsIntent.SHARE_STATE_ON)
-        .build().apply {
-            intent.putExtra(
-                "com.google.android.apps.chrome.EXTRA_OPEN_NEW_INCOGNITO_TAB",
-                true
-            )
-        }
-    intent.launchUrl(context, uri)
-}
-
-fun openInBrowser(link: String, context: Context) {
-    openInBrowser(Uri.parse(link), context)
-}

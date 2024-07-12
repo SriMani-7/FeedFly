@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
-import srimani7.apps.feedfly.ui.articles.RssItemsColumn
+import srimani7.apps.feedfly.ui.articles.ArticlesColumn
 import srimani7.apps.feedfly.viewmodel.LabelViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +50,7 @@ fun LabelOverviewScaffold(
         Box(modifier = Modifier
             .padding(paddingValues)
             .fillMaxSize()) {
-            RssItemsColumn(
+            ArticlesColumn(
                 articlePreference = articlePreference,
                 dateListMap = articles,
                 onDeleteArticle = onDeleteArticle,

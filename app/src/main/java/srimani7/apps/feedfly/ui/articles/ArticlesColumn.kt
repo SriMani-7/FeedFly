@@ -37,11 +37,10 @@ import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.rssparser.DateParser
-import srimani7.apps.rssparser.elements.ChannelItem
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun RssItemsColumn(
+fun ArticlesColumn(
     dateListMap: List<LabelledArticle>,
     articlePreference: ArticlePreference,
     onDeleteArticle: (Long) -> Unit,
@@ -157,25 +156,3 @@ fun DismissibleRssItem(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun RssItemsColumn(
-    channelList: List<ChannelItem>,
-) {
-    val lazyListState = rememberLazyListState()
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-            contentPadding = PaddingValues(8.dp, 15.dp),
-            state = lazyListState
-        ) {
-            items(channelList, key = { it.link ?: "null" }) {
-                RssItemCard(
-                    it,
-                    modifier = Modifier.animateItemPlacement()
-                )
-            }
-        }
-    }
-}

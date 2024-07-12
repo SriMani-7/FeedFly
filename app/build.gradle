@@ -78,6 +78,7 @@ dependencies {
     implementation project(':core:preferences')
     implementation project(':rss-parser')
     implementation project(':feature:search')
+    implementation project(':core:ui')
 
     // Testing dependencies
     testImplementation libs.junit

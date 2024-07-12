@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.ui.articles
+package srimani7.apps.feedfly.core.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.aspectRatio
@@ -15,12 +15,14 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun ArticleImage(imageSrc: String) {
     var shoImage by remember { mutableStateOf(false) }
+    val painter = rememberAsyncImagePainter(imageSrc.replaceFirst("http:", "https:"))
     AsyncImage(
-        model = imageSrc.replaceFirst("http:", "https:"),
+        model = painter,
         contentDescription = "image",
         contentScale = ContentScale.Crop,
         alignment = Alignment.TopCenter,
