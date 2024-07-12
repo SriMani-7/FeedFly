@@ -15,14 +15,12 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun ArticleImage(imageSrc: String) {
     var shoImage by remember { mutableStateOf(false) }
-    val painter = rememberAsyncImagePainter(imageSrc.replaceFirst("http:", "https:"))
     AsyncImage(
-        model = painter,
+        model = imageSrc.replaceFirst("http:", "https:"),
         contentDescription = "image",
         contentScale = ContentScale.Crop,
         alignment = Alignment.TopCenter,
