@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.ui.articles
+package srimani7.apps.feedfly.feature.search.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,10 +22,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.util.fromHtml
+import srimani7.apps.feedfly.core.ui.ArticleDescription
+import srimani7.apps.feedfly.core.ui.ArticleImage
+import srimani7.apps.feedfly.core.ui.ArticleMediaHeader
+import srimani7.apps.feedfly.core.ui.ArticleTitle
+import srimani7.apps.feedfly.core.ui.ArticleViewScreen
+import srimani7.apps.feedfly.core.ui.util.fromHtml
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
 import java.text.SimpleDateFormat
@@ -105,28 +109,4 @@ fun RssItemCard(
             }
         }
     }
-}
-
-
-@Composable
-fun ArticleTitle(title: String?, modifier: Modifier = Modifier) {
-    if (!title.isNullOrBlank()) Text(
-        text = title,
-        style = MaterialTheme.typography.bodyLarge,
-        maxLines = 2,
-        overflow = TextOverflow.Ellipsis,
-        modifier = modifier
-    )
-}
-
-@Composable
-fun ArticleDescription(description: String?) {
-    if (!description.isNullOrBlank()) Text(
-        text = description,
-        style = MaterialTheme.typography.bodyMedium,
-        maxLines = 3,
-        overflow = TextOverflow.Ellipsis,
-        fontWeight = FontWeight.Light,
-//        color = MaterialTheme.colorScheme.onSurface.copy(.8f)
-    )
 }
