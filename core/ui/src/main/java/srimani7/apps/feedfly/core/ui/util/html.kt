@@ -1,8 +1,9 @@
-package srimani7.apps.feedfly.util
+package srimani7.apps.feedfly.core.ui.util
 
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
+import android.net.Uri
 import android.text.Html
 import android.text.Layout
 import android.text.SpannableStringBuilder
@@ -12,6 +13,7 @@ import android.text.style.ImageSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import android.text.style.URLSpan
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -104,4 +106,20 @@ fun shareText(text: String, context: Context) {
 
     val shareIntent = Intent.createChooser(sendIntent, "Share link")
     ContextCompat.startActivity(context, shareIntent, ActivityOptionsCompat.makeBasic().toBundle())
+}
+
+fun openInBrowser(link: String, context: Context) {
+    openInBrowser(Uri.parse(link), context)
+}
+
+fun openInBrowser(uri: Uri, context: Context) {
+    val intent = CustomTabsIntent.Builder()
+        .setShareState(CustomTabsIntent.SHARE_STATE_ON)
+        .build().apply {
+            intent.putExtra(
+                "com.google.android.apps.chrome.EXTRA_OPEN_NEW_INCOGNITO_TAB",
+                true
+            )
+        }
+    intent.launchUrl(context, uri)
 }

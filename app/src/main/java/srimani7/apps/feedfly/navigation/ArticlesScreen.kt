@@ -49,8 +49,8 @@ import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.data.model.FeedFetchState
 import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
-import srimani7.apps.feedfly.ui.GroupsPicker
-import srimani7.apps.feedfly.ui.articles.RssItemsColumn
+import srimani7.apps.feedfly.core.ui.GroupsPicker
+import srimani7.apps.feedfly.ui.articles.ArticlesColumn
 import srimani7.apps.feedfly.viewmodel.RssViewModal
 import srimani7.apps.rssparser.DateParser
 
@@ -143,7 +143,7 @@ fun ArticlesScreen(navController: NavHostController) {
                 .padding(paddingValues)
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
         ) {
-            RssItemsColumn(
+            ArticlesColumn(
                 dateListMap = articles,
                 articlePreference = articlePreference,
                 onDeleteArticle = viewModal::deleteArticle,
