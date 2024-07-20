@@ -3,7 +3,7 @@
     ExperimentalMaterial3Api::class
 )
 
-package srimani7.apps.feedfly.navigation
+package srimani7.apps.feedfly.feature.search.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,21 +31,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import srimani7.apps.feedfly.ui.GroupsPicker
-import srimani7.apps.feedfly.ui.articles.RssItemsColumn
-import srimani7.apps.feedfly.viewmodel.HomeViewModal
+import srimani7.apps.feedfly.core.ui.GroupsPicker
+import srimani7.apps.feedfly.feature.search.ui.RssItemsColumn
+import srimani7.apps.feedfly.feature.search.viewmodel.FeedInsertViewModel
 import srimani7.apps.rssparser.ParsingState
 
 const val URL_REGEX =
     "\\b((?:https?|ftp)://[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&:/~+#-]*[\\w@?^=%&/~+#-])?)"
 
 @Composable
-fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> Unit) {
+fun NewFeedScreen(feedInsertViewModel: FeedInsertViewModel, urlF: String?, onDismiss: () -> Unit) {
     var url by remember { mutableStateOf(urlF ?: "") }
-    val parseState by homeViewModal.parsingState.collectAsStateWithLifecycle()
+    val parseState by feedInsertViewModel.parsingState.collectAsStateWithLifecycle()
 
     var active by rememberSaveable { mutableStateOf(true) }
-    val groups by homeViewModal.groupNameFlow.collectAsState()
+    val groups by feedInsertViewModel.groupNameFlow.collectAsState()
     val openGroupsPicker = remember { mutableStateOf(false) }
 
     Scaffold(
@@ -56,7 +56,7 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
                 onQueryChange = { url = it },
                 onSearch = {
                     active = false
-                    homeViewModal.fetchFeed(url)
+                    feedInsertViewModel.fetchFeed(url)
                 },
                 active = active,
                 onActiveChange = {
@@ -105,7 +105,7 @@ fun NewFeedScreen(homeViewModal: HomeViewModal, urlF: String?, onDismiss: () -> 
                         state = openGroupsPicker,
                         addNew = true
                     ) { group ->
-                        homeViewModal.save(success.channel, group)
+                        feedInsertViewModel.save(success.channel, group)
                         onDismiss()
                     }
                 }

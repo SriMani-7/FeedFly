@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.ui.articles
+package srimani7.apps.feedfly.core.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -31,7 +31,6 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import srimani7.apps.feedfly.R
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -63,7 +62,7 @@ fun ShowImageDialog(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(imageSrc.replaceFirst("http:", "https:"))
                     .crossfade(true)
-                    .error(R.drawable.baseline_error_outline_24)
+//                    .error(R.drawable.baseline_error_outline_24)
                     .diskCachePolicy(CachePolicy.DISABLED)
                     .build(),
                 contentDescription = "image",

@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.ui.articles
+package srimani7.apps.feedfly.core.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,10 +21,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.ui.DescriptionWebView
-import srimani7.apps.feedfly.ui.openInBrowser
-import srimani7.apps.feedfly.util.shareText
+import srimani7.apps.feedfly.core.ui.util.shareText
+import srimani7.apps.feedfly.core.ui.view.DescriptionWebView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +45,10 @@ fun ArticleViewScreen(
                     ).forEach {
                         IconButton(onClick = {
                             when (it.first) {
-                                "browser" -> openInBrowser(link, context)
+                                "browser" -> srimani7.apps.feedfly.core.ui.util.openInBrowser(
+                                    link,
+                                    context
+                                )
                                 "Share" -> shareText(link, context)
                             }
                         }) {

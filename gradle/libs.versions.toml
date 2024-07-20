@@ -2,6 +2,7 @@
 androidGradlePlugin = "8.5.0"
 androidLibrary = "8.5.0"
 desugar_jdk_libs = "2.0.4"
+hiltNavigationCompose = "1.2.0"
 kotlin-version = "1.9.21"
 devtools-ksp = "1.9.21-1.0.15"
 
@@ -36,6 +37,7 @@ androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", versi
 androidx-datastore-preferences-android = { module = "androidx.datastore:datastore-preferences-android", version.ref = "datastore-preferences-android" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso-core" }
 androidx-foundation = { module = "androidx.compose.foundation:foundation" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle-runtime-compose" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel-compose" }

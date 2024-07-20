@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.ui.articles
+package srimani7.apps.feedfly.core.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.aspectRatio

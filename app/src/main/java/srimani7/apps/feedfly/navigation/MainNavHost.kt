@@ -24,6 +24,8 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import srimani7.apps.feedfly.NavigationRouter
+import srimani7.apps.feedfly.feature.search.navigation.navigateSearchScreen
+import srimani7.apps.feedfly.feature.search.navigation.newFeedScreen
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
@@ -76,9 +78,7 @@ fun MainNavHost(addLink: String?) {
                 SettingsScreen(viewmodel, navController)
             }
 
-            composable(Screen.InsertFeedScreen.destination) {
-                NewFeedScreen(homeViewModal, addLink) { navController.popBackStack() }
-            }
+            newFeedScreen(navController)
 
             composable(Screen.PrivateSpaceScreen.destination) {
                 PrivateSpaceScreen(navController = navController)
@@ -133,6 +133,6 @@ fun MainNavHost(addLink: String?) {
         }
     }
     LaunchedEffect(addLink) {
-        addLink?.let { navController.navigate(Screen.InsertFeedScreen.destination) }
+        addLink?.let { navController.navigateSearchScreen(it) }
     }
 }
