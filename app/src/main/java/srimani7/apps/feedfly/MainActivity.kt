@@ -11,13 +11,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.feedfly.core.preferences.model.AppTheme
 import srimani7.apps.feedfly.core.preferences.model.ThemePreference
 import srimani7.apps.feedfly.feature.search.navigation.URL_REGEX
 import srimani7.apps.feedfly.navigation.MainNavHost
+import srimani7.apps.feedfly.receiver.ReadLaterRemainder
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -49,6 +53,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        lifecycleScope.launch {
+            userSettingsRepo.remainderTimeFlow.collectLatest { readLaterRemainder ->
+                ReadLaterRemainder.scheduleDailyReminder(application, readLaterRemainder)
+            }
+        }
 
     }
 
