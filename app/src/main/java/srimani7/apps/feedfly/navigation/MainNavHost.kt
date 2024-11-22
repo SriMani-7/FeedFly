@@ -23,6 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import srimani7.apps.feedfly.NavigationRouter
 import srimani7.apps.feedfly.feature.search.navigation.navigateSearchScreen
 import srimani7.apps.feedfly.feature.search.navigation.newFeedScreen
@@ -122,6 +123,7 @@ fun MainNavHost(addLink: String?) {
 
             composable(
                 route = Screen.ReadLaterScreen.destination,
+                deepLinks = listOf(navDeepLink { uriPattern = "feedfly://read_later" })
             ) {
                 ReadLaterScreen(
                     onBack = navController::popBackStack
