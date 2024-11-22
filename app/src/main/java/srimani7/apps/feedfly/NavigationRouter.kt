@@ -8,4 +8,5 @@ object NavigationRouter {
     fun articlesScreenRoute(id: Long) = Screen.ArticlesScreen.destination + "/${id}"
     fun privateSpaceRoute() = Screen.PrivateSpaceScreen.destination
     fun labelRoute(id: Long) = "labels/$id"
+    fun readLaterRoute() = Screen.ReadLaterScreen.destination
 }

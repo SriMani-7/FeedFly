@@ -29,6 +29,7 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -76,6 +77,13 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(12.dp, 6.dp, 12.dp, 100.dp)
         ) {
+            item {
+                OutlinedButton({
+                    navigate(NavigationRouter.readLaterRoute())
+                }) {
+                    Text("Read Later")
+                }
+            }
             item(span = { GridItemSpan(maxLineSpan) }, key = "pinned-labels") {
                 PinnedLabels(labels = pinnedLabels,
                     onClick = { navigate(NavigationRouter.labelRoute(it)) },

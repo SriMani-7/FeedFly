@@ -119,6 +119,14 @@ fun MainNavHost(addLink: String?) {
                         })
                 }
             }
+
+            composable(
+                route = Screen.ReadLaterScreen.destination,
+            ) {
+                ReadLaterScreen(
+                    onBack = navController::popBackStack
+                )
+            }
         }
         Column(Modifier.align(Alignment.BottomCenter)) {
             if (deletingState) {

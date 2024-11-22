@@ -10,4 +10,5 @@ sealed class Screen(val destination: String) {
     data object PrivateSpaceScreen: Screen("private_space")
     data object GroupOverviewScreen: Screen("home_screen_group")
     data object LabelsScreen: Screen("labels")
+    data object ReadLaterScreen:Screen("read_later")
 }
