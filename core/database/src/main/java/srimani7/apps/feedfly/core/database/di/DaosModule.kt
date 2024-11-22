@@ -17,4 +17,7 @@ internal object DaoModule {
 
     @Provides
     fun providesPrivateSpaceDao(database: AppDatabase) = database.privateSpaceDao()
+
+    @Provides
+    fun readLaterDao(database: AppDatabase) = database.readLaterDao()
 }

@@ -10,6 +10,7 @@ import androidx.room.migration.Migration
 import srimani7.apps.feedfly.core.database.dao.ArticleDao
 import srimani7.apps.feedfly.core.database.dao.FeedDao
 import srimani7.apps.feedfly.core.database.dao.PrivateSpaceDao
+import srimani7.apps.feedfly.core.database.dao.ReadLaterDao
 import srimani7.apps.feedfly.core.database.entity.ArticleItem
 import srimani7.apps.feedfly.core.database.entity.ArticleLabel
 import srimani7.apps.feedfly.core.database.entity.ArticleMedia
@@ -17,6 +18,7 @@ import srimani7.apps.feedfly.core.database.entity.ArticleTrash
 import srimani7.apps.feedfly.core.database.entity.Feed
 import srimani7.apps.feedfly.core.database.entity.FeedImage
 import srimani7.apps.feedfly.core.database.entity.Label
+import srimani7.apps.feedfly.core.database.entity.ReadLater
 import srimani7.apps.feedfly.core.database.migrations.Migration4
 import srimani7.apps.feedfly.core.database.migrations.Migration9to10
 
@@ -27,9 +29,10 @@ import srimani7.apps.feedfly.core.database.migrations.Migration9to10
         ArticleMedia::class,
         ArticleTrash::class,
         Label::class,
-        ArticleLabel::class
+        ArticleLabel::class,
+        ReadLater::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -40,6 +43,7 @@ import srimani7.apps.feedfly.core.database.migrations.Migration9to10
         AutoMigration(6, 7), // Label & ArticleLabel entities
         // Manual migration from 7 to 8
         AutoMigration(9, 10, Migration9to10::class), // isPrivate in article and removed priority in label
+        AutoMigration(10, 11), // ReadLater articles
     ]
 )
 @TypeConverters(Converters::class)
@@ -47,6 +51,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun feedDao(): FeedDao
     abstract fun articleDao(): ArticleDao
     abstract fun privateSpaceDao(): PrivateSpaceDao
+    abstract fun readLaterDao(): ReadLaterDao
 
     companion object {
         @Volatile
@@ -86,12 +91,14 @@ abstract class AppDatabase : RoomDatabase() {
 
         internal val MIGRATION_8_9 = Migration(8, 9) { database ->
             // delete rows from the article_labels table where the article_id is repeated more than once,
-            database.execSQL("DELETE FROM article_labels\n" +
-                    "WHERE id NOT IN (\n" +
-                    "    SELECT MIN(id)\n" +
-                    "    FROM article_labels\n" +
-                    "    GROUP BY article_id\n" +
-                    ");")
+            database.execSQL(
+                "DELETE FROM article_labels\n" +
+                        "WHERE id NOT IN (\n" +
+                        "    SELECT MIN(id)\n" +
+                        "    FROM article_labels\n" +
+                        "    GROUP BY article_id\n" +
+                        ");"
+            )
 
             // Drop the index related to the article_column
             database.execSQL("drop index if exists index_article_labels_article_id")
