@@ -7,9 +7,11 @@ import dagger.hilt.components.SingletonComponent
 import srimani7.apps.feedfly.core.data.repository.FeedGroupRepository
 import srimani7.apps.feedfly.core.data.repository.LabelRepository
 import srimani7.apps.feedfly.core.data.repository.PrivateSpaceRepository
+import srimani7.apps.feedfly.core.data.repository.ReadLaterRepository
 import srimani7.apps.feedfly.core.data.repository.RssFeedRepository
 import srimani7.apps.feedfly.core.data.repository.impl.LabelRepositoryImpl
 import srimani7.apps.feedfly.core.data.repository.impl.PrivateSpaceRepo
+import srimani7.apps.feedfly.core.data.repository.impl.ReadLaterRepositoryImpl
 import srimani7.apps.feedfly.core.data.repository.impl.Repository
 import srimani7.apps.feedfly.core.data.repository.impl.RssFeedRepositoryImpl
 
@@ -28,5 +30,8 @@ abstract class DataModule {
 
     @Binds
     internal abstract fun bindsFeedRepository(impl: RssFeedRepositoryImpl): RssFeedRepository
+
+    @Binds
+    internal abstract fun bindsReadLaterRepository(impl: ReadLaterRepositoryImpl): ReadLaterRepository
 
 }
