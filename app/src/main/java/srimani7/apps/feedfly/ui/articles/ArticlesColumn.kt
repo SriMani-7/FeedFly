@@ -33,21 +33,21 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import srimani7.apps.feedfly.LocalArticlePreference
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.data.DateParser
 import srimani7.apps.feedfly.core.model.LabelledArticle
-import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ArticlesColumn(
     dateListMap: List<LabelledArticle>,
-    articlePreference: ArticlePreference,
     onDeleteArticle: (Long) -> Unit,
     onLongClick: (Long) -> Unit,
     onChangeArticleLabel: (Long, Long?) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
+    val articlePreference = LocalArticlePreference.current
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(

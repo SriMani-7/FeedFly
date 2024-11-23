@@ -49,7 +49,6 @@ import androidx.navigation.NavHostController
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.data.DateParser
 import srimani7.apps.feedfly.core.data.model.FeedFetchState
-import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.core.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.articles.ArticlesColumn
 import srimani7.apps.feedfly.viewmodel.RssViewModal
@@ -58,9 +57,6 @@ import srimani7.apps.feedfly.viewmodel.RssViewModal
 @Composable
 fun ArticlesScreen(navController: NavHostController) {
     val viewModal = hiltViewModel<RssViewModal>()
-    val articlePreference by viewModal.articlePreferencesFlow.collectAsStateWithLifecycle(
-        initialValue = ArticlePreference()
-    )
 
     val parsingState by viewModal.uiStateStateFlow.collectAsState()
     val feed by viewModal.feedStateFlow.collectAsState(initial = null)
@@ -146,7 +142,6 @@ fun ArticlesScreen(navController: NavHostController) {
         ) {
             ArticlesColumn(
                 dateListMap = articles,
-                articlePreference = articlePreference,
                 onDeleteArticle = viewModal::deleteArticle,
                 onLongClick = viewModal::onMoveToPrivate,
                 onChangeArticleLabel = { aId, lId ->

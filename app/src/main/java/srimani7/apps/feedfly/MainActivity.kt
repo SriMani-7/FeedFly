@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,10 +20,13 @@ import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.feedfly.core.preferences.model.AppTheme
+import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.core.preferences.model.ThemePreference
 import srimani7.apps.feedfly.feature.search.navigation.URL_REGEX
 import srimani7.apps.feedfly.navigation.MainNavHost
 import srimani7.apps.feedfly.receiver.ReadLaterRemainder
+
+val LocalArticlePreference = compositionLocalOf { ArticlePreference() }
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -38,6 +43,9 @@ class MainActivity : ComponentActivity() {
             val themePreference by userSettingsRepo.themePreferenceFlow.collectAsStateWithLifecycle(
                 initialValue = ThemePreference(AppTheme.SYSTEM_DEFAULT)
             )
+            val articlePreference by userSettingsRepo.articlePreferences.collectAsStateWithLifecycle(
+                initialValue = ArticlePreference()
+            )
             val isDarkTheme = isSystemInDarkTheme()
             val darkTheme by remember(themePreference) {
                 mutableStateOf(
@@ -49,7 +57,9 @@ class MainActivity : ComponentActivity() {
                 )
             }
             FeedFlyTheme(darkTheme, dynamicColor = themePreference.useDynamicTheme) {
-                MainNavHost(feedUrl)
+                CompositionLocalProvider(LocalArticlePreference provides articlePreference) {
+                    MainNavHost(feedUrl)
+                }
             }
         }
 

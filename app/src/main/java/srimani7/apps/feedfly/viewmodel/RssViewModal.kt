@@ -26,7 +26,6 @@ import javax.inject.Inject
 @HiltViewModel
 class RssViewModal @Inject constructor(
     labelRepository: LabelRepository,
-    private val userSettingsRepo: UserSettingsRepo,
     private val privateSpaceRepository: PrivateSpaceRepository,
     private val rssFeedRepository: RssFeedRepository,
     feedGroupRepository: FeedGroupRepository,
@@ -47,8 +46,6 @@ class RssViewModal @Inject constructor(
 
     val articlesLabelsFlow = labelRepository.getArticleLabels(feedId)
     val selectedLabel = mutableStateOf<Long?>(null)
-
-    val articlePreferencesFlow by lazy { userSettingsRepo.articlePreferences }
 
     init {
         applyLabelFilter(null)

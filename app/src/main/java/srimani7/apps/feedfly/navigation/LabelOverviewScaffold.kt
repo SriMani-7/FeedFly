@@ -16,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.ui.articles.ArticlesColumn
 import srimani7.apps.feedfly.viewmodel.LabelViewModel
 
@@ -30,12 +29,6 @@ fun LabelOverviewScaffold(
     val lvm = hiltViewModel<LabelViewModel>()
     val label by lvm.labelFlow.collectAsStateWithLifecycle(initialValue = null)
     val articles by lvm.articlesFlow.collectAsStateWithLifecycle(initialValue = emptyList())
-    val articlePreference by lvm.articlePreferencesFlow.collectAsStateWithLifecycle(
-        initialValue = ArticlePreference(
-            swipeToDelete = false,
-            longClickToPrivate = false
-        )
-    )
 
     Scaffold(
         modifier = Modifier,
@@ -51,7 +44,6 @@ fun LabelOverviewScaffold(
             .padding(paddingValues)
             .fillMaxSize()) {
             ArticlesColumn(
-                articlePreference = articlePreference,
                 dateListMap = articles,
                 onDeleteArticle = onDeleteArticle,
                 onLongClick = {},
