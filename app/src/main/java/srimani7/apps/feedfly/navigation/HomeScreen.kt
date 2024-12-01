@@ -9,124 +9,81 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import srimani7.apps.feedfly.NavigationRouter
 import srimani7.apps.feedfly.core.design.FeedFlyTheme
-import srimani7.apps.feedfly.core.model.LabelData
-import srimani7.apps.feedfly.ui.PinnedLabels
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
+@Composable
+fun HomeScreenScaffold(navigate: (String) -> Unit, content: @Composable (PaddingValues) -> Unit) {
+    Scaffold(
+        topBar = {
+            HomeAppbar(null, navigate)
+        },
+        floatingActionButton = {
+            SmallFloatingActionButton(
+                content = { Icon(Icons.Default.Add, null) },
+                onClick = { navigate(NavigationRouter.newFeedRoute()) })
+        },
+        content = content
+    )
+}
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     homeViewModal: HomeViewModal,
     navigate: (String) -> Unit
 ) {
-    val groups by homeViewModal.feedGroupsFlow.collectAsStateWithLifecycle(emptyList())
-    val pinnedLabels by homeViewModal.pinnedLabelsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
-
-    Scaffold(
-        topBar = { HomeAppbar(null, navigate) },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text(text = "New feed") },
-                icon = { Icon(Icons.Default.Add, null) },
-                onClick = { navigate(NavigationRouter.newFeedRoute()) })
-        }
-    ) { paddingValues ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+    var selectedGroup by rememberSaveable { mutableStateOf<String?>(null) }
+    HomeScreenScaffold(navigate) { paddingValues ->
+        LazyColumn (
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(12.dp, 6.dp, 12.dp, 100.dp)
         ) {
             item {
-                OutlinedButton({
-                    navigate(NavigationRouter.readLaterRoute())
-                }) {
-                    Text("Read Later")
-                }
-            }
-            item(span = { GridItemSpan(maxLineSpan) }, key = "pinned-labels") {
-                PinnedLabels(labels = pinnedLabels,
-                    onClick = { navigate(NavigationRouter.labelRoute(it)) },
-                    onViewAll = { navigate(Screen.LabelsScreen.destination) })
-            }
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Text(
-                    "Groups",
-                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Normal
+                ElevatedAssistChip(
+                    onClick = {
+
+                    },
+                    label = { Text(selectedGroup ?: "All groups") },
+                    trailingIcon = {
+                        Icon(Icons.Default.ArrowDropDown, "Drop down")
+                    }
                 )
             }
-
-            items(groups, key = { it.name }) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        navigate(NavigationRouter.groupOverviewScreen(it.name))
-                    },
-                    shape = MaterialTheme.shapes.small,
-                ) {
-                    Column(
-                        modifier = Modifier.padding(14.dp, 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        Text(
-                            text = it.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            text = "${it.count} sites",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Normal
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-            }
+            // TODO: display articles
         }
     }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -156,37 +113,30 @@ fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> U
 }
 
 
-@PreviewLightDark
+@Preview
 @Composable
 private fun HomeScreenPreview() {
-    val labels = remember {
-        "Reading list,Favorites,Gaming,Resume needed,Applied".split(",")
-            .mapIndexed { index, s -> LabelData(index.toLong(), s, index + 3, true) }
-    }
     FeedFlyTheme {
-        Scaffold(
-            topBar = {
-                HomeAppbar(scrollBehavior = null) {}
-            }
-        ) { paddingValues ->
-            LazyVerticalGrid(
-                modifier = Modifier.padding(paddingValues),
-                columns = GridCells.Fixed(2),
+        HomeScreenScaffold({}) { paddingValues ->
+            LazyColumn (
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 contentPadding = PaddingValues(12.dp, 6.dp, 12.dp, 100.dp)
             ) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    PinnedLabels(labels = labels, {}, {})
-                }
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Text(
-                        "Groups",
-                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Normal
+                item {
+                    ElevatedAssistChip(
+                        onClick = {
+
+                        },
+                        label = { Text("All groups") },
+                        trailingIcon = {
+                            Icon(Icons.Default.ArrowDropDown, "Drop down")
+                        }
                     )
                 }
+                // TODO: display articles
             }
         }
     }
