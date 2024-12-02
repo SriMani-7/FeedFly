@@ -25,6 +25,7 @@ class UserSettingsRepo @Inject constructor(@ApplicationContext private val appli
     private val aLongClickPrivateKey = booleanPreferencesKey("article_long_click_preference")
     private val remainderHourKey = intPreferencesKey("read_later_hour_preference")
     private val remainderMinuteKey = intPreferencesKey("read_later_minute_preference")
+    private val feedGroupKey = stringPreferencesKey("feed_group_preference")
 
     val themePreferenceFlow = application.dataStore.data.map {
         ThemePreference(
@@ -77,6 +78,15 @@ class UserSettingsRepo @Inject constructor(@ApplicationContext private val appli
                 it[remainderHourKey] = readLaterRemainder.hour
                 it[remainderMinuteKey] = readLaterRemainder.minute
             }
+        }
+    }
+
+    val selectedFeedGroup = application.dataStore.data.map { it[feedGroupKey] }
+
+    suspend fun updateSelectedGroup(group: String?) {
+        application.dataStore.edit {
+            if (group == null) it.remove(feedGroupKey)
+            else it[feedGroupKey] = group
         }
     }
 
