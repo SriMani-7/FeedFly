@@ -1,5 +1,6 @@
 package srimani7.apps.feedfly.core.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -66,4 +67,34 @@ ORDER BY l.id
 
     @Query("select l.label_name as name, l.pinned as pinned, l.id as id, count(*) as count from labels l left join article_labels al on l.id = al.label_id where l.pinned = 1 group by l.id order by count desc")
     fun getPinnedLabels(): Flow<List<LabelData>>
+
+    @Query(
+        """
+        select a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
+       am.mime_type as mediaType, am.url as mediaSrc, la.label_name as label,
+       al.label_id as labelId from articles as a 
+        left join articles_media as am ON a.article_id == am.article_id
+            left join article_labels as al on a.article_id = al.article_id 
+            left join labels as la on la.id = al.label_id
+            left join feeds as f on a.feed_id = f.id
+            where a.is_private = 0 and f.group_name = :group
+            order by a.pub_date desc
+    """
+    )
+    fun getArticlesForGroup(group: String): PagingSource<Int, LabelledArticle>
+
+    @Query(
+        """
+        select a.article_id as articleId, a.title as title, a.description AS description, a.link as articleLink, a.pub_date as publishedTime,
+       am.mime_type as mediaType, am.url as mediaSrc, la.label_name as label,
+       al.label_id as labelId from articles as a 
+        left join articles_media as am ON a.article_id == am.article_id
+            left join article_labels as al on a.article_id = al.article_id 
+            left join labels as la on la.id = al.label_id
+            left join feeds as f on a.feed_id = f.id
+            where a.is_private = 0
+            order by a.pub_date desc
+    """
+    )
+    fun getArticlesForAllGroups(): PagingSource<Int, LabelledArticle>
 }

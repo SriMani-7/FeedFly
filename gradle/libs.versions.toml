@@ -44,6 +44,7 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room-ktx" }
+androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room-ktx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room-ktx" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-ktx" }
 androidx-ui = { module = "androidx.compose.ui:ui" }
