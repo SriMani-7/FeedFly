@@ -1,5 +1,6 @@
 package srimani7.apps.feedfly.core.data.repository
 
+import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import srimani7.apps.feedfly.core.model.LabelData
 import srimani7.apps.feedfly.core.model.LabelModel
@@ -15,4 +16,5 @@ interface LabelRepository {
     suspend fun updateArticleLabel(articleId: Long, labelId: Long)
     suspend fun removeArticleLabel(articleId: Long)
     suspend fun addLabel(it: String)
+    fun getArticlesForGroup(group: String?): Flow<PagingData<LabelledArticle>>
 }
