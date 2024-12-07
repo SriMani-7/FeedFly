@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.map
 import srimani7.apps.feedfly.core.preferences.model.AppTheme
+import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.core.preferences.model.ThemePreference
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -64,8 +65,4 @@ class UserSettingsRepo(private val application: Application) {
         }
     }
 
-    data class ArticlePreference(
-        val swipeToDelete: Boolean = false,
-        val longClickToPrivate: Boolean = false
-    )
 }
