@@ -34,8 +34,7 @@ import java.text.SimpleDateFormat
 @Composable
 fun RssItemCard(
     item: ChannelItem,
-    modifier: Modifier,
-    onPlayAudio: (String) -> Unit
+    modifier: Modifier
 ) {
     var descriptionUri by rememberSaveable {
         mutableStateOf<String?>(null)
@@ -93,7 +92,7 @@ fun RssItemCard(
                 } else item.enclosure?.let {
                     Spacer(modifier = Modifier.height(8.dp))
                     if (it.type != null && it.url != null)
-                        ArticleMediaHeader(mediaType = it.type!!, mediaSrc = it.url!!, onPlayAudio)
+                        ArticleMediaHeader(mediaType = it.type!!, mediaSrc = it.url!!)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 ArticleDescription(description = description)

@@ -50,9 +50,9 @@ import srimani7.apps.feedfly.viewmodel.HomeViewModal
 import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
 @Composable
-fun MainNavigation(homeViewModal: HomeViewModal, addLink: String?) {
+fun MainNavigation(addLink: String?) {
+    val homeViewModal = viewModel<HomeViewModal>()
     val navController = rememberNavController()
-    val settings by homeViewModal.settingsStateFlow.collectAsStateWithLifecycle()
     val deletingState by homeViewModal.deletingStateFlow.collectAsStateWithLifecycle()
     val labelViewModel = viewModel<LabelViewModel>()
 

@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.Repository
 import srimani7.apps.feedfly.core.model.LabelledArticle
-import srimani7.apps.feedfly.data.UserSettingsRepo
 import srimani7.apps.rssparser.ParsingState
 import srimani7.apps.rssparser.ParsingState.LastBuild
 import srimani7.apps.rssparser.ParsingState.Processing
@@ -49,9 +48,6 @@ class RssViewModal(application: Application, savedStateHandle: SavedStateHandle)
     private val rssParserRepository by lazy { RssParserRepository() }
     val articlesLabelsFlow = databaseRepo.getArticleLabels(feedId)
     val selectedLabel = mutableStateOf<Long?>(null)
-
-    private val userSettingsRepo by lazy { UserSettingsRepo(application) }
-    val articlePreferencesFlow by lazy { userSettingsRepo.articlePreferences }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

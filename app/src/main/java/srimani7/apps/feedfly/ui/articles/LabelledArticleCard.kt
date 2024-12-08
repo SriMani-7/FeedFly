@@ -79,7 +79,7 @@ fun LabelledArticleCard(
                 ArticleImage(descriptionUri!!)
 
             } else if (labelledArticle.mediaType != null && labelledArticle.mediaSrc != null) {
-                ArticleMediaHeader(labelledArticle.mediaType!!, labelledArticle.mediaSrc!!, {})
+                ArticleMediaHeader(labelledArticle.mediaType!!, labelledArticle.mediaSrc!!)
             }
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),

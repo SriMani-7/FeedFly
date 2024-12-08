@@ -67,7 +67,7 @@ fun PrivateArticleCard(
                     ArticleImage(descriptionUri!!)
 
                 } else if (article.mediaType != null && article.mediaSrc != null) {
-                    ArticleMediaHeader(article.mediaType!!, article.mediaSrc!!, {})
+                    ArticleMediaHeader(article.mediaType!!, article.mediaSrc!!)
                 }
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
