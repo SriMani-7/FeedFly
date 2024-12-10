@@ -1,6 +1,8 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.android)
 }
 
 android {
@@ -39,11 +41,11 @@ android {
         // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
 
-        sourceCompatibility JavaVersion.VERSION_18
-        targetCompatibility JavaVersion.VERSION_18
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '18'
+        jvmTarget = '1.8'
     }
     buildFeatures {
         compose true
@@ -83,17 +85,17 @@ dependencies {
     // Jetpack compose
     implementation platform(libs.androidx.compose.bom)
 
-    implementation "androidx.compose.ui:ui"
-    implementation "androidx.compose.ui:ui-tooling-preview"
-    implementation "androidx.compose.material3:material3"
-    implementation "androidx.compose.foundation:foundation"
+    implementation libs.androidx.ui
+    implementation libs.androidx.ui.tooling.preview
+    implementation libs.androidx.material3
+    implementation libs.androidx.foundation
     implementation libs.accompanist.systemuicontroller
 
     androidTestImplementation platform(libs.androidx.compose.bom)
 
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4"
-    debugImplementation "androidx.compose.ui:ui-tooling"
-    debugImplementation "androidx.compose.ui:ui-test-manifest"
+    androidTestImplementation libs.androidx.ui.test.junit4
+    debugImplementation libs.androidx.ui.tooling
+    debugImplementation libs.androidx.ui.test.manifest
 
     implementation libs.okhttp
     implementation libs.coil.compose
@@ -102,4 +104,8 @@ dependencies {
     implementation project(path: ':rss-parser')
 
     coreLibraryDesugaring libs.desugar.jdk.libs
+
+    ksp libs.hilt.android.compiler
+    implementation libs.hilt.android
+    implementation 'androidx.hilt:hilt-navigation-compose:1.2.0'
 }

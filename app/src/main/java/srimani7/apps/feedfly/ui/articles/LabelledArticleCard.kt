@@ -46,7 +46,7 @@ import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.R
 import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
 import srimani7.apps.feedfly.core.model.LabelledArticle
-import srimani7.apps.feedfly.ui.fromHtml
+import srimani7.apps.feedfly.util.fromHtml
 import srimani7.apps.rssparser.DateParser
 import java.util.Date
 

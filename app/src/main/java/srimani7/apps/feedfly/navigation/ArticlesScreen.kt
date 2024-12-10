@@ -42,11 +42,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import srimani7.apps.feedfly.BackButton
 import srimani7.apps.feedfly.R
+import srimani7.apps.feedfly.ui.BackButton
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.ui.articles.RssItemsColumn
 import srimani7.apps.feedfly.viewmodel.ArticlesUIState
@@ -55,7 +55,7 @@ import srimani7.apps.rssparser.DateParser
 
 @Composable
 fun ArticlesScreen(navController: NavHostController) {
-    val viewModal = viewModel<RssViewModal>()
+    val viewModal = hiltViewModel<RssViewModal>()
 
     val parsingState by viewModal.uiStateStateFlow.collectAsState()
     val feed by viewModal.feedStateFlow.collectAsState(initial = null)
@@ -73,7 +73,7 @@ fun ArticlesScreen(navController: NavHostController) {
         topBar = {
             Column {
                 TopAppBar(
-                    navigationIcon = { BackButton(navController) },
+                    navigationIcon = { BackButton(navController::popBackStack) },
                     title = {
                         Column {
                             feed.also { feed ->

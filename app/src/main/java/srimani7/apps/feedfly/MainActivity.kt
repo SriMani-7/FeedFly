@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.AndroidEntryPoint
 import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
 import srimani7.apps.feedfly.core.preferences.model.AppTheme
@@ -22,6 +23,7 @@ import srimani7.apps.feedfly.navigation.URL_REGEX
 
 val LocalArticlePreference = compositionLocalOf { ArticlePreference() }
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val userSettingsRepo by lazy { UserSettingsRepo(application) }

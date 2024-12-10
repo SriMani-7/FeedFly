@@ -1,4 +1,4 @@
-package srimani7.apps.feedfly.ui
+package srimani7.apps.feedfly.util
 
 import android.content.Context
 import android.content.Intent
