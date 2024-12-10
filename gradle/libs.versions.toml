@@ -7,7 +7,6 @@ devtools-ksp = "1.9.0-1.0.13"
 
 androidxComposeBom = "2024.02.02"
 composeCompiler = "1.5.0"
-accompanist-systemuicontroller = "0.30.0"
 activity-compose = "1.8.2"
 androidx-junit = "1.1.5"
 annotation = "1.6.0"
@@ -28,7 +27,6 @@ room-ktx = "2.5.2"
 hilt-android = "2.48.1"
 
 [libraries]
-accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist-systemuicontroller" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
