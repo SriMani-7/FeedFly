@@ -1,6 +1,6 @@
 [versions]
-androidGradlePlugin = "8.5.0"
-androidLibrary = "8.5.0"
+androidGradlePlugin = "8.7.2"
+androidLibrary = "8.7.2"
 desugar_jdk_libs = "2.0.3"
 kotlin-version = "1.9.0"
 devtools-ksp = "1.9.0-1.0.13"
