@@ -24,7 +24,7 @@ lifecycle-viewmodel-compose = "2.8.7"
 navigation-compose = "2.8.4"
 hiltNavigationCompose = "1.2.0"
 okhttp = "4.12.0"
-room-ktx = "2.5.2"
+room-version = "2.6.1"
 hilt-android = "2.49"
 
 [libraries]
@@ -43,9 +43,9 @@ androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-ru
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel-compose" }
 androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room-ktx" }
-androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room-ktx" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-ktx" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room-version" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room-version" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-version" }
 androidx-ui = { module = "androidx.compose.ui:ui" }
 androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
@@ -67,3 +67,4 @@ android-library = { id = "com.android.library", version.ref = "androidLibrary" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-version" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "devtools-ksp" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt-android" }
+room = { id = "androidx.room", version.ref = "room-version" }
