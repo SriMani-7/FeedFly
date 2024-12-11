@@ -29,8 +29,6 @@ data class ArticleItem(
     @ColumnInfo("pub_date") val pubDate: Date? = null,
     val description: String? = null,
     @ColumnInfo("author") val author: String? = null,
-    @ColumnInfo("is_private", defaultValue = "0")
-    val isPrivate: Boolean = false,
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("article_id") val id: Long = 0
 )

@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             }
-            TheSecretDairyTheme(darkTheme, dynamicColor = appTheme.useDynamicTheme) {
+            TheSecretDairyTheme(darkTheme) {
                 MainNavigation(viewModel, feedUrl)
             }
         }

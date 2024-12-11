@@ -36,6 +36,7 @@ fun ArticleMediaHeader(
     mediaSrc: String,
     playAudio: (String) -> Unit
 ) {
+
     when {
         mediaType.contains("image") -> ArticleImage(mediaSrc)
         mediaType.contains("audio") -> {
