@@ -4,5 +4,5 @@ data class LabelData(
     val id: Long,
     val name: String,
     val count: Int,
-    val pinned: Boolean
+    val priority: Int
 )
