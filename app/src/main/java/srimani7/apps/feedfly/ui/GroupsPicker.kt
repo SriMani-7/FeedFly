@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -66,7 +64,6 @@ fun GroupsPicker(
             },
             sheetState = bottomSheetState,
             tonalElevation = 1.dp,
-            windowInsets = WindowInsets.navigationBars,
             dragHandle = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     BottomSheetDefaults.DragHandle()
