@@ -1,157 +1,98 @@
 package srimani7.apps.feedfly.viewmodel
 
-import android.app.Application
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.database.Repository
-import srimani7.apps.feedfly.core.database.entity.Feed
-import srimani7.apps.feedfly.core.model.LabelledArticle
-import srimani7.apps.feedfly.data.UserSettingsRepo
-import srimani7.apps.rssparser.ParsingState
-import srimani7.apps.rssparser.ParsingState.LastBuild
-import srimani7.apps.rssparser.ParsingState.Processing
-import srimani7.apps.rssparser.RssParserRepository
-import srimani7.apps.rssparser.debugLog
-import java.util.Date
+import srimani7.apps.feedfly.core.data.repository.LabelRepository
+import srimani7.apps.feedfly.core.data.repository.PrivateSpaceRepository
+import srimani7.apps.feedfly.core.data.repository.RssFeedRepository
+import srimani7.apps.feedfly.core.data.repository.impl.Repository
+import javax.inject.Inject
 
-class RssViewModal(private val feedId: Long, application: Application) :
-    AndroidViewModel(application) {
+@OptIn(ExperimentalCoroutinesApi::class)
+@HiltViewModel
+class RssViewModal @Inject constructor(
+    databaseRepo: Repository,
+    labelRepository: LabelRepository,
+    private val privateSpaceRepository: PrivateSpaceRepository,
+    private val rssFeedRepository: RssFeedRepository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
-    private val databaseRepo = Repository(application)
+    private val feedId: Long = savedStateHandle["id"] ?: -1
 
     val feedStateFlow =
-        databaseRepo.getFeed(feedId).stateIn(viewModelScope, SharingStarted.Lazily, null)
-    val groupNameFlow by lazy {
-        databaseRepo.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        rssFeedRepository.getFeed(feedId).stateIn(viewModelScope, SharingStarted.Lazily, null)
+    private val _feed get() = feedStateFlow.value
+
+    val groupNameFlow = databaseRepo.getGroups()
+    val uiStateStateFlow = rssFeedRepository.uiState
+
+    private val _selectedLabel = MutableStateFlow<Long?>(null)
+    val selectedLabel = _selectedLabel.asStateFlow()
+
+    val articles = selectedLabel.flatMapLatest {  label ->
+        rssFeedRepository.getFeedArticles(feedId, label)
     }
 
-    private val _uiState = MutableStateFlow<ArticlesUIState>(ArticlesUIState.Loading)
-    val uiStateStateFlow = _uiState.asStateFlow()
-    private var lastBuildDate: Date? = null
+    val articlesLabelsFlow = labelRepository.getArticleLabels(feedId)
 
-    private val _articlesFlow = MutableStateFlow(emptyList<LabelledArticle>())
-    val articles = _articlesFlow.asStateFlow()
-
-    private val rssParserRepository by lazy { RssParserRepository() }
-    val articlesLabelsFlow = databaseRepo.getArticleLabels(feedId)
-    val selectedLabel = mutableStateOf<Long?>(null)
-
-    private val userSettingsRepo by lazy { UserSettingsRepo(application) }
-    val articlePreferencesFlow by lazy { userSettingsRepo.articlePreferences }
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            rssParserRepository.parsingState.collectLatest { parsingState ->
-                when (parsingState) {
-                    is ParsingState.Failure -> {
-                        _uiState.value = ArticlesUIState.Failure(
-                            parsingState.exception.message ?: "Please try again"
-                        )
-                    }
-
-                    is ParsingState.Success -> {
-                        val channel = parsingState.channel
-                        if (channel.lastBuildDate == null) {
-                            lastBuildDate = Date()
-                            channel.lastBuildDate = lastBuildDate
-                        } else lastBuildDate = channel.lastBuildDate
-                        if (feedStateFlow.value != null) {
-                            feedStateFlow.value?.let {
-                                databaseRepo.updateAndInsertArticles(it, channel)
-                            }
-                        }
-                        _uiState.value = ArticlesUIState.COMPLETED
-                    }
-
-                    LastBuild -> {
-                        lastBuildDate = feedStateFlow.value?.lastBuildDate
-                        _uiState.value = ArticlesUIState.COMPLETED
-                    }
-
-                    Processing -> _uiState.value = ArticlesUIState.Loading
-                    ParsingState.Completed -> {}
-                }
+    private fun load() {
+        _feed?.let {
+            viewModelScope.launch(Dispatchers.IO) {
+                rssFeedRepository.updateFeed(it)
             }
-        }
-        applyLabelFilter(null)
-    }
-
-    fun parseXml(feed: Feed) {
-        if (feed.lastBuildDate != null && lastBuildDate == feed.lastBuildDate) {
-            _uiState.value = ArticlesUIState.COMPLETED
-            return
-        }
-        info(feed.lastBuildDate.toString() + " " + lastBuildDate)
-        load(feed)
-    }
-
-    private fun load(feed: Feed) {
-        viewModelScope.launch(Dispatchers.IO) {
-            rssParserRepository.parseUrl(feed.feedUrl, feed.lastBuildDate)
         }
     }
 
     companion object {
         fun info(any: Any) {
-            Log.i("vrss_", any.toString())
+            Log.i("v_rss_", any.toString())
         }
     }
 
-    fun delete(feed: Feed?) {
-        if (feed == null) return
-        viewModelScope.launch {
-            databaseRepo.delete(feed)
+    fun delete() {
+        _feed?.let {
+            viewModelScope.launch {
+                rssFeedRepository.deleteFeed(it.id)
+            }
         }
     }
 
-    fun refresh(feed: Feed?) {
-        if (feed == null) return
-        load(feed)
-    }
-
-    fun updateFeed(copy: Feed?) {
-        if (copy == null) return
-        viewModelScope.launch { databaseRepo.updateFeedUrl(copy) }
-    }
+    fun refresh() = load()
 
     fun deleteArticle(articleId: Long) {
         viewModelScope.launch {
-            databaseRepo.deleteArticle(articleId)
+            rssFeedRepository.deleteArticle(articleId)
         }
     }
 
     fun onMoveToPrivate(l: Long) {
         viewModelScope.launch {
-            databaseRepo.moveArticleToPrivate(l)
+            privateSpaceRepository.moveArticleToPrivate(l)
         }
     }
 
-    private var preArticleJob: Job? = null
     fun applyLabelFilter(id: Long?) {
-        selectedLabel.value = if (selectedLabel.value == id) null else id
-        preArticleJob?.cancel()
-        preArticleJob = viewModelScope.launch {
-            databaseRepo.getFeedArticles(feedId, selectedLabel.value).collectLatest { articles ->
-                debugLog("collecting filtered articles for $id")
-                _articlesFlow.update { articles }
+        _selectedLabel.update { id }
+    }
+
+    fun updateFeedGroup(name: String) {
+        _feed?.let {
+            viewModelScope.launch {
+                rssFeedRepository.updateFeedGroup(it.id, name)
             }
         }
     }
-}
-
-sealed class ArticlesUIState {
-    object Loading : ArticlesUIState()
-    object COMPLETED : ArticlesUIState()
-    data class Failure(val message: String) : ArticlesUIState()
 }

@@ -1,6 +1,5 @@
 package srimani7.apps.feedfly.navigation
 
-import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,32 +19,20 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.AndroidViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import srimani7.apps.feedfly.core.database.PrivateSpaceRepo
-import srimani7.apps.feedfly.core.model.PrivateArticle
 import srimani7.apps.feedfly.ui.articles.PrivateArticleCard
+import srimani7.apps.feedfly.viewmodel.PrivateSpaceViewmodel
 import srimani7.apps.rssparser.DateParser
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrivateSpaceScreen(navController: NavController) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val viewmodel = viewModel<PrivateSpaceViewmodel>()
+    val viewmodel = hiltViewModel<PrivateSpaceViewmodel>()
     val groups by viewmodel.groupsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val articles by viewmodel.articlesFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
@@ -93,38 +80,3 @@ fun PrivateSpaceScreen(navController: NavController) {
 
 }
 
-class PrivateSpaceViewmodel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = PrivateSpaceRepo(application)
-
-    val groupsFlow = repository.groups
-    var selectedGroup by mutableStateOf("Others")
-        private set
-
-    private val _articlesFlow = MutableStateFlow(emptyList<PrivateArticle>())
-    val articlesFlow = _articlesFlow.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            changeGroup("Others")
-        }
-    }
-
-    private var gJob: Job? = null
-    fun changeGroup(group: String) {
-        selectedGroup = group
-        gJob?.cancel()
-        gJob = viewModelScope.launch(Dispatchers.IO) {
-            repository.getPrivateArticles(group).collectLatest { articles ->
-                _articlesFlow.update { articles }
-            }
-        }
-
-    }
-
-    fun unLockArticle(it: Long) {
-        viewModelScope.launch {
-            repository.unLockArticle(it)
-        }
-    }
-}

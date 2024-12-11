@@ -33,7 +33,6 @@ import androidx.compose.material3.TopAppBarDefaults.exitUntilCollapsedScrollBeha
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -45,9 +44,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import srimani7.apps.feedfly.MainNavigation
-import srimani7.apps.feedfly.core.database.dto.FeedDto
-import srimani7.apps.feedfly.data.UserSettingsRepo
+import srimani7.apps.feedfly.core.model.SimpleFeed
 import srimani7.apps.feedfly.ui.GroupsPicker
 import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
@@ -57,10 +54,10 @@ fun HomeScreen(
     homeViewModal: HomeViewModal,
     navigate: (String) -> Unit
 ) {
-    val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle()
-    val groups by homeViewModal.groupNameFlow.collectAsStateWithLifecycle()
+    val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle(emptyList())
+    val groups by homeViewModal.groupNameFlow.collectAsStateWithLifecycle(emptyList())
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val settings = homeViewModal.settingsStateFlow.collectAsStateWithLifecycle()
+    val currentGroup by homeViewModal.currentGroupFLow.collectAsStateWithLifecycle("")
     val groupPickerState = remember { mutableStateOf(false) }
 
     Scaffold(
@@ -74,16 +71,16 @@ fun HomeScreen(
         ) {
             if (groups.isNotEmpty()) {
                 FeedsHome(
-                    currentGroup = settings,
+                    currentGroup = currentGroup,
                     allFeeds,
                     openGroupPicker = { groupPickerState.value = true }
                 ) {
-                    navigate(MainNavigation.articlesScreenRoute(it))
+                    navigate(Screen.ArticlesScreen.destination + "/${it}")
                 }
             }
         }
         GroupsPicker(
-            selected = settings.value.currentGroup,
+            selected = currentGroup ?: "",
             groups = groups,
             state = groupPickerState,
             onPick = homeViewModal::updateCurrentGroup
@@ -121,13 +118,13 @@ fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> U
                 modifier = Modifier.combinedClickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
-                    onDoubleClick = { navigate(MainNavigation.privateSpaceRoute()) },
+                    onDoubleClick = { navigate(Screen.PrivateSpaceScreen.destination) },
                     onClick = {}
                 )
             )
         },
         actions = {
-            IconButton(onClick = { navigate(MainNavigation.newFeedRoute()) }) {
+            IconButton(onClick = { navigate(Screen.InsertFeedScreen.destination) }) {
                 Icon(Icons.Default.Add, "Add")
             }
         },
@@ -137,16 +134,15 @@ fun HomeAppbar(scrollBehavior: TopAppBarScrollBehavior?, navigate: (String) -> U
 
 @Composable
 fun FeedsHome(
-    currentGroup: State<UserSettingsRepo.Settings>,
-    allFeeds: List<FeedDto>,
+    currentGroup: String?,
+    allFeeds: List<SimpleFeed>,
     openGroupPicker: () -> Unit,
     onClick: (Long) -> Unit
 ) {
 
-    val settings by remember { currentGroup }
-    var selectedIndex by remember { mutableIntStateOf(if (settings.currentGroup.isBlank()) 0 else 1) }
-    val filteredFeeds by remember {
-        derivedStateOf { allFeeds.filter { it.group == settings.currentGroup } }
+    var selectedIndex by remember(currentGroup) { mutableIntStateOf(if (currentGroup?.isBlank() == true) 0 else 1) }
+    val filteredFeeds by remember(currentGroup) {
+        derivedStateOf { allFeeds.filter { it.groupName == currentGroup } }
     }
 
     val allListState = rememberLazyListState()
@@ -165,7 +161,7 @@ fun FeedsHome(
             item {
                 FeedFilterChip(
                     selected = selectedIndex == 1,
-                    label = settings.currentGroup,
+                    label = currentGroup ?: "Select group",
                     trailingIcon = Icons.Default.ArrowDropDown,
                     onClick = {
                         if (selectedIndex == 1) openGroupPicker()

@@ -150,8 +150,7 @@ object DateParser {
             if (splitted.contains(timeZone)) {
                 return replaceLastOccurrence(
                     sDate,
-                    timeZone,
-                    "UTC"
+                    timeZone
                 )
             }
         }
@@ -161,7 +160,7 @@ object DateParser {
     private fun replaceLastOccurrence(
         original: String,
         target: String,
-        replacement: String
+        replacement: String = "UTC"
     ): String {
         val lastIndexOfTarget = original.lastIndexOf(target)
         return if (lastIndexOfTarget == -1) {

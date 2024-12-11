@@ -44,9 +44,9 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.R
-import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
+import srimani7.apps.feedfly.core.design.FeedFlyTheme
 import srimani7.apps.feedfly.core.model.LabelledArticle
-import srimani7.apps.feedfly.ui.fromHtml
+import srimani7.apps.feedfly.util.fromHtml
 import srimani7.apps.rssparser.DateParser
 import java.util.Date
 
@@ -79,7 +79,7 @@ fun LabelledArticleCard(
                 ArticleImage(descriptionUri!!)
 
             } else if (labelledArticle.mediaType != null && labelledArticle.mediaSrc != null) {
-                ArticleMediaHeader(labelledArticle.mediaType!!, labelledArticle.mediaSrc!!, {})
+                ArticleMediaHeader(labelledArticle.mediaType!!, labelledArticle.mediaSrc!!)
             }
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -184,7 +184,7 @@ fun LabelledArticleCard(
 @Preview
 @Composable
 private fun RssItemCardPreview() {
-    TheSecretDairyTheme(true) {
+    FeedFlyTheme(true) {
         Scaffold {
             LazyColumn(
                 modifier = Modifier

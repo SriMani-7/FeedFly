@@ -6,20 +6,27 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import srimani7.apps.feedfly.core.design.TheSecretDairyTheme
-import srimani7.apps.feedfly.data.AppTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.AndroidEntryPoint
+import srimani7.apps.feedfly.core.design.FeedFlyTheme
+import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
+import srimani7.apps.feedfly.core.preferences.model.AppTheme
+import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
+import srimani7.apps.feedfly.core.preferences.model.ThemePreference
 import srimani7.apps.feedfly.navigation.URL_REGEX
-import srimani7.apps.feedfly.viewmodel.HomeViewModal
 
+val LocalArticlePreference = compositionLocalOf { ArticlePreference() }
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel by viewModels<HomeViewModal>()
+    private val userSettingsRepo by lazy { UserSettingsRepo(application) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,23 +35,28 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val appTheme by viewModel.settingsStateFlow.collectAsState()
+            val themePreference by userSettingsRepo.themePreferenceFlow.collectAsStateWithLifecycle(
+                ThemePreference(AppTheme.SYSTEM_DEFAULT)
+            )
+            val articlePreference by userSettingsRepo.articlePreferences.collectAsStateWithLifecycle(
+                initialValue = ArticlePreference()
+            )
             val isDarkTheme = isSystemInDarkTheme()
-            val darkTheme by remember(appTheme) {
+            val darkTheme by remember(themePreference) {
                 mutableStateOf(
-                    when (appTheme.theme) {
+                    when (themePreference.theme) {
                         AppTheme.SYSTEM_DEFAULT -> isDarkTheme
                         AppTheme.LIGHT -> false
                         AppTheme.DARK -> true
                     }
                 )
             }
-            TheSecretDairyTheme(darkTheme, dynamicColor = appTheme.useDynamicTheme) {
-                MainNavigation(viewModel, feedUrl)
+            FeedFlyTheme(darkTheme, dynamicColor = themePreference.useDynamicTheme) {
+                CompositionLocalProvider(LocalArticlePreference provides articlePreference) {
+                    MainNavigation(feedUrl)
+                }
             }
         }
-
-
     }
 
     private fun addFeedFromShare(): String? {
