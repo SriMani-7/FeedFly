@@ -93,8 +93,8 @@ fun MainNavigation(addLink: String?) {
                 arguments = listOf(
                     navArgument("feedId") { type = NavType.LongType }
                 )
-            ) {
-                val feedId = it.arguments?.getLong("feedId")
+            ) { backStackEntry ->
+                val feedId = backStackEntry.arguments?.getLong("feedId")
                 RemoveArticlesScreen(navController::popBackStack) {
                     homeViewModal.deleteOldArticles(feedId, it)
                     navController.popBackStack()

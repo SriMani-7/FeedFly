@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import srimani7.apps.feedfly.core.data.repository.impl.Repository
 import srimani7.apps.feedfly.core.preferences.UserSettingsRepo
@@ -25,10 +23,7 @@ class HomeViewModal @Inject constructor(
     private val userSettingsRepo: UserSettingsRepo,
     application: Application
 ) : AndroidViewModel(application) {
-    val groupNameFlow by lazy {
-        repository.getGroups().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    }
-
+    val groupNameFlow = repository.getGroups()
     val allFeedsFlow = repository.getAllFeeds()
     val currentGroupFLow = userSettingsRepo.currentGroupFlow
 

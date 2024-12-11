@@ -6,7 +6,6 @@
 package srimani7.apps.feedfly.navigation
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -40,7 +39,6 @@ import srimani7.apps.feedfly.core.preferences.model.ArticlePreference
 import srimani7.apps.feedfly.core.preferences.model.ThemePreference
 import srimani7.apps.feedfly.viewmodel.SettingsViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel

@@ -55,7 +55,7 @@ fun HomeScreen(
     navigate: (String) -> Unit
 ) {
     val allFeeds by homeViewModal.allFeedsFlow.collectAsStateWithLifecycle(emptyList())
-    val groups by homeViewModal.groupNameFlow.collectAsStateWithLifecycle()
+    val groups by homeViewModal.groupNameFlow.collectAsStateWithLifecycle(emptyList())
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val currentGroup by homeViewModal.currentGroupFLow.collectAsStateWithLifecycle("")
     val groupPickerState = remember { mutableStateOf(false) }

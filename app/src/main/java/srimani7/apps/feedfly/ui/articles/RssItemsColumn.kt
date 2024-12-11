@@ -2,7 +2,6 @@ package srimani7.apps.feedfly.ui.articles
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,7 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
@@ -39,7 +37,6 @@ import srimani7.apps.feedfly.core.model.LabelledArticle
 import srimani7.apps.rssparser.DateParser
 import srimani7.apps.rssparser.elements.ChannelItem
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RssItemsColumn(
     dateListMap: List<LabelledArticle>,
@@ -75,11 +72,11 @@ fun RssItemsColumn(
                 DismissibleRssItem(
                     state = dismissState,
                     dismissRight = articlePreference.swipeToDelete,
-                    modifier = Modifier.animateItemPlacement()
+                    modifier = Modifier.animateItem()
                 ) {
                     LabelledArticleCard(
                         feedArticle,
-                        modifier = Modifier.animateItemPlacement(),
+                        modifier = Modifier.animateItem(),
                         pubTime = DateParser.formatDate(feedArticle.publishedTime, true) ?: "",
                         onLongClick = {
                             if (articlePreference.longClickToPrivate) onLongClick(it)
@@ -98,7 +95,6 @@ fun RssItemsColumn(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DismissibleRssItem(
     state: SwipeToDismissBoxState,
@@ -119,7 +115,7 @@ fun DismissibleRssItem(
                     SwipeToDismissBoxValue.Settled -> MaterialTheme.colorScheme.background
                     SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.tertiaryContainer
                     SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
-                }
+                }, label = "Dismiss box background color"
             )
             val alignment = when (direction) {
                 SwipeToDismissBoxValue.StartToEnd,
@@ -135,7 +131,7 @@ fun DismissibleRssItem(
             }
             val scale by animateFloatAsState(
                 if (state.targetValue == SwipeToDismissBoxValue.Settled)
-                    0.75f else 1.5f
+                    0.75f else 1.5f, label = "Dismissible box icon size"
             )
 
             Box(
@@ -156,7 +152,6 @@ fun DismissibleRssItem(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RssItemsColumn(
     channelList: List<ChannelItem>,
@@ -172,7 +167,7 @@ fun RssItemsColumn(
             items(channelList, key = { it.link ?: "null" }) {
                 RssItemCard(
                     it,
-                    modifier = Modifier.animateItemPlacement()
+                    modifier = Modifier.animateItem()
                 )
             }
         }

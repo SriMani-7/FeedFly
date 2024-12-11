@@ -58,7 +58,7 @@ class RssViewModal @Inject constructor(
 
     companion object {
         fun info(any: Any) {
-            Log.i("vrss_", any.toString())
+            Log.i("v_rss_", any.toString())
         }
     }
 
